@@ -70,7 +70,6 @@ func makePizza(pizzaNumber int) *PizzaOrder {
 			success = true
 			msg = fmt.Sprintf("Pizza order #%d is ready!", pizzaNumber)
 		}
-		
 		p := PizzaOrder{
 			pizzaNumber: pizzaNumber,
 			message: msg,
