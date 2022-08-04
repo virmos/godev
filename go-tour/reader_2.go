@@ -1,3 +1,4 @@
+package main
 type MyReader struct{}
 
 // TODO: Add a Read([]byte) (int, error) method to MyReader.
@@ -7,6 +8,6 @@ func (r MyReader) Read(b []byte) (int, error) {
 	return 1, nil
 }
 
-func main() {
+func test6() {
 	reader.Validate(MyReader{})
 }

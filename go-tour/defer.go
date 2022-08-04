@@ -1,3 +1,4 @@
+package main
 import (
 	"fmt"
 )
@@ -12,7 +13,7 @@ func test() (x int) {
     return 9
 }
 
-func main() {
+func test12() {
     fmt.Println("test")
     fmt.Printf("in main: x = %d\n", test())
 }

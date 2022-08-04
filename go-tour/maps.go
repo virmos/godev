@@ -1,3 +1,4 @@
+package main
 import (
 	"code.google.com/p/go-tour/wc"
 	"strings"
@@ -12,6 +13,6 @@ func WordCount(s string) map[string]int {
 	return res
 }
 
-func main() {
+func test9() {
 	wc.Test(WordCount)
 }

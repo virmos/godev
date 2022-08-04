@@ -30,7 +30,7 @@ func rot13(b byte) (c byte) {
     return
 }
 
-func main() {
+func test7() {
     s := strings.NewReader(
         "Lbh penpxrq gur pbqr!")
     r := rot13Reader{s}

@@ -1,3 +1,4 @@
+package main
 import (
 	"fmt"
 )
@@ -14,7 +15,7 @@ func Sqrt(x float64) (float64, error) {
 	return x, nil
 }
 
-func main() {
+func test11() {
 	fmt.Println(Sqrt(2))
 	fmt.Println(Sqrt(-2))
 }

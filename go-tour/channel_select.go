@@ -1,3 +1,5 @@
+package main
+
 import "fmt"
 
 func fibonacci(c, quit chan int) {
@@ -24,3 +26,15 @@ func main() {
 	}()
 	fibonacci(c, quit)
 }
+
+// func test() {
+// 	c := make(chan int)
+// 	quit := make(chan string)
+// 	go func() {
+// 		for i := 0; i < 10; i++ {
+// 			fmt.Println(<-c)
+// 		}
+// 		fmt.Println(<-quit)
+// 	}()
+// 	fibonacci(c, quit)
+// }

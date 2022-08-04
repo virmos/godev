@@ -1,3 +1,4 @@
+package main
 func Pic(dx, dy int) [][]uint8 {
 	s := make([][]uint8,dy)
 	for i := range s{
@@ -15,6 +16,6 @@ func Pic(dx, dy int) [][]uint8 {
 	}
 	return s
 }
-func main() {
+func test4() {
 	pic.Show(Pic)
 }

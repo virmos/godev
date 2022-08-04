@@ -1,3 +1,4 @@
+package main
 import "fmt"
 
 // List represents a singly-linked list that holds
@@ -7,7 +8,7 @@ type List[T any] struct {
 	val  T
 }
 
-func main() {
+func test10() {
 	root := List[int]{val: 1}
 	node1 := List[int]{val: 2}
 	node2 := List[int]{val: 3}
