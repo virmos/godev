@@ -1,0 +1,149 @@
+2022-03-18 02:33:35.283 UTC [1] LOG:  starting PostgreSQL 13.1 (Debian 13.1-1.pgdg100+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 8.3.0-6) 8.3.0, 64-bit
+2022-03-18 02:33:35.283 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2022-03-18 02:33:35.283 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2022-03-18 02:33:35.289 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2022-03-18 02:33:35.311 UTC [30] LOG:  database system was shut down in recovery at 2020-10-14 19:08:55 UTC
+2022-03-18 02:33:35.317 UTC [30] LOG:  entering standby mode
+2022-03-18 02:33:35.355 UTC [30] LOG:  consistent recovery state reached at 0/2253908
+2022-03-18 02:33:35.355 UTC [30] LOG:  invalid record length at 0/2253908: wanted 24, got 0
+2022-03-18 02:33:35.357 UTC [1] LOG:  database system is ready to accept read only connections
+2022-03-18 02:33:35.375 UTC [35] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:35.375 UTC [34] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:35.388 UTC [37] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:35.389 UTC [36] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:40.398 UTC [39] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:40.398 UTC [38] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:45.406 UTC [41] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:45.406 UTC [40] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:50.415 UTC [43] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:50.415 UTC [42] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:55.422 UTC [45] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:33:55.422 UTC [44] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:00.392 UTC [47] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:00.392 UTC [46] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:05.398 UTC [49] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:05.398 UTC [48] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:10.404 UTC [51] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:10.405 UTC [50] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:15.412 UTC [53] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:15.412 UTC [52] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:20.417 UTC [55] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:20.418 UTC [54] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:25.426 UTC [57] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:25.426 UTC [56] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:30.396 UTC [59] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:30.396 UTC [58] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:35.402 UTC [61] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:35.402 UTC [60] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:40.406 UTC [63] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:40.406 UTC [62] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:45.412 UTC [65] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:45.413 UTC [64] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:50.419 UTC [67] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:50.420 UTC [66] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:55.428 UTC [69] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:34:55.429 UTC [68] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:00.400 UTC [71] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:00.400 UTC [70] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:05.407 UTC [73] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:05.407 UTC [72] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:10.415 UTC [75] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:10.416 UTC [74] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:15.421 UTC [77] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:15.421 UTC [76] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:20.430 UTC [79] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:20.430 UTC [78] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:25.439 UTC [81] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:25.440 UTC [80] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:30.411 UTC [83] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:30.411 UTC [82] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:35.422 UTC [85] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:35.422 UTC [84] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:40.426 UTC [87] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:40.426 UTC [86] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:45.436 UTC [89] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:45.437 UTC [88] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:50.442 UTC [91] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:50.443 UTC [90] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:55.447 UTC [93] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:35:55.448 UTC [92] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:00.420 UTC [95] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:00.420 UTC [94] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:05.427 UTC [97] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:05.428 UTC [96] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:10.433 UTC [99] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:10.434 UTC [98] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:15.443 UTC [101] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:15.443 UTC [100] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:20.448 UTC [103] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:20.448 UTC [102] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:25.456 UTC [105] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:25.456 UTC [104] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:30.428 UTC [107] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:30.428 UTC [106] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:35.440 UTC [109] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:35.441 UTC [108] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:40.440 UTC [111] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:40.440 UTC [110] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:45.447 UTC [113] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:45.447 UTC [112] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:50.457 UTC [115] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:50.457 UTC [114] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:55.465 UTC [117] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:36:55.465 UTC [116] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:00.437 UTC [119] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:00.437 UTC [118] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:05.444 UTC [121] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:05.445 UTC [120] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:10.452 UTC [123] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:10.453 UTC [122] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:15.460 UTC [125] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:15.460 UTC [124] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:20.467 UTC [127] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:20.470 UTC [126] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:25.474 UTC [129] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:25.475 UTC [128] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:30.450 UTC [131] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:30.450 UTC [130] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:35.459 UTC [133] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:35.459 UTC [132] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:40.463 UTC [135] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:40.464 UTC [134] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:45.470 UTC [137] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:45.472 UTC [136] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:50.480 UTC [139] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:50.480 UTC [138] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:55.490 UTC [141] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:37:55.490 UTC [140] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:00.459 UTC [143] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:00.460 UTC [142] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:05.467 UTC [145] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:05.467 UTC [144] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:10.468 UTC [147] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:10.468 UTC [146] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:15.470 UTC [149] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:15.470 UTC [148] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:20.479 UTC [151] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:20.479 UTC [150] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:25.482 UTC [153] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:25.482 UTC [152] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:30.452 UTC [155] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:30.452 UTC [154] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:35.457 UTC [157] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:35.457 UTC [156] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:40.465 UTC [159] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:40.465 UTC [158] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:45.472 UTC [161] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:45.472 UTC [160] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:50.480 UTC [163] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:50.480 UTC [162] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:55.491 UTC [165] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:38:55.492 UTC [164] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:39:00.461 UTC [167] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:39:00.461 UTC [166] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:39:05.466 UTC [169] FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:39:05.466 UTC [168] FATAL:  could not connect to the primary server: FATAL:  no pg_hba.conf entry for replication connection from host "172.17.0.3", user "postgres", SSL off
+2022-03-18 02:39:09.659 UTC [1] LOG:  received fast shutdown request
+2022-03-18 02:39:09.661 UTC [1] LOG:  aborting any active transactions
+2022-03-18 02:39:09.666 UTC [31] LOG:  shutting down
+2022-03-18 02:39:09.685 UTC [1] LOG:  database system is shut down

@@ -1,0 +1,17 @@
+2020-10-14 00:47:08.535 UTC [1] LOG:  starting PostgreSQL 13.0 (Debian 13.0-1.pgdg100+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 8.3.0-6) 8.3.0, 64-bit
+2020-10-14 00:47:08.535 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2020-10-14 00:47:08.535 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2020-10-14 00:47:08.543 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2020-10-14 00:47:08.565 UTC [29] LOG:  database system was interrupted; last known up at 2020-10-14 00:32:24 UTC
+2020-10-14 00:47:10.599 UTC [29] LOG:  entering standby mode
+2020-10-14 00:47:10.611 UTC [29] LOG:  database system was not properly shut down; automatic recovery in progress
+2020-10-14 00:47:10.616 UTC [29] LOG:  redo starts at 0/15CE0F0
+2020-10-14 00:47:10.616 UTC [29] LOG:  invalid record length at 0/15CE128: wanted 24, got 0
+2020-10-14 00:47:10.619 UTC [29] LOG:  consistent recovery state reached at 0/15CE128
+2020-10-14 00:47:10.623 UTC [1] LOG:  database system is ready to accept read only connections
+2020-10-14 00:47:10.680 UTC [33] LOG:  started streaming WAL from primary at 0/1000000 on timeline 1
+2020-10-14 00:48:39.184 UTC [1] LOG:  received fast shutdown request
+2020-10-14 00:48:39.186 UTC [1] LOG:  aborting any active transactions
+2020-10-14 00:48:39.187 UTC [33] FATAL:  terminating walreceiver process due to administrator command
+2020-10-14 00:48:39.190 UTC [30] LOG:  shutting down
+2020-10-14 00:48:39.228 UTC [1] LOG:  database system is shut down

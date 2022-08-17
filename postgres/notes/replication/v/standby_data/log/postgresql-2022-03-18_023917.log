@@ -1,0 +1,16 @@
+2022-03-18 02:39:17.052 UTC [1] LOG:  starting PostgreSQL 13.1 (Debian 13.1-1.pgdg100+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 8.3.0-6) 8.3.0, 64-bit
+2022-03-18 02:39:17.052 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2022-03-18 02:39:17.052 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2022-03-18 02:39:17.060 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2022-03-18 02:39:17.091 UTC [29] LOG:  database system was shut down in recovery at 2022-03-18 02:39:09 UTC
+2022-03-18 02:39:17.096 UTC [29] LOG:  entering standby mode
+2022-03-18 02:39:17.117 UTC [29] LOG:  consistent recovery state reached at 0/2253908
+2022-03-18 02:39:17.117 UTC [29] LOG:  invalid record length at 0/2253908: wanted 24, got 0
+2022-03-18 02:39:17.119 UTC [1] LOG:  database system is ready to accept read only connections
+2022-03-18 02:39:17.138 UTC [33] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2022-03-18 02:39:17.192 UTC [29] LOG:  redo starts at 0/2253908
+2022-03-18 02:55:06.719 UTC [1] LOG:  received fast shutdown request
+2022-03-18 02:55:06.721 UTC [1] LOG:  aborting any active transactions
+2022-03-18 02:55:06.723 UTC [33] FATAL:  terminating walreceiver process due to administrator command
+2022-03-18 02:55:06.725 UTC [30] LOG:  shutting down
+2022-03-18 02:55:06.743 UTC [1] LOG:  database system is shut down

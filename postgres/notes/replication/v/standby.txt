@@ -1,0 +1,10 @@
+#update the path to match your standby volume data 
+
+docker run --name pgstandby -v /Users/HusseinNasser/postgres/v/standby_data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=postgres -d -p:5433:5432 postgres:13
+
+
+#once you run both standby and master containers get the ip address of the master container as follows 
+docker inspect pgmaster
+
+#use that ipaddress and update your postgresql.conf on the standby with the ip address of the master (in case docker can't resolve your hostname) 
+s 
