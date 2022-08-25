@@ -3,6 +3,6 @@
 # schema.sql
 # run.sh
 # run.bat
-# vigilate
+cycir.exe
 .DS_Store
 *.code-workspace
