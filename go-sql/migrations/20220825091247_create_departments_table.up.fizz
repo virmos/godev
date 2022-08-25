@@ -1,0 +1,19 @@
+create_table("departments") {
+  t.Column("id", "integer", {primary: true})
+  t.Column("name", "string", {"size": 100})
+  t.Column("parent_id", "integer", {"unsigned": true, "null":true})
+}
+
+sql("alter table departments alter column created_at set default now();")
+sql("alter table departments alter column updated_at set default now();")
+
+sql(`CREATE TRIGGER set_timestamp
+    BEFORE UPDATE ON departments
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();`)
+
+
+add_foreign_key("departments", "parent_id", {"departments": ["id"]}, {
+    "on_delete": "set null",
+    "on_update": "cascade",
+})

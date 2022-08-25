@@ -35,6 +35,29 @@ func IsAuthenticated(r *http.Request) bool {
 	return exists
 }
 
+func DepartmentListToTree(ds[]*models.Department) []*models.Department{
+	var node *models.Department
+	var roots []*models.Department;
+	m := make(map[int]int)
+  
+  for i, d := range ds {
+    m[d.ID] = i; 			// initialize the map
+  }
+  
+  for _, d := range ds {
+    node = d;
+    if (node.ParentId != 0) {
+      // if you have dangling branches check that map[node.parentId] exists
+			ds[m[node.ParentId]].Children = append(ds[m[node.ParentId]].Children, node)
+    } else {
+			roots = append(roots, node)
+    }
+  }
+
+  return roots;
+
+}
+
 // RandomString returns a random string of letters of length n
 func RandomString(n int) string {
 	b := make([]byte, n)

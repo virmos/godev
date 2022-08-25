@@ -42,13 +42,33 @@ func NewPostgresqlHandlers(db *driver.DB, a *config.AppConfig) *DBRepo {
 
 // AdminDashboard displays the dashboard
 func (repo *DBRepo) AdminDashboard(w http.ResponseWriter, r *http.Request) {
+	ds, err := repo.DB.AllDepartments()
+	if err != nil {
+		ClientError(w, r, http.StatusBadRequest)
+		return
+	}
+	ds = helpers.DepartmentListToTree(ds)
+
+	id, err := strconv.Atoi(r.URL.Query().Get("department_id"))
+	if err != nil {
+		log.Println(err)
+	}
+
+	em, err := repo.DB.GetEmployeesByDepartment(id)
+	if err != nil {
+		ClientError(w, r, http.StatusBadRequest)
+		return
+	}
+
 	vars := make(jet.VarMap)
 	vars.Set("no_healthy", 0)
 	vars.Set("no_problem", 0)
 	vars.Set("no_pending", 0)
 	vars.Set("no_warning", 0)
+	vars.Set("departments", ds)
+	vars.Set("employees", em)
 
-	err := helpers.RenderPage(w, r, "dashboard", vars, nil)
+	err = helpers.RenderPage(w, r, "dashboard", vars, nil)
 	if err != nil {
 		printTemplateError(w, err)
 	}

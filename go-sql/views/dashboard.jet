@@ -74,27 +74,76 @@
 
 <div class="row">
     <div class="col">
-        <h3>Hosts</h3>
+        <h3>Employees</h3>
 
         <table class="table table-condensed table-striped">
             <thead>
             <tr>
-                <th>Host</th>
-                <th>Services</th>
-                <th>OS</th>
-                <th>Location</th>
-                <th>Status</th>
+                <th>ID</th>
+                <th>Username</th>
+                <th>FirstName</th>
+                <th>LastName</th>
+                <th>Email</th>
+                <th>Created At</th>
             </tr>
             </thead>
             <tbody>
-
+                {{range employees}}
+                <tr>
+                    <td> {{ .ID }} </td>
+                    <td> {{ .UserName }} </td>
+                    <td> {{ .FirstName }} </td>
+                    <td> {{ .LastName }} </td>
+                    <td> {{ .Email }} </td>
+                    <td> {{ .CreatedAt.Month() }} {{ .CreatedAt.Day() }}, {{ .CreatedAt.Year() }} </td>
+                </tr>
+                {{end}}
             </tbody>
         </table>
     </div>
 </div>
 
+<div class="row">
+    <div class="col">
+        <h3>Departments</h3>
+
+        {{range departments}}
+        <ul>
+            {{ .ID }}
+            (Name: {{ .Name }},
+            ParentId: {{ .ParentId }},
+            OrderSequence: {{ .OrderSequence }},
+            TreeLevel: {{ .TreeLevel }})
+
+            {{if len(.Children) != 0}} 
+                {{range .Children}}
+                    <ul>
+                        {{ .ID }}
+                        (Name: {{ .Name }},
+                        ParentId: {{ .ParentId }},
+                        OrderSequence: {{ .OrderSequence }},
+                        TreeLevel: {{ .TreeLevel }})
+                        {{if len(.Children) != 0}} 
+                            {{range .Children}}
+                                <ul>
+                                    {{ .ID }}
+                                    (Name: {{ .Name }},
+                                    ParentId: {{ .ParentId }},
+                                    OrderSequence: {{ .OrderSequence }},
+                                    TreeLevel: {{ .TreeLevel }})
+                                </ul>
+                            {{end}}
+                        {{end}}
+                    </ul>
+                {{end}}
+            {{end}}
+        </ul>
+        {{end}}
+    </div>
+</div>
 {{end}}
 
+ <!-- page level js -->
 {{block js()}}
 
 {{end}}

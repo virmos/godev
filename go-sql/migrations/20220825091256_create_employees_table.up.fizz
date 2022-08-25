@@ -1,0 +1,21 @@
+create_table("employees") {
+  t.Column("id", "integer", {primary: true})
+  t.Column("username", "string", {"size": 100})
+  t.Column("first_name", "string", {"size": 100})
+  t.Column("last_name", "string", {"size": 100})
+  t.Column("email", "string", {"size": 100})
+  t.Column("department_id", "integer", {"unsigned": true, "null":true})
+}
+
+sql("alter table employees alter column created_at set default now();")
+sql("alter table employees alter column updated_at set default now();")
+
+sql(`CREATE TRIGGER set_timestamp
+    BEFORE UPDATE ON employees
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();`)
+
+add_foreign_key("employees", "department_id", {"departments": ["id"]}, {
+    "on_delete": "set null",
+    "on_update": "cascade",
+})

@@ -20,4 +20,8 @@ type DatabaseRepo interface {
 	InsertRememberMeToken(id int, token string) error
 	DeleteToken(token string) error
 	CheckForToken(id int, token string) bool
+
+	// departments and employees
+	AllDepartments() ([]*models.Department, error)
+	GetEmployeesByDepartment(id int) ([]*models.Employee, error)
 }

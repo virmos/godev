@@ -1,0 +1,32 @@
+sql(`INSERT INTO "public"."employees" ("id", "department_id", "username", "first_name", "last_name", "email")
+     VALUES
+     (E'1', E'1', E'Klee', E'Klee', E'Genshin', E'Klee@gmail.com');
+`);
+sql(`INSERT INTO "public"."employees" ("id", "department_id", "username", "first_name", "last_name", "email")
+     VALUES
+     (E'2', E'3', E'Xinyan', E'Xinyan', E'Genshin', E'Xinyan@gmail.com');
+`);
+sql(`INSERT INTO "public"."employees" ("id", "department_id", "username", "first_name", "last_name", "email")
+     VALUES
+     (E'3', E'3', E'Xiao', E'Xiao', E'Genshin', E'Xiao@gmail.com');
+`);
+sql(`INSERT INTO "public"."employees" ("id", "department_id", "username", "first_name", "last_name", "email")
+     VALUES
+     (E'4', E'7', E'Qiqi', E'Qiqi', E'Genshin', E'Qiqi@gmail.com');
+`);
+sql(`INSERT INTO "public"."employees" ("id", "department_id", "username", "first_name", "last_name", "email")
+     VALUES
+     (E'5', E'7', E'Diluc', E'Diluc', E'Genshin', E'Diluc@gmail.com');
+`);
+sql(`INSERT INTO "public"."employees" ("id", "department_id", "username", "first_name", "last_name", "email")
+     VALUES
+     (E'6', E'8', E'Yoimiya', E'Yoimiya', E'Genshin', E'Yoimiya@gmail.com');
+`);
+sql(`INSERT INTO "public"."employees" ("id", "department_id", "username", "first_name", "last_name", "email")
+     VALUES
+     (E'7', E'9', E'Ganyu', E'Ganyu', E'Genshin', E'Ganyu@gmail.com');
+`);
+sql(`INSERT INTO "public"."employees" ("id", "department_id", "username", "first_name", "last_name", "email")
+     VALUES
+     (E'8', E'11', E'Traveler', E'Traveler', E'Genshin', E'Traveler@gmail.com');
+`);

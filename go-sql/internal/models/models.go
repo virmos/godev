@@ -39,3 +39,25 @@ type Preference struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
+
+// Department model
+type Department struct {
+	ID         					int
+	Name								string
+	ParentId   					int
+	OrderSequence       string
+	TreeLevel						int
+	Children						[]*Department
+}
+
+// Employee model
+type Employee struct {
+	ID         		int
+	DepartmentId  int
+	UserName      string
+	FirstName     string
+	LastName      string
+	Email       	string
+	CreatedAt  		time.Time
+	UpdatedAt  		time.Time
+}
