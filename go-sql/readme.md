@@ -24,6 +24,7 @@ For example:
 + cycir -dbuser='postgres' -dbpass='qwerqwer' -db="cycir"
 
 ## Run
+- soda migrate
 - ./run.bat
 - access localhost:4000, query employee by id with query param ?department_id=$id
 
@@ -36,6 +37,7 @@ department_id in range (1, 15), not all departments have employees
 
 Cycir requires:
 - Postgres 11 or later (Postgres 14 is the version I'm running on my machine)
+- Soda version: pop v6.0.5
 
 ## Files for Marking
 All files for marking are followed by **********
