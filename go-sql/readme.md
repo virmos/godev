@@ -8,22 +8,23 @@ Build in the normal way on Windows:
 - From psql, create new database name cycir
 - In database.yml, change your database name, password
 - In run.bat, change your -dbuser, -dbpass, -db
+
 For example:
 
-- database.yml:
-development:
-  dialect: postgres
-  database: cycir
-  user: postgres
-  password: qwerqwer
-  host: localhost
-  pool: 5
+### database.yml:
+- development:
++  dialect: postgres
++  database: cycir
++  user: postgres
++  password: qwerqwer
++  host: localhost
++  pool: 5
 
-- run.bat:
-cycir -dbuser='postgres' -dbpass='qwerqwer' -db="cycir"
+### run.bat:
++ cycir -dbuser='postgres' -dbpass='qwerqwer' -db="cycir"
 
 ## Run
-- run.bat
+- ./run.bat
 - access localhost:4000, query employee by id with query param ?department_id=1
 
 ## Requirements
