@@ -27,6 +27,9 @@ For example:
 - ./run.bat
 - access localhost:4000, query employee by id with query param ?department_id=1
 
+![Alt text](./github-images/example.png)
+
+
 ## Requirements
 
 Cycir requires:
