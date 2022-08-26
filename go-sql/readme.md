@@ -25,7 +25,9 @@ For example:
 
 ## Run
 - ./run.bat
-- access localhost:4000, query employee by id with query param ?department_id=1
+- access localhost:4000, query employee by id with query param ?department_id=$id
+
+department_id in range (1, 15), not all departments have employees
 
 ![Alt text](./github-images/example.png)
 
