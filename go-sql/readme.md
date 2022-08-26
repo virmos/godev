@@ -59,7 +59,7 @@ All files for marking are followed by **********
 │   │   ├── handlers.go ********** function AdminDashboard() **********
 │   │   └── schedule.go
 │   ├── helpers
-│   │   ├── helpers.go
+│   │   ├── helpers.go ********** function DepartmentListToTree() **********
 │   │   ├── send-mail.go
 │   │   └── template-functions.go
 │   ├── models
