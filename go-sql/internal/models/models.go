@@ -61,3 +61,10 @@ type Employee struct {
 	CreatedAt  		time.Time
 	UpdatedAt  		time.Time
 }
+
+// Alert model
+type Alert struct {
+	Interval  		string
+	Type					string
+	Count					int
+}

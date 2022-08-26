@@ -16,6 +16,7 @@ sql(`CREATE TRIGGER set_timestamp
 EXECUTE PROCEDURE trigger_set_timestamp();`)
 
 add_foreign_key("employees", "department_id", {"departments": ["id"]}, {
+    "name":"fk_department_employee",
     "on_delete": "set null",
     "on_update": "cascade",
 })

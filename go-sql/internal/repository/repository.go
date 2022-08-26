@@ -24,4 +24,7 @@ type DatabaseRepo interface {
 	// departments and employees
 	AllDepartments() ([]*models.Department, error)
 	GetEmployeesByDepartment(id int) ([]*models.Employee, error)
+
+	// alerts
+	AllAlerts() ([]*models.Alert, error)
 }
