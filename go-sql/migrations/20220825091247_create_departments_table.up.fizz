@@ -14,6 +14,7 @@ EXECUTE PROCEDURE trigger_set_timestamp();`)
 
 
 add_foreign_key("departments", "parent_id", {"departments": ["id"]}, {
+    "name": "fk_department_department",
     "on_delete": "set null",
     "on_update": "cascade",
 })

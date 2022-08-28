@@ -1,0 +1,4 @@
+sql(`
+update alerts 
+	set type = (array['malware', 'webattack', 'security baseline', 'unknown'])[floor(random() * 3 + 1)];
+`)

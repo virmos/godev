@@ -1,100 +1,115 @@
+# Cycir
 
-# Vigilate
+VCS Traning PostgreSQL exercise, using template created by Trevor Sawler
 
-This is the source code for the second project in the Udemy course Working with Websockets in Go (Golang).
+## Setup
 
-A dead simple monitoring service, intended to replace things like Nagios.
+Build in the normal way on Windows:
+- From psql, create new database name cycir
+- In database.yml, change your database name, password
+- In run.bat, change your -dbuser, -dbpass, -db
 
-## Build
+For example:
 
-Build in the normal way on Mac/Linux:
+### database.yml:
+- development:
++  dialect: postgres
++  database: cycir
++  user: postgres
++  password: qwerqwer
++  host: localhost
++  pool: 5
 
-~~~
-go build -o vigilate cmd/web/*.go
-~~~
+### run.bat:
++ cycir -dbuser='postgres' -dbpass='qwerqwer' -db="cycir"
 
-Or on Windows:
+## Run
+- soda migrate
+- ./run.bat
+- access localhost:4000, query employee by id with query param ?department_id=$id
 
-~~~
-go build -o vigilate.exe cmd/web/.
-~~~
+department_id in range (1, 15), not all departments have employees
 
-Or for a particular platform:
+![Alt text](./github-images/example.png)
 
-~~~
-env GOOS=linux GOARCH=amd64 go build -o vigilate cmd/web/*.go
-~~~
 
 ## Requirements
 
-Vigilate requires:
-- Postgres 11 or later (db is set up as a repository, so other databases are possible)
-- An account with [Pusher](https://pusher.com/), or a Pusher alternative 
-(like [ipê](https://github.com/dimiro1/ipe))
+Cycir requires:
+- Postgres 11 or later (Postgres 14 is the version I'm running on my machine)
+- Soda version: pop v6.0.5
 
-## Run
+## Files for Marking
+All files for marking are followed by **********
 
-First, make sure ipê is running (if you're using ipê):
-
-On Mac/Linux
-~~~
-cd ipe
-./ipe 
-~~~
-
-On Windows
-~~~
-cd ipe
-ipe.exe
-~~~
-
-Run with flags:
-
-~~~
-./vigilate \
--dbuser='tcs' \
--pusherHost='localhost' \
--pusherPort='4001' \
--pusherKey='123abc' \
--pusherSecret='abc123' \
--pusherApp="1" \
--pusherSecure=false
-~~~~
-
-## All Flags
-
-~~~~
-tcs@grendel vigilate-udemy % ./vigilate -help
-Usage of ./vigilate:
-  -db string
-        database name (default "vigilate")
-  -dbhost string
-        database host (default "localhost")
-  -dbport string
-        database port (default "5432")
-  -dbssl string
-        database ssl setting (default "disable")
-  -dbuser string
-        database user
-  -domain string
-        domain name (e.g. example.com) (default "localhost")
-  -identifier string
-        unique identifier (default "vigilate")
-  -port string
-        port to listen on (default ":4000")
-  -production
-        application is in production
-  -pusherApp string
-        pusher app id (default "9")
-  -pusherHost string
-        pusher host
-  -pusherKey string
-        pusher key
-  -pusherPort string
-        pusher port (default "443")
-  -pusherSecret string
-        pusher secret
-   -pusherSecure
-        pusher server uses SSL (true or false)
-~~~~
-
+```bash
+├── cmd
+│   └── web
+│       ├── jobs-mail.go
+│       ├── main.go
+│       ├── middleware.go
+│       ├── routes.go
+│       └── setup-app.go
+├── database.yml
+├── go.mod
+├── go.sum
+├── internal
+│   ├── channeldata
+│   │   └── maildata.go
+│   ├── config
+│   │   └── config.go
+│   ├── driver
+│   │   └── driver.go
+│   ├── handlers
+│   │   ├── all-services-status-pages.go
+│   │   ├── authentication-handlers.go
+│   │   ├── handlers.go ********** function AdminDashboard() **********
+│   │   └── schedule.go
+│   ├── helpers
+│   │   ├── helpers.go ********** function DepartmentListToTree() **********
+│   │   ├── send-mail.go
+│   │   └── template-functions.go
+│   ├── models
+│   │   └── models.go
+│   ├── repository
+│   │   ├── dbrepo
+│   │   │   ├── alerts.go **********
+│   │   │   ├── dbrepo.go
+│   │   │   ├── departments.go **********
+│   │   │   ├── employees.go **********
+│   │   │   ├── preferences.go
+│   │   │   └── users_postgresql.go
+│   │   └── repository.go
+│   └── templates
+│       └── templates.go
+├── ipe
+│   ├── config.yml
+│   ├── ipe
+│   └── ipe.exe
+├── migrations ----------CREATE, INSERT TO POSTGRESQL TABLE----------
+│   ├── 20220825091247_create_departments_table.up.fizz  **********
+│   ├── 20220825091256_create_employees_table.up.fizz ********** 
+│   ├── 20220825091739_seed_departments_table.up.fizz **********
+│   ├── 20220825091746_seed_employees_table.up.fizz  **********
+│   ├── 20220826024714_create_alerts_table.up.fizz **********
+│   ├── 20220826024723_seed_alerts_table.up.fizz **********
+│   └── schema.sql
+└── views
+    ├── dashboard.jet **********
+    ├── events.jet
+    ├── healthy.jet
+    ├── host.jet
+    ├── hosts.jet
+    ├── layouts
+    │   └── layout.jet
+    ├── login.jet
+    ├── partials
+    │   └── js.jet
+    ├── pending.jet
+    ├── problems.jet
+    ├── schedule.jet
+    ├── settings.jet
+    ├── user.jet
+    ├── users.jet
+    └── warning.jet
+```

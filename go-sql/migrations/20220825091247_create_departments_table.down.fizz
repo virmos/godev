@@ -1,1 +1,2 @@
+drop_foreign_key("departments", "fk_department_department", {"if_exists": true})
 drop_table("departments")

@@ -42,6 +42,7 @@ func NewPostgresqlHandlers(db *driver.DB, a *config.AppConfig) *DBRepo {
 
 // AdminDashboard displays the dashboard
 func (repo *DBRepo) AdminDashboard(w http.ResponseWriter, r *http.Request) {
+	// Get all departments
 	ds, err := repo.DB.AllDepartments()
 	if err != nil {
 		ClientError(w, r, http.StatusBadRequest)
@@ -49,11 +50,19 @@ func (repo *DBRepo) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 	ds = helpers.DepartmentListToTree(ds)
 
+	// Get all alerts
+	als, err := repo.DB.AllAlerts()
+	if err != nil {
+		ClientError(w, r, http.StatusBadRequest)
+		return
+	}
+
 	id, err := strconv.Atoi(r.URL.Query().Get("department_id"))
 	if err != nil {
 		log.Println(err)
 	}
 
+	// Get employees by departmentId
 	em, err := repo.DB.GetEmployeesByDepartment(id)
 	if err != nil {
 		ClientError(w, r, http.StatusBadRequest)
@@ -67,6 +76,7 @@ func (repo *DBRepo) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 	vars.Set("no_warning", 0)
 	vars.Set("departments", ds)
 	vars.Set("employees", em)
+	vars.Set("alerts", als)
 
 	err = helpers.RenderPage(w, r, "dashboard", vars, nil)
 	if err != nil {

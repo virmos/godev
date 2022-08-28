@@ -141,6 +141,31 @@
         {{end}}
     </div>
 </div>
+
+<div class="row">
+    <div class="col">
+        <h3>Alerts</h3>
+
+        <table class="table table-condensed table-striped">
+            <thead>
+            <tr>
+                <th>Interval</th>
+                <th>Type</th>
+                <th>Count</th>
+            </tr>
+            </thead>
+            <tbody>
+                {{range alerts}}
+                <tr>
+                    <td> {{ .Interval }} </td>
+                    <td> {{ .Type }} </td>
+                    <td> {{ .Count }} </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
 {{end}}
 
  <!-- page level js -->
