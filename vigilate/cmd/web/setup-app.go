@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
+	"github.com/gomodule/redigo/redis"
 	"github.com/pusher/pusher-http-go"
 	"github.com/robfig/cron/v3"
 	"github.com/tsawler/vigilate/internal/channeldata"
@@ -36,6 +37,8 @@ func setupApp() (*string, error) {
 	pusherKey := flag.String("pusherKey", "", "pusher key")
 	pusherSecret := flag.String("pusherSecret", "", "pusher secret")
 	pusherSecure := flag.Bool("pusherSecure", false, "pusher server uses SSL (true or false)")
+	redisHost := flag.String("redisHost", "", "redis host")
+	redisPort := flag.String("redisPort", "6379", "redis port")
 
 	flag.Parse()
 
@@ -72,6 +75,14 @@ func setupApp() (*string, error) {
 
 	// session
 	log.Printf("Initializing session manager....")
+	redisString := fmt.Sprintf("%s:%s", *redisHost, *redisPort)
+	redisPool := &redis.Pool{
+		MaxIdle: 10,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp", redisString)
+		},
+	}
+
 	session = scs.New()
 	session.Store = postgresstore.New(db.SQL)
 	session.Lifetime = 24 * time.Hour
