@@ -13,6 +13,7 @@ import (
 	"github.com/tsawler/vigilate/internal/driver"
 	"github.com/tsawler/vigilate/internal/handlers"
 	"github.com/tsawler/vigilate/internal/helpers"
+	"github.com/tsawler/vigilate/internal/cache"
 	"log"
 	"net/http"
 	"os"
@@ -38,7 +39,7 @@ func setupApp() (*string, error) {
 	pusherSecret := flag.String("pusherSecret", "", "pusher secret")
 	pusherSecure := flag.Bool("pusherSecure", false, "pusher server uses SSL (true or false)")
 	redisHost := flag.String("redisHost", "", "redis host")
-	redisPort := flag.String("redisPort", "6379", "redis port")
+	redisPrefix := flag.String("redisPrefix", "", "redis prefix")
 
 	flag.Parse()
 
@@ -75,14 +76,6 @@ func setupApp() (*string, error) {
 
 	// session
 	log.Printf("Initializing session manager....")
-	redisString := fmt.Sprintf("%s:%s", *redisHost, *redisPort)
-	redisPool := &redis.Pool{
-		MaxIdle: 10,
-		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", redisString)
-		},
-	}
-
 	session = scs.New()
 	session.Store = postgresstore.New(db.SQL)
 	session.Lifetime = 24 * time.Hour
@@ -90,6 +83,20 @@ func setupApp() (*string, error) {
 	session.Cookie.Name = fmt.Sprintf("gbsession_id_%s", *identifier)
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Secure = *inProduction
+
+	// start redis cache
+	redisPool := &redis.Pool{
+		MaxIdle:     50,
+		MaxActive:   10000,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp", *redisHost)
+		},
+	}
+	redisCache := &cache.RedisCache {
+		Conn: redisPool,
+		Prefix: *redisPrefix,
+	}
 
 	// start mail channel
 	log.Println("Initializing mail channel and worker pool....")
@@ -110,6 +117,7 @@ func setupApp() (*string, error) {
 		MailQueue:    mailQueue,
 		Version:      vigilateVersion,
 		Identifier:   *identifier,
+		Cache: 				redisCache,
 	}
 
 	app = a
