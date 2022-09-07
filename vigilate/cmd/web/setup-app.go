@@ -39,11 +39,7 @@ func setupApp() (*string, error) {
 	pusherSecret := flag.String("pusherSecret", "", "pusher secret")
 	pusherSecure := flag.Bool("pusherSecure", false, "pusher server uses SSL (true or false)")
 	redisHost := flag.String("redisHost", "", "redis host")
-<<<<<<< HEAD
-	redisPort := flag.String("redisPort", "6379", "redis port")
-=======
 	redisPrefix := flag.String("redisPrefix", "", "redis prefix")
->>>>>>> 71f64a59cec07db2166a805947a4839fd2e9d44c
 
 	flag.Parse()
 
@@ -80,13 +76,6 @@ func setupApp() (*string, error) {
 
 	// session
 	log.Printf("Initializing session manager....")
-	redisString := fmt.Sprintf("%s:%s", *redisHost, *redisPort)
-	redisPool := &redis.Pool{
-		MaxIdle: 10,
-		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", redisString)
-		},
-	}
 
 	session = scs.New()
 	session.Store = postgresstore.New(db.SQL)
