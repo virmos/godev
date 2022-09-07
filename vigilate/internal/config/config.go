@@ -7,6 +7,7 @@ import (
 	"github.com/tsawler/vigilate/internal/channeldata"
 	"github.com/tsawler/vigilate/internal/driver"
 	"html/template"
+	"github.com/tsawler/vigilate/internal/cache"
 )
 
 // AppConfig holds application configuration
@@ -22,6 +23,7 @@ type AppConfig struct {
 	PusherSecret  string
 	TemplateCache map[string]*template.Template
 	MailQueue     chan channeldata.MailJob
+	Cache					cache.Cache
 	Version       string
 	Identifier    string
 }

@@ -1,9 +1,16 @@
 {
   "makefile.extensionOutputFolder": "./.vscode",
   "[go]": {
+<<<<<<< HEAD
+    "editor.formatOnSave": false,
+  },
+  "gopls": {
+    "experimentalWorkspaceModule": true,
+=======
     "editor.formatOnSave": false 
   },
   "gopls": {
       "experimentalWorkspaceModule": true,
+>>>>>>> 7a0fdff8704df582a9fa638f6b7e7fdf72e41bf1
   }
 }
