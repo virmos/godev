@@ -13,6 +13,7 @@ import (
 	"github.com/tsawler/vigilate/internal/driver"
 	"github.com/tsawler/vigilate/internal/handlers"
 	"github.com/tsawler/vigilate/internal/helpers"
+	"github.com/tsawler/vigilate/internal/cache"
 	"log"
 	"net/http"
 	"os"
@@ -38,7 +39,11 @@ func setupApp() (*string, error) {
 	pusherSecret := flag.String("pusherSecret", "", "pusher secret")
 	pusherSecure := flag.Bool("pusherSecure", false, "pusher server uses SSL (true or false)")
 	redisHost := flag.String("redisHost", "", "redis host")
+<<<<<<< HEAD
 	redisPort := flag.String("redisPort", "6379", "redis port")
+=======
+	redisPrefix := flag.String("redisPrefix", "", "redis prefix")
+>>>>>>> 71f64a59cec07db2166a805947a4839fd2e9d44c
 
 	flag.Parse()
 
@@ -91,6 +96,20 @@ func setupApp() (*string, error) {
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Secure = *inProduction
 
+	// start redis cache
+	redisPool := &redis.Pool{
+		MaxIdle:     50,
+		MaxActive:   10000,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp", *redisHost)
+		},
+	}
+	redisCache := &cache.RedisCache {
+		Conn: redisPool,
+		Prefix: *redisPrefix,
+	}
+
 	// start mail channel
 	log.Println("Initializing mail channel and worker pool....")
 	mailQueue := make(chan channeldata.MailJob, maxWorkerPoolSize)
@@ -110,6 +129,7 @@ func setupApp() (*string, error) {
 		MailQueue:    mailQueue,
 		Version:      vigilateVersion,
 		Identifier:   *identifier,
+		Cache: 				redisCache,
 	}
 
 	app = a
