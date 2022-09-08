@@ -35,13 +35,13 @@ start: start_front start_back
 ## start_front: starts the front end
 start_front: build_front
 	@echo "Starting the front end..."
-	chdir dist && start /B ${STRIPE_BINARY} -port=${GOSTRIPE_PORT}
+	@chdir dist && start /min cmd /c ${STRIPE_BINARY} /v -port=${GOSTRIPE_PORT}
 	@echo "Front end running!"
 
 ## start_back: starts the back end
 start_back: build_back
 	@echo Starting the back end...
-	chdir dist && start /B ${STRIPE_API_BINARY} -port=${API_PORT} 
+	@chdir dist && start /min cmd /c ${STRIPE_API_BINARY} /v -port=${API_PORT} 
 	@echo "Back end running!"
 
 ## stop: stops the front and back end
