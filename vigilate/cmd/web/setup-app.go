@@ -76,6 +76,7 @@ func setupApp() (*string, error) {
 
 	// session
 	log.Printf("Initializing session manager....")
+
 	session = scs.New()
 	session.Store = postgresstore.New(db.SQL)
 	session.Lifetime = 24 * time.Hour
