@@ -1,6 +1,6 @@
 shell=cmd.exe
-STRIPE_SECRET=123abc
-STRIPE_KEY=abc123
+STRIPE_SECRET=sk_test_51LfajaHISQjPVnB0JePzNdNNUKP7H1b7tWAhR3Ddx5Ss2sFoTF5Ub9TT6HkKN5wAPwF9ut1P95vjMLMrk6mL4TPW00UeclxZIw
+STRIPE_KEY=pk_test_51LfajaHISQjPVnB0i7ozMTtTrMsOzmpE899Y7ofmnXEQeQzKeGqbVzOqrM5q9Kt0yjbaMWjPVigSvrRjoEz7NpXO006izVLvfq
 GOSTRIPE_PORT=4000
 API_PORT=4001
 STRIPE_BINARY=gostripe.exe
@@ -20,13 +20,13 @@ clean:
 ## build_front: builds the front end
 build_front:
 	@echo Building front end...
-	@set STRIPE_KEY=${STRIPE_KEY} && set STRIPE_SECRET=${STRIPE_SECRET} && go build -o dist/gostripe.exe ./cmd/web
+	@go build -o dist/gostripe.exe ./cmd/web
 	@echo Front end built!
 
 ## build_back: builds the back end
 build_back:
 	@echo Building back end...
-	@set STRIPE_KEY=${STRIPE_KEY} && set STRIPE_SECRET=${STRIPE_SECRET} && go build -o dist/gostripe_api.exe ./cmd/api
+	@go build -o dist/gostripe_api.exe ./cmd/api
 	@echo Back end built!
 
 ## start: starts front and back end
@@ -35,13 +35,13 @@ start: start_front start_back
 ## start_front: starts the front end
 start_front: build_front
 	@echo "Starting the front end..."
-	chdir dist && start /B cmd /c ${STRIPE_BINARY} -port=${GOSTRIPE_PORT}
+	@chdir dist && start /B cmd /c "set STRIPE_KEY=${STRIPE_KEY} && set STRIPE_SECRET=${STRIPE_SECRET} && ${STRIPE_BINARY}" -port=${GOSTRIPE_PORT}
 	@echo "Front end running!"
 
 ## start_back: starts the back end
 start_back: build_back
 	@echo Starting the back end...
-	chdir dist && start /B cmd /c ${STRIPE_API_BINARY} -port=${API_PORT} 
+	@chdir dist && start /B cmd /c "set STRIPE_KEY=${STRIPE_KEY} && set STRIPE_SECRET=${STRIPE_SECRET} && ${STRIPE_API_BINARY}" -port=${API_PORT} 
 	@echo "Back end running!"
 
 ## stop: stops the front and back end
