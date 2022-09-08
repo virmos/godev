@@ -1,4 +1,4 @@
-module myapp1
+module myapp2
 
 go 1.16
 
