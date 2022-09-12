@@ -366,11 +366,11 @@ func (app *application) ShowResetPassword(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	encyrptor := encryption.Encryption{
+	encryptor := encryption.Encryption{
 		Key: []byte(app.config.secretkey),
 	}
 
-	encryptedEmail, err := encyrptor.Encrypt(email)
+	encryptedEmail, err := encryptor.Encrypt(email)
 	if err != nil {
 		app.errorLog.Println("Encryption failed")
 		return

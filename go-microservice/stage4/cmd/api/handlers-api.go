@@ -479,11 +479,11 @@ func (app *application) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	encyrptor := encryption.Encryption{
+	encryptor := encryption.Encryption{
 		Key: []byte(app.config.secretkey),
 	}
 
-	realEmail, err := encyrptor.Decrypt(payload.Email)
+	realEmail, err := encryptor.Decrypt(payload.Email)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
