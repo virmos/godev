@@ -22,7 +22,7 @@ async function init() {
       'src', img_data_url
     )
   }
-
+  
   input.addEventListener('change', () => {
     fileReader.readAsDataURL(input.files[0])
   })
