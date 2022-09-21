@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"myapp/internal/cards"
+	"myapp5/internal/cards"
 	"net/http"
 	"strconv"
 )

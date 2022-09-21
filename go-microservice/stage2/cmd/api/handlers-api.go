@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"myapp/internal/cards"
-	"myapp/internal/models"
+	"myapp5/internal/cards"
+	"myapp5/internal/models"
 	"net/http"
 	"strconv"
 	"time"

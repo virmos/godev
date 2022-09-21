@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"myapp/internal/cards"
-	"myapp/internal/encryption"
-	"myapp/internal/models"
-	"myapp/internal/urlsigner"
+	"myapp5/internal/cards"
+	"myapp5/internal/encryption"
+	"myapp5/internal/models"
+	"myapp5/internal/urlsigner"
 	"net/http"
 	"strconv"
 	"time"
