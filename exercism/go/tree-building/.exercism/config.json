@@ -1,32 +1,37 @@
 {
-  "blurb": "The classical introductory exercise. Just say \"Hello, World!\"",
+  "blurb": "Implement a tree building algorithm.",
   "authors": [
-    "k4rtik"
+    "pminten"
   ],
   "contributors": [
+    "alebaffa",
     "bitfield",
+    "Daveed9",
+    "devillexio",
+    "dvrkps",
     "ekingery",
     "ferhatelmas",
     "hilary",
+    "jeffguorg",
     "kytrinyx",
     "leenipper",
+    "object88",
     "petertseng",
     "robphoenix",
-    "SebastianKristof",
     "sebito91",
+    "soniakeys",
+    "tbrisker",
     "tleen"
   ],
   "files": {
     "solution": [
-      "hello_world.go"
+      "tree_building.go"
     ],
     "test": [
-      "hello_world_test.go"
+      "tree_building_test.go"
     ],
     "example": [
       ".meta/example.go"
     ]
-  },
-  "source": "This is an exercise to introduce users to using Exercism",
-  "source_url": "http://en.wikipedia.org/wiki/%22Hello,_world!%22_program"
+  }
 }

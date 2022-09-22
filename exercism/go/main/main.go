@@ -1,11 +1,10 @@
 package main
-import "fmt"
 
-func HelloWorld() string {
-	return "Hello, World!"
-}
+import (
+	"fmt"
+	"exer/isogram"
+)
 
 func main() {
-	fmt.Println(HelloWorld())
-
+	fmt.Println(isogram.IsIsogram("Emily Jung Schwartzkopf"))
 }
