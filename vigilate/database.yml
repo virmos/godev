@@ -1,6 +1,6 @@
 development:
   dialect: postgres
-  database: temp
+  database: vigilate
   user: postgres
   password: qwerqwer
   host: localhost

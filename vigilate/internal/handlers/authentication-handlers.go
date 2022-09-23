@@ -4,8 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"github.com/tsawler/vigilate/internal/helpers"
-	"github.com/tsawler/vigilate/internal/models"
+	"cycir/internal/helpers"
+	"cycir/internal/models"
 	"log"
 	"net/http"
 	"strings"
@@ -14,11 +14,11 @@ import (
 
 // LoginScreen shows the home (login) screen
 func (repo *DBRepo) LoginScreen(w http.ResponseWriter, r *http.Request) {
-	// if already logged in, take to dashboard
-	if repo.App.Session.Exists(r.Context(), "userID") {
-		http.Redirect(w, r, "/admin/overview", http.StatusSeeOther)
-		return
-	}
+	// // if already logged in, take to dashboard
+	// if repo.App.Session.Exists(r.Context(), "userID") {
+	// 	http.Redirect(w, r, "/admin/overview", http.StatusSeeOther)
+	// 	return
+	// }
 
 	err := helpers.RenderPage(w, r, "login", nil, nil)
 	if err != nil {

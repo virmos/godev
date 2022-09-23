@@ -2,7 +2,7 @@ package dbrepo
 
 import (
 	"context"
-	"github.com/tsawler/vigilate/internal/models"
+	"cycir/internal/models"
 	"log"
 	"time"
 )

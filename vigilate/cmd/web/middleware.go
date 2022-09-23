@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/justinas/nosurf"
-	"github.com/tsawler/vigilate/internal/helpers"
+	"cycir/internal/helpers"
 	"net/http"
 	"strconv"
 	"strings"
@@ -134,7 +134,7 @@ func deleteRememberCookie(w http.ResponseWriter, r *http.Request) {
 	_ = session.RenewToken(r.Context())
 	// delete the cookie
 	newCookie := http.Cookie{
-		Name:     fmt.Sprintf("_%s_ggowatcher_remember", preferenceMap["identifier"]),
+		Name:     fmt.Sprintf("_%s_gowatcher_remember", preferenceMap["identifier"]),
 		Value:    "",
 		Path:     "/",
 		Expires:  time.Now().Add(-100 * time.Hour),

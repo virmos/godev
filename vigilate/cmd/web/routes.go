@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/tsawler/vigilate/internal/handlers"
+	"cycir/internal/handlers"
 	"net/http"
 )
 

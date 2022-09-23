@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/tsawler/vigilate/internal/config"
+	"cycir/internal/config"
 	"log"
 	"net/http"
 	"net/url"
