@@ -1,20 +1,21 @@
 package handlers
 
 import (
+	"cycir/internal/certificateutils"
+	"cycir/internal/channeldata"
+	"cycir/internal/helpers"
+	"cycir/internal/models"
+	"cycir/internal/sms"
 	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/tsawler/vigilate/internal/certificateutils"
-	"github.com/tsawler/vigilate/internal/channeldata"
-	"github.com/tsawler/vigilate/internal/helpers"
-	"github.com/tsawler/vigilate/internal/models"
-	"github.com/tsawler/vigilate/internal/sms"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-chi/chi/v5"
 )
 
 const (

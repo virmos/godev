@@ -1,13 +1,14 @@
 package main
 
 import (
+	"cycir/internal/helpers"
 	"fmt"
-	"github.com/justinas/nosurf"
-	"github.com/tsawler/vigilate/internal/helpers"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/justinas/nosurf"
 )
 
 // SessionLoad loads the session on requests

@@ -1,23 +1,24 @@
 package main
 
 import (
+	"cycir/internal/cache"
+	"cycir/internal/channeldata"
+	"cycir/internal/config"
+	"cycir/internal/driver"
+	"cycir/internal/handlers"
+	"cycir/internal/helpers"
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/gomodule/redigo/redis"
 	"github.com/pusher/pusher-http-go"
 	"github.com/robfig/cron/v3"
-	"github.com/tsawler/vigilate/internal/channeldata"
-	"github.com/tsawler/vigilate/internal/config"
-	"github.com/tsawler/vigilate/internal/driver"
-	"github.com/tsawler/vigilate/internal/handlers"
-	"github.com/tsawler/vigilate/internal/helpers"
-	"github.com/tsawler/vigilate/internal/cache"
-	"log"
-	"net/http"
-	"os"
-	"time"
 )
 
 func setupApp() (*string, error) {

@@ -4,10 +4,10 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/pusher/pusher-http-go"
 	"github.com/robfig/cron/v3"
-	"github.com/tsawler/vigilate/internal/channeldata"
-	"github.com/tsawler/vigilate/internal/driver"
+	"cycir/internal/channeldata"
+	"cycir/internal/driver"
 	"html/template"
-	"github.com/tsawler/vigilate/internal/cache"
+	"cycir/internal/cache"
 )
 
 // AppConfig holds application configuration

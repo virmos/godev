@@ -1,4 +1,4 @@
-module github.com/tsawler/vigilate
+module cycir
 
 go 1.16
 

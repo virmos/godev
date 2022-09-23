@@ -1,20 +1,21 @@
 package handlers
 
 import (
+	"cycir/internal/config"
+	"cycir/internal/driver"
+	"cycir/internal/helpers"
+	"cycir/internal/models"
+	"cycir/internal/repository"
+	"cycir/internal/repository/dbrepo"
 	"encoding/json"
 	"fmt"
-	"github.com/CloudyKit/jet/v6"
-	"github.com/go-chi/chi/v5"
-	"github.com/tsawler/vigilate/internal/config"
-	"github.com/tsawler/vigilate/internal/driver"
-	"github.com/tsawler/vigilate/internal/helpers"
-	"github.com/tsawler/vigilate/internal/models"
-	"github.com/tsawler/vigilate/internal/repository"
-	"github.com/tsawler/vigilate/internal/repository/dbrepo"
 	"log"
 	"net/http"
 	"runtime/debug"
 	"strconv"
+
+	"github.com/CloudyKit/jet/v6"
+	"github.com/go-chi/chi/v5"
 )
 
 //Repo is the repository

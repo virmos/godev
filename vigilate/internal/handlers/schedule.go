@@ -3,8 +3,8 @@ package handlers
 import (
 	"fmt"
 	"github.com/CloudyKit/jet/v6"
-	"github.com/tsawler/vigilate/internal/helpers"
-	"github.com/tsawler/vigilate/internal/models"
+	"cycir/internal/helpers"
+	"cycir/internal/models"
 	"log"
 	"net/http"
 	"sort"

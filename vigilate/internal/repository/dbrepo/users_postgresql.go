@@ -3,7 +3,7 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
-	"github.com/tsawler/vigilate/internal/models"
+	"cycir/internal/models"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
