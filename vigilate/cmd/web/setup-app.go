@@ -1,36 +1,37 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"github.com/alexedwards/scs/postgresstore"
-	"github.com/alexedwards/scs/v2"
-	"github.com/gomodule/redigo/redis"
-	"github.com/pusher/pusher-http-go"
-	"github.com/robfig/cron/v3"
+	"cycir/internal/cache"
 	"cycir/internal/channeldata"
 	"cycir/internal/config"
 	"cycir/internal/driver"
 	"cycir/internal/handlers"
 	"cycir/internal/helpers"
-	"cycir/internal/cache"
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/v2"
+	"github.com/gomodule/redigo/redis"
+	"github.com/pusher/pusher-http-go"
+	"github.com/robfig/cron/v3"
 )
 
 func setupApp() (*string, error) {
 	// read flags
 	insecurePort := flag.String("port", ":4000", "port to listen on")
-	identifier := flag.String("identifier", "vigilate", "unique identifier")
+	identifier := flag.String("identifier", "cycir", "unique identifier")
 	domain := flag.String("domain", "localhost", "domain name (e.g. example.com)")
 	inProduction := flag.Bool("production", false, "application is in production")
 	dbHost := flag.String("dbhost", "localhost", "database host")
 	dbPort := flag.String("dbport", "5432", "database port")
 	dbUser := flag.String("dbuser", "", "database user")
 	dbPass := flag.String("dbpass", "", "database password")
-	databaseName := flag.String("db", "vigilate", "database name")
+	databaseName := flag.String("db", "cycir", "database name")
 	dbSsl := flag.String("dbssl", "disable", "database ssl setting")
 	pusherHost := flag.String("pusherHost", "", "pusher host")
 	pusherPort := flag.String("pusherPort", "443", "pusher port")
@@ -116,7 +117,7 @@ func setupApp() (*string, error) {
 		Domain:       *domain,
 		PusherSecret: *pusherSecret,
 		MailQueue:    mailQueue,
-		Version:      vigilateVersion,
+		Version:      cycirVersion,
 		Identifier:   *identifier,
 		Cache: 				redisCache,
 	}
@@ -141,7 +142,7 @@ func setupApp() (*string, error) {
 	preferenceMap["pusher-port"] = *pusherPort
 	preferenceMap["pusher-key"] = *pusherKey
 	preferenceMap["identifier"] = *identifier
-	preferenceMap["version"] = vigilateVersion
+	preferenceMap["version"] = cycirVersion
 
 	app.PreferenceMap = preferenceMap
 
