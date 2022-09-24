@@ -1,0 +1,6 @@
+sql(`INSERT INTO "public"."services"("service_name","active","icon")
+     VALUES
+     (E'HTTP',E'1',E'fa-server'),
+     (E'HTTPS',E'2',E'fa-server'),
+     (E'SSL',E'3',E'fa-lock');
+`);
