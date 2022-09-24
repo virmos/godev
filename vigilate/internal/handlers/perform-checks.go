@@ -149,6 +149,8 @@ func (repo *DBRepo) TestCheck(w http.ResponseWriter, r *http.Request) {
 		okay = false
 	}
 
+	repo.pushScheduleChangedEvent(hs, newStatus)
+	
 	var resp jsonResp
 
 	// create json
