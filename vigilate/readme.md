@@ -3,7 +3,7 @@
 <a href="https://golang.org"><img src="https://img.shields.io/badge/powered_by-Go-3362c2.svg?style=flat-square" alt="Built with GoLang"></a>
 [![Go Report Card](https://goreportcard.com/badge/cycir)](https://goreportcard.com/report/cycir)
 
-# Vigilate
+# cycir
 
 This is the source code for the second project in the Udemy course Working with Websockets in Go (Golang).
 
@@ -14,24 +14,24 @@ A dead simple monitoring service, intended to replace things like Nagios.
 Build in the normal way on Mac/Linux:
 
 ~~~
-go build -o vigilate cmd/web/*.go
+go build -o cycir cmd/web/*.go
 ~~~
 
 Or on Windows:
 
 ~~~
-go build -o vigilate.exe cmd/web/.
+go build -o cycir.exe cmd/web/.
 ~~~
 
 Or for a particular platform:
 
 ~~~
-env GOOS=linux GOARCH=amd64 go build -o vigilate cmd/web/*.go
+env GOOS=linux GOARCH=amd64 go build -o cycir cmd/web/*.go
 ~~~
 
 ## Requirements
 
-Vigilate requires:
+cycir requires:
 - Postgres 11 or later (db is set up as a repository, so other databases are possible)
 - An account with [Pusher](https://pusher.com/), or a Pusher alternative 
 (like [ipê](https://github.com/dimiro1/ipe))
@@ -55,7 +55,7 @@ ipe.exe
 Run with flags:
 
 ~~~
-./vigilate \
+./cycir \
 -dbuser='tcs' \
 -pusherHost='localhost' \
 -pusherPort='4001' \
@@ -68,10 +68,10 @@ Run with flags:
 ## All Flags
 
 ~~~~
-tcs@grendel vigilate-udemy % ./vigilate -help
-Usage of ./vigilate:
+tcs@grendel cycir-udemy % ./cycir -help
+Usage of ./cycir:
   -db string
-        database name (default "vigilate")
+        database name (default "cycir")
   -dbhost string
         database host (default "localhost")
   -dbport string
@@ -83,7 +83,7 @@ Usage of ./vigilate:
   -domain string
         domain name (e.g. example.com) (default "localhost")
   -identifier string
-        unique identifier (default "vigilate")
+        unique identifier (default "cycir")
   -port string
         port to listen on (default ":4000")
   -production

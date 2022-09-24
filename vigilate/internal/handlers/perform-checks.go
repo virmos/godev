@@ -59,7 +59,6 @@ func (repo *DBRepo) ScheduledCheck(hostServiceID int) {
 	if newStatus != hs.Status {
 		repo.updateHostServiceStatusCount(h, hs, newStatus, msg)
 	}
-
 }
 
 func (repo *DBRepo) updateHostServiceStatusCount(h models.Host, hs models.HostService, newStatus, msg string) {
@@ -441,6 +440,5 @@ func (repo *DBRepo) removeFromMonitorMap(hs models.HostService) {
 		data := make(map[string]string)
 		data["host_service_id"] = strconv.Itoa(hs.ID)
 		repo.broadcastMessage("public-channel", "schedule-item-removed-event", data)
-
 	}
 }

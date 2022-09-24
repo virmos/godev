@@ -21,7 +21,7 @@ var session *scs.SessionManager
 var preferenceMap map[string]string
 var wsClient pusher.Client
 
-const vigilateVersion = "1.0.0"
+const cycirVersion = "1.0.0"
 const maxWorkerPoolSize = 5
 const maxJobMaxWorkers = 5
 
@@ -44,7 +44,7 @@ func main() {
 
 	// print info
 	log.Printf("******************************************")
-	log.Printf("** %sVigilate%s v%s built in %s", "\033[31m", "\033[0m", vigilateVersion, runtime.Version())
+	log.Printf("** %scycir%s v%s built in %s", "\033[31m", "\033[0m", cycirVersion, runtime.Version())
 	log.Printf("**----------------------------------------")
 	log.Printf("** Running with %d Processors", runtime.NumCPU())
 	log.Printf("** Running on %s", runtime.GOOS)

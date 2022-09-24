@@ -35,6 +35,24 @@ func (m *postgresDBRepo) InsertHost(h models.Host) (int, error) {
 		return newID, err
 	}
 
+	// get preference map
+	var scheduleAmount []byte
+	var scheduleUnit []byte
+	query = "SELECT preference FROM preferences WHERE name='check_interval_amount'"
+
+	err = m.DB.QueryRowContext(ctx, query).Scan(&scheduleAmount)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	query = "SELECT preference FROM preferences WHERE name='check_interval_unit'"
+	err = m.DB.QueryRowContext(ctx, query).Scan(&scheduleUnit)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
 	// add host services and set to inactive
 	query = `select id from services`
 	serviceRows, err := m.DB.QueryContext(ctx, query)
@@ -55,9 +73,9 @@ func (m *postgresDBRepo) InsertHost(h models.Host) (int, error) {
 		stmt := `
 			insert into host_services 
 		    	(host_id, service_id, active, schedule_number, schedule_unit,
-				status, created_at, updated_at) values ($1, $2, 0, 3, 'm', 'pending', $3, $4)`
+				status, created_at, updated_at) values ($1, $2, 0, $3, $4, 'pending', $5, $6)`
 
-		_, err = m.DB.ExecContext(ctx, stmt, newID, svcID, time.Now(), time.Now())
+		_, err = m.DB.ExecContext(ctx, stmt, newID, svcID, string(scheduleAmount), string(scheduleUnit), time.Now(), time.Now())
 		if err != nil {
 			return newID, err
 		}
@@ -267,7 +285,8 @@ func (m *postgresDBRepo) AllHosts() ([]models.Host, error) {
 				host_services hs
 				left join services s on (s.id = hs.service_id)
 			where
-				host_id = $1`
+				host_id = $1 
+			and hs.active = 1`
 
 		serviceRows, err := m.DB.QueryContext(ctx, serviceQuery, h.ID)
 		if err != nil {
@@ -277,6 +296,7 @@ func (m *postgresDBRepo) AllHosts() ([]models.Host, error) {
 
 		var hostServices []models.HostService
 
+		defer serviceRows.Close()
 		for serviceRows.Next() {
 			var hs models.HostService
 			err = serviceRows.Scan(
@@ -303,10 +323,10 @@ func (m *postgresDBRepo) AllHosts() ([]models.Host, error) {
 				return nil, err
 			}
 			hostServices = append(hostServices, hs)
-			serviceRows.Close()
 		}
 		h.HostServices = hostServices
 		hosts = append(hosts, h)
+		
 	}
 
 	if err = rows.Err(); err != nil {

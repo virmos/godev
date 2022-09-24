@@ -228,7 +228,12 @@ func (repo *DBRepo) PostHost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	repo.App.Session.Put(r.Context(), "flash", "Changes saved")
-	http.Redirect(w, r, fmt.Sprintf("/admin/host/%d", h.ID), http.StatusSeeOther)
+	
+	if r.Form.Get("action") == "1" {
+		http.Redirect(w, r, "/admin/host/all", http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/admin/host/%d", h.ID), http.StatusSeeOther)
+	}
 }
 
 // AllUsers lists all admin users
