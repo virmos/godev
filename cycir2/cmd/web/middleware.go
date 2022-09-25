@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cycir/internal/helpers"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -11,24 +10,23 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-// SessionLoad loads the session on requests
+// SessionLoad peforms the load and save of a session, per request
 func SessionLoad(next http.Handler) http.Handler {
 	return session.LoadAndSave(next)
 }
 
-// Auth checks for authentication
-func Auth(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !helpers.IsAuthenticated(r) {
-			url := r.URL.Path
-			http.Redirect(w, r, fmt.Sprintf("/?target=%s", url), http.StatusFound)
+// Auth checks for user authentication status by checking for the key 
+// userID in the session
+func (app *application) Auth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		if !app.Session.Exists(r.Context(), "userID") {
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
-		w.Header().Add("Cache-Control", "no-store")
-
 		next.ServeHTTP(w, r)
 	})
 }
+
 
 // RecoverPanic recovers from a panic
 func RecoverPanic(next http.Handler) http.Handler {
@@ -37,7 +35,7 @@ func RecoverPanic(next http.Handler) http.Handler {
 			// Check if there has been a panic
 			if err := recover(); err != nil {
 				// return a 500 Internal Server response
-				helpers.ServerError(w, r, fmt.Errorf("%s", err))
+				ServerError(w, r, fmt.Errorf("%s", err))
 			}
 		}()
 		next.ServeHTTP(w, r)
@@ -54,9 +52,9 @@ func NoSurf(next http.Handler) http.Handler {
 	csrfHandler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,
 		Path:     "/",
-		Secure:   app.InProduction,
+		Secure:   cfg.InProduction,
 		SameSite: http.SameSiteStrictMode,
-		Domain:   app.Domain,
+		Domain:   cfg.Domain,
 	})
 
 	return csrfHandler
@@ -65,7 +63,7 @@ func NoSurf(next http.Handler) http.Handler {
 // CheckRemember checks to see if we should log the user in automatically
 func CheckRemember(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !helpers.IsAuthenticated(r) {
+		if !IsAuthenticated(r) {
 			cookie, err := r.Cookie(fmt.Sprintf("_%s_gowatcher_remember", preferenceMap["identifier"]))
 			if err != nil {
 				next.ServeHTTP(w, r)
@@ -77,11 +75,11 @@ func CheckRemember(next http.Handler) http.Handler {
 					split := strings.Split(key, "|")
 					uid, hash := split[0], split[1]
 					id, _ := strconv.Atoi(uid)
-					validHash := repo.DB.CheckForToken(id, hash)
+					validHash := app.DB.CheckForToken(id, hash)
 					if validHash {
 						// valid remember me token, so log the user in
 						_ = session.RenewToken(r.Context())
-						user, _ := repo.DB.GetUserById(id)
+						user, _ := app.DB.GetUserById(id)
 						hashedPassword := user.Password
 						session.Put(r.Context(), "userID", id)
 						session.Put(r.Context(), "userName", user.FirstName)
@@ -114,7 +112,7 @@ func CheckRemember(next http.Handler) http.Handler {
 					split := strings.Split(key, "|")
 					uid, hash := split[0], split[1]
 					id, _ := strconv.Atoi(uid)
-					validHash := repo.DB.CheckForToken(id, hash)
+					validHash := app.DB.CheckForToken(id, hash)
 					if !validHash {
 						deleteRememberCookie(w, r)
 						session.Put(r.Context(), "error", "You've been logged out from another device!")
@@ -140,9 +138,9 @@ func deleteRememberCookie(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		Expires:  time.Now().Add(-100 * time.Hour),
 		HttpOnly: true,
-		Domain:   app.Domain,
+		Domain:   cfg.Domain,
 		MaxAge:   -1,
-		Secure:   app.InProduction,
+		Secure:   cfg.InProduction,
 		SameSite: http.SameSiteStrictMode,
 	}
 	http.SetCookie(w, &newCookie)

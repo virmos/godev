@@ -1,9 +1,0 @@
-.idea
-database.yml
-# schema.sql
-# run.sh
-run.bat
-cycir
-.DS_Store
-*.code-workspace
-coverage.out
