@@ -1,7 +1,0 @@
-sql(`
-INSERT INTO "public"."preferences"("id", "service_name", "active", "icon")
-VALUES
-(E'1',E'HTTP', E'1', E'fa-server'),
-(E'2',E'HTTPS', E'1', E'fa-server'),
-(E'3',E'SSL', E'1', E'fa-lock');
-`)
