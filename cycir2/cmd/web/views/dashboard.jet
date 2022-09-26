@@ -115,5 +115,7 @@
 {{end}}
 
 {{block js()}}
-
+<script>
+    
+</script>
 {{end}}

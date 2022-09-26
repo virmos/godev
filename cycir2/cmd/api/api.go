@@ -37,6 +37,8 @@ type config struct {
 	pusherKey    string
 	pusherSecret string
 	pusherSecure bool
+	Domain       string
+	InProduction bool
 }
 
 type application struct {
@@ -76,15 +78,15 @@ func init() {
 func main() {
 	var cfg config
 
-	flag.IntVar(&cfg.port, "port", 4001, "Server port to listen on")
+	flag.IntVar(&cfg.port, "port", 4002, "Server port to listen on")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment {development|production|maintenance}")
 	flag.StringVar(&cfg.db.dsn, "dsn", "host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC connect_timeout=5", "DSN")
 	flag.StringVar(&cfg.frontend, "frontend", "http://localhost:4000", "url to front end")
 
 	dbHost := flag.String("dbhost", "localhost", "database host")
 	dbPort := flag.String("dbport", "5432", "database port")
-	dbUser := flag.String("dbuser", "", "database user")
-	dbPass := flag.String("dbpass", "", "database password")
+	dbUser := flag.String("dbuser", "postgres", "database user")
+	dbPass := flag.String("dbpass", "qwerqwer", "database password")
 	databaseName := flag.String("db", "cycir", "database name")
 	dbSsl := flag.String("dbssl", "disable", "database ssl setting")
 	cfg.db.dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC connect_timeout=5",
@@ -101,6 +103,8 @@ func main() {
 	flag.StringVar(&cfg.pusherKey, "pusherKey", "", "pusher key")
 	flag.StringVar(&cfg.pusherSecret, "pusherSecret", "", "pusher secret")
 	flag.BoolVar(&cfg.pusherSecure, "pusherSecure", false, "pusher server uses SSL (true or false)")
+	flag.StringVar(&cfg.Domain, "domain", "localhost", "domain name (e.g. example.com)")
+	flag.BoolVar(&cfg.InProduction, "production", false, "application is in production")
 
 	flag.Parse()
 
@@ -143,6 +147,7 @@ func main() {
 	preferenceMap["pusher-host"] = cfg.pusherHost
 	preferenceMap["pusher-port"] = cfg.pusherPort
 	preferenceMap["pusher-key"] = cfg.pusherKey
+	preferenceMap["API"] = cfg.frontend
 
 	app.PreferenceMap = preferenceMap
 

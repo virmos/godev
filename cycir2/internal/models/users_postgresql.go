@@ -6,6 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
+	"strings"
 )
 
 // AllUsers returns all users
@@ -67,6 +68,38 @@ func (m *DBModel) GetUserById(id int) (User, error) {
 
 	if err != nil {
 		log.Println(err)
+		return u, err
+	}
+
+	return u, nil
+}
+
+// GetUserByEmail gets a user by email address
+func (m *DBModel) GetUserByEmail(email string) (User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	email = strings.ToLower(email)
+	var u User
+
+	row := m.DB.QueryRowContext(ctx, `
+		select
+			id, first_name, last_name, email, password, created_at, updated_at
+		from
+			users
+		where email = $1`, email)
+
+	err := row.Scan(
+		&u.ID,
+		&u.FirstName,
+		&u.LastName,
+		&u.Email,
+		&u.Password,
+		&u.CreatedAt,
+		&u.UpdatedAt,
+	)
+
+	if err != nil {
 		return u, err
 	}
 

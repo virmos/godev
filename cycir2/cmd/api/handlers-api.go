@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	_ "bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,9 +9,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"cycir/internal/models"
+	"log"
 
 	"github.com/go-chi/chi/v5"
-	"golang.org/x/crypto/bcrypt"
+	_ "golang.org/x/crypto/bcrypt"
 )
 
 // CreateAuthToken creates and sends an auth token, if user supplies valid information
@@ -35,14 +37,12 @@ func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// validate the password; send error if invalid password
-	validPassword, err := app.passwordMatches(user.Password, userInput.Password)
-	if err != nil {
+	_, _, err = app.DB.Authenticate(userInput.Email, userInput.Password)
+	if err == models.ErrInvalidCredentials {
 		app.invalidCredentials(w)
 		return
-	}
-
-	if !validPassword {
-		app.invalidCredentials(w)
+	} else if err == models.ErrInactiveAccount {
+		app.inActiveAccount(w)
 		return
 	}
 
@@ -52,6 +52,7 @@ func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) 
 		app.badRequest(w, r, err)
 		return
 	}
+	log.Println(token)
 
 	// save to database
 	err = app.DB.InsertToken(token, user)
@@ -168,7 +169,6 @@ func (app *application) PostSettings(w http.ResponseWriter, r *http.Request) {
 	err := app.DB.InsertOrUpdateSitePreferences(prefMap)
 	if err != nil {
 		log.Println(err)
-		ClientError(w, r, http.StatusBadRequest)
 		return
 	}
 
@@ -176,8 +176,6 @@ func (app *application) PostSettings(w http.ResponseWriter, r *http.Request) {
 	for k, v := range prefMap {
 		app.PreferenceMap[k] = v
 	}
-
-	app.Session.Put(r.Context(), "flash", "Changes saved")
 
 	if r.Form.Get("action") == "1" {
 		http.Redirect(w, r, "/admin/overview", http.StatusSeeOther)
@@ -222,14 +220,11 @@ func (app *application) PostHost(w http.ResponseWriter, r *http.Request) {
 		newID, err := app.DB.InsertHost(h)
 		if err != nil {
 			log.Println(err)
-			helpers.ServerError(w, r, err)
 			return
 		}
 		h.ID = newID
 	}
 
-	app.App.Session.Put(r.Context(), "flash", "Changes saved")
-	
 	if r.Form.Get("action") == "1" {
 		http.Redirect(w, r, "/admin/host/all", http.StatusSeeOther)
 	} else {
@@ -255,7 +250,6 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 		err := app.DB.UpdateUser(u)
 		if err != nil {
 			log.Println(err)
-			ClientError(w, r, http.StatusBadRequest)
 			return
 		}
 
@@ -264,7 +258,6 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 			err := app.DB.UpdatePassword(id, r.Form.Get("password"))
 			if err != nil {
 				log.Println(err)
-				ClientError(w, r, http.StatusBadRequest)
 				return
 			}
 		}
@@ -279,20 +272,10 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 		_, err := app.DB.InsertUser(u)
 		if err != nil {
 			log.Println(err)
-			ClientError(w, r, http.StatusBadRequest)
 			return
 		}
 	}
 
-	app.App.Session.Put(r.Context(), "flash", "Changes saved")
-	http.Redirect(w, r, "/admin/users", http.StatusSeeOther)
-}
-
-// DeleteUser soft deletes a user
-func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
-	_ = app.DB.DeleteUser(id)
-	app.App.Session.Put(r.Context(), "flash", "User deleted")
 	http.Redirect(w, r, "/admin/users", http.StatusSeeOther)
 }
 
@@ -353,7 +336,7 @@ func (app *application) SetSystemPref(w http.ResponseWriter, r *http.Request) {
 		resp.Message = err.Error()
 	}
 
-	app.App.PreferenceMap["monitoring_live"] = prefValue
+	app.PreferenceMap["monitoring_live"] = prefValue
 
 	out, _ := json.MarshalIndent(resp, "", "   ")
 
@@ -367,29 +350,29 @@ func (app *application) ToggleMonitoring(w http.ResponseWriter, r *http.Request)
 
 	if enabled == "1" {
 		// start monitoring
-		app.App.PreferenceMap["monitoring_live"] = "1"
+		app.PreferenceMap["monitoring_live"] = "1"
 		app.StartMonitoring()
-		app.App.Scheduler.Start()
+		app.Scheduler.Start()
 	} else {
 		// stop monitoring
-		app.App.PreferenceMap["monitoring_live"] = "0"
+		app.PreferenceMap["monitoring_live"] = "0"
 
 		// remove all items in map from schedule
-		for _, x := range app.App.MonitorMap {
-			app.App.Scheduler.Remove(x)
+		for _, x := range app.MonitorMap {
+			app.Scheduler.Remove(x)
 		}
 
 		// empty the map
-		for k := range app.App.MonitorMap {
-			delete(app.App.MonitorMap, k)
+		for k := range app.MonitorMap {
+			delete(app.MonitorMap, k)
 		}
 
 		// delete all entries from schedule, to be sure
-		for _, i := range app.App.Scheduler.Entries() {
-			app.App.Scheduler.Remove(i.ID)
+		for _, i := range app.Scheduler.Entries() {
+			app.Scheduler.Remove(i.ID)
 		}
 
-		app.App.Scheduler.Stop()
+		app.Scheduler.Stop()
 
 		data := make(map[string]string)
 		data["message"] = "Monitoring is off!"

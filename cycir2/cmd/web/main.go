@@ -30,7 +30,7 @@ type config struct {
 	db   struct {
 		dsn string
 	}
-	frontend     string
+	backend     string
 	pusherHost   string
 	pusherPort   string
 	pusherApp    string
@@ -108,7 +108,7 @@ func main() {
 
 	flag.IntVar(&cfg.port, "port", 4000, "Server port to listen on")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment {development|production|maintenance}")
-	flag.StringVar(&cfg.frontend, "backend", "http://localhost:4002", "url to back end")
+	flag.StringVar(&cfg.backend, "backend", "http://localhost:4002", "url to back end")
 
 	flag.Parse()
 
@@ -154,6 +154,7 @@ func main() {
 	preferenceMap["pusher-host"] = cfg.pusherHost
 	preferenceMap["pusher-port"] = cfg.pusherPort
 	preferenceMap["pusher-key"] = cfg.pusherKey
+	preferenceMap["API"] = cfg.backend
 
 	app.PreferenceMap = preferenceMap
 	NewHelpers(app)

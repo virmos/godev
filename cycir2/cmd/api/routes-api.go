@@ -18,6 +18,8 @@ func (app *application) routes() http.Handler {
 		MaxAge:           300,
 	}))
 
+	// mux.Use(NoSurf)
+
 	mux.Post("/api/authenticate", app.CreateAuthToken)
 	mux.Post("/api/is-authenticated", app.CheckAuthentication)
 

@@ -9,13 +9,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var a *application
-var src = rand.NewSource(time.Now().UnixNano())
-
-func NewHelpers(app *application) {
-	a = app
-}
-
 // writeJSON writes aribtrary data out as JSON
 func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
 	out, err := json.MarshalIndent(data, "", "\t")
@@ -93,8 +86,24 @@ func (app *application) invalidCredentials(w http.ResponseWriter) error {
 	return nil
 }
 
-func (app *application) passwordMatches(hash, password string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+func (app *application) inActiveAccount(w http.ResponseWriter) error {
+	var payload struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	payload.Error = true
+	payload.Message = "inactive account"
+
+	err := app.writeJSON(w, http.StatusUnauthorized, payload)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (app *application) passwordMatches(hash []byte, password string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(hash, []byte(password))
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):

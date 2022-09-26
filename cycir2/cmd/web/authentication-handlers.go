@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"cycir/internal/models"
+	_ "cycir/internal/models"
 	"log"
 	"net/http"
 	"strings"
@@ -34,25 +34,29 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, hash, err := app.DB.Authenticate(r.Form.Get("email"), r.Form.Get("password"))
-	if err == models.ErrInvalidCredentials {
-		app.Session.Put(r.Context(), "error", "Invalid login")
-		err := app.RenderPage(w, r, "login", nil, nil)
-		if err != nil {
-			printTemplateError(w, err)
-		}
-		return
-	} else if err == models.ErrInactiveAccount {
-		app.Session.Put(r.Context(), "error", "Inactive account!")
-		err := app.RenderPage(w, r, "login", nil, nil)
-		if err != nil {
-			printTemplateError(w, err)
-		}
-		return
-	} else if err != nil {
+	// id, hash, err := app.DB.Authenticate(r.Form.Get("email"), r.Form.Get("password"))
+	// if err == models.ErrInvalidCredentials {
+	// 	app.Session.Put(r.Context(), "error", "Invalid login")
+	// 	err := app.RenderPage(w, r, "login", nil, nil)
+	// 	if err != nil {
+	// 		printTemplateError(w, err)
+	// 	}
+	// 	return
+	// } else if err == models.ErrInactiveAccount {
+	// 	app.Session.Put(r.Context(), "error", "Inactive account!")
+	// 	err := app.RenderPage(w, r, "login", nil, nil)
+	// 	if err != nil {
+	// 		printTemplateError(w, err)
+	// 	}
+	// 	return
+	// } else if err != nil {
+	// 	log.Println(err)
+	// 	ClientError(w, r, http.StatusBadRequest)
+	// 	return
+	// }
+	user, err := app.DB.GetUserByEmail(r.Form.Get("email"))
+	if err != nil {
 		log.Println(err)
-		ClientError(w, r, http.StatusBadRequest)
-		return
 	}
 
 	if r.Form.Get("remember") == "remember" {
@@ -66,7 +70,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 
 		sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 
-		err = app.DB.InsertRememberMeToken(id, sha)
+		err = app.DB.InsertRememberMeToken(user.ID, sha)
 		if err != nil {
 			log.Println(err)
 		}
@@ -75,7 +79,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		expire := time.Now().Add(365 * 24 * 60 * 60 * time.Second)
 		cookie := http.Cookie{
 			Name:     fmt.Sprintf("_%s_gowatcher_remember", app.PreferenceMap["identifier"]),
-			Value:    fmt.Sprintf("%d|%s", id, sha),
+			Value:    fmt.Sprintf("%d|%s", user.ID, sha),
 			Path:     "/",
 			Expires:  expire,
 			HttpOnly: true,
@@ -88,15 +92,15 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// we authenticated. Get the user.
-	u, err := app.DB.GetUserById(id)
+	u, err := app.DB.GetUserById(user.ID)
 	if err != nil {
 		log.Println(err)
 		ClientError(w, r, http.StatusBadRequest)
 		return
 	}
 
-	app.Session.Put(r.Context(), "userID", id)
-	app.Session.Put(r.Context(), "hashedPassword", hash)
+	app.Session.Put(r.Context(), "userID", user.ID)
+	app.Session.Put(r.Context(), "hashedPassword", string(user.Password))
 	app.Session.Put(r.Context(), "flash", "You've been logged in successfully!")
 	app.Session.Put(r.Context(), "user", u)
 
