@@ -31,10 +31,10 @@ Host
 
 <div class="row">
     <div class="col">
-
-        <form method="post" action="/admin/host/{{host.ID}}" novalidate class="needs-validation" id="host-form">
+        <form method="post" action="" novalidate class="needs-validation" id="host-form">
             <input type="hidden" name="action" value="1" id="action">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <input hidden name="token" value='{{.Token}}'>
 
             <ul class="nav nav-tabs" id="host-tabs">
                 <li class="nav-item">
@@ -409,7 +409,30 @@ Host
         form.classList.add('was-validated');
 
         if (form.checkValidity() === true) {
-            form.submit();
+            let payload = {
+                
+            }
+
+            const requestOptions = {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer {{.Token}}`,
+                },
+                body: JSON.stringify(payload),
+            }
+
+            fetch(`{{.PreferenceMap["API"]}}/api/admin/host/{{host.ID}}`, requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.error === false) {
+                    
+                } else {
+                    errorAlert(data.message);
+                }
+            })
         }
     }
 
@@ -424,7 +447,30 @@ Host
         form.classList.add('was-validated');
 
         if (form.checkValidity() === true) {
-            form.submit();
+            let payload = {
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value,
+            }
+
+            const requestOptions = {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload),
+            }
+
+            fetch(`{{.PreferenceMap["API"]}}/api/admin/host/{{host.ID}}`, requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.error === false) {
+
+                } else {
+                    errorAlert(data.message);
+                }
+            })
         }
     }
 

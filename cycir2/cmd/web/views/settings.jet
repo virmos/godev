@@ -29,6 +29,8 @@
             <form method="post" id="settings-form" action="/admin/settings" novalidate class="needs-validation">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                 <input type="hidden" name="action" id="action" value="1">
+                <input hidden name='token' value='{{.Token}}'>
+                
                 <ul class="nav nav-tabs" id="setting-tabs">
                     <li class="nav-item">
                         <a class="nav-link active" href="#general-content" data-target="" data-toggle="tab"

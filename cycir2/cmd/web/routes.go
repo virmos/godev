@@ -12,7 +12,7 @@ func (app *application) routes() http.Handler {
 	mux.Use(SessionLoad)
 	mux.Use(RecoverPanic)
 	mux.Use(NoSurf)
-	mux.Use(CheckRemember)
+	mux.Use(app.CheckRemember)
 
 	// login
 	mux.Get("/", app.LoginScreen)

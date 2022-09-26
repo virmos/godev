@@ -30,7 +30,6 @@
     </div>
 </div>
 <div class="row">
-
     <div class="col-xl-3 col-md-6">
         <div class="card border-success mb-4" style="border: 1px solid red;">
             <div class="card-body text-success"><span id="healthy_count">{{no_healthy}}</span> Healthy service(s)</div>

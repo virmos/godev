@@ -27,7 +27,6 @@ func (app *application) Auth(next http.Handler) http.Handler {
 	})
 }
 
-
 // RecoverPanic recovers from a panic
 func RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +60,7 @@ func NoSurf(next http.Handler) http.Handler {
 }
 
 // CheckRemember checks to see if we should log the user in automatically
-func CheckRemember(next http.Handler) http.Handler {
+func (app *application) CheckRemember(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !IsAuthenticated(r) {
 			cookie, err := r.Cookie(fmt.Sprintf("_%s_gowatcher_remember", preferenceMap["identifier"]))
@@ -76,10 +75,13 @@ func CheckRemember(next http.Handler) http.Handler {
 					uid, hash := split[0], split[1]
 					id, _ := strconv.Atoi(uid)
 					validHash := app.DB.CheckForToken(id, hash)
+
 					if validHash {
 						// valid remember me token, so log the user in
 						_ = session.RenewToken(r.Context())
 						user, _ := app.DB.GetUserById(id)
+						// renew backend token
+						_ = app.DB.RenewToken(id, 24*time.Hour)
 						hashedPassword := user.Password
 						session.Put(r.Context(), "userID", id)
 						session.Put(r.Context(), "userName", user.FirstName)

@@ -87,6 +87,9 @@
                 <form action="/" method="post" class="needs-validation" novalidate>
                     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
                     <input type='hidden' name='target' value=''>
+                    <input type='hidden' name='token' id="token" value='{{.Token}}'>
+                    <input type='hidden' name='expiry' id="expiry" value=''>
+
                     <h3 class="text-center sign-in-title">Login</h3>
                     <hr>
 
@@ -169,13 +172,11 @@
             var forms = document.getElementsByClassName('needs-validation');
             var validation = Array.prototype.filter.call(forms, function (form) {
                 form.addEventListener('submit', function (event) {
-                    if (form.checkValidity() === false) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
+                    // if (form.checkValidity() === false) {
                     event.preventDefault();
                     event.stopPropagation();
+                    // }
+                    form.classList.add('was-validated');
 
                     let payload = {
                         email: document.getElementById("email").value,
@@ -196,13 +197,13 @@
                     .then(data => {
                         console.log(data);
                         if (data.error === false) {
-                            localStorage.setItem('token', data.authentication_token.token);
-                            localStorage.setItem('token_expiry', data.authentication_token.expiry);
+                            form.token.value = data.authentication_token.token
+                            form.expiry.value = data.authentication_token.token_expiry
+                            form.submit()
                         } else {
-                            showError(data.message);
+                            errorAlert(data.message);
                         }
                     })
-                    
                 }, false);
             });
         }, false);

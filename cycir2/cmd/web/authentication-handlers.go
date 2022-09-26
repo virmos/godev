@@ -99,10 +99,16 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get the token fetched from backend, every request, send this token
+	token := r.Form.Get("token")
+	expiry := r.Form.Get("expiry")
+
 	app.Session.Put(r.Context(), "userID", user.ID)
 	app.Session.Put(r.Context(), "hashedPassword", string(user.Password))
 	app.Session.Put(r.Context(), "flash", "You've been logged in successfully!")
 	app.Session.Put(r.Context(), "user", u)
+	app.Session.Put(r.Context(), "token", string(token))
+	app.Session.Put(r.Context(), "expiry", expiry)
 
 	if r.Form.Get("target") != "" {
 		http.Redirect(w, r, r.Form.Get("target"), http.StatusSeeOther)

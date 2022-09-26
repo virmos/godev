@@ -27,6 +27,7 @@
     <div class="col">
         <form method="post" id="settings-form" action="/admin/user/{{user.ID}}" novalidate class="needs-validation">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <input hidden name='token' value='{{.Token}}'>
 
             <div class="mb-3">
                 <label for="first_name">First Name</label>

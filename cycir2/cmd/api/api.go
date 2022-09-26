@@ -87,7 +87,7 @@ func main() {
 	dbPort := flag.String("dbport", "5432", "database port")
 	dbUser := flag.String("dbuser", "postgres", "database user")
 	dbPass := flag.String("dbpass", "qwerqwer", "database password")
-	databaseName := flag.String("db", "cycir", "database name")
+	databaseName := flag.String("db", "temp", "database name")
 	dbSsl := flag.String("dbssl", "disable", "database ssl setting")
 	cfg.db.dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC connect_timeout=5",
 		*dbHost,

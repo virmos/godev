@@ -52,7 +52,6 @@ func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) 
 		app.badRequest(w, r, err)
 		return
 	}
-	log.Println(token)
 
 	// save to database
 	err = app.DB.InsertToken(token, user)
@@ -78,6 +77,7 @@ func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) 
 // authenticateToken checks an auth token for validity
 func (app *application) authenticateToken(r *http.Request) (*models.User, error) {
 	authorizationHeader := r.Header.Get("Authorization")
+	log.Println(authorizationHeader)
 	if authorizationHeader == "" {
 		return nil, errors.New("no authorization header received")
 	}
@@ -186,6 +186,34 @@ func (app *application) PostSettings(w http.ResponseWriter, r *http.Request) {
 
 // PostHost handles posting of host form
 func (app *application) PostHost(w http.ResponseWriter, r *http.Request) {
+	log.Println("post host")
+	var payload struct {
+		PageSize    int `json:"page_size"`
+		CurrentPage int `json:"page"`
+	}
+
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	var resp struct {
+		CurrentPage  int             `json:"current_page"`
+		PageSize     int             `json:"page_size"`
+		LastPage     int             `json:"last_page"`
+		TotalRecords int             `json:"total_records"`
+		Orders       []*models.User `json:"orders"`
+	}
+
+	resp.CurrentPage = payload.CurrentPage
+
+	app.writeJSON(w, http.StatusOK, resp)
+
+
+
+
+	return
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 
 	var h models.Host

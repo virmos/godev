@@ -1,10 +1,10 @@
 package main
 
 import (
+	"cycir/internal/models"
 	"fmt"
 	"github.com/CloudyKit/jet/v6"
 	"github.com/justinas/nosurf"
-	"cycir/internal/models"
 	"log"
 	"net/http"
 	"time"
@@ -16,6 +16,7 @@ type TemplateData struct {
 	IsAuthenticated bool
 	PreferenceMap   map[string]string
 	User            models.User
+	Token           string
 	Flash           string
 	Warning         string
 	Error           string
@@ -77,6 +78,8 @@ func (app *application) DefaultData(td TemplateData, r *http.Request, w http.Res
 	// if logged in, store user id in template data
 	if td.IsAuthenticated {
 		u := app.Session.Get(r.Context(), "user").(models.User)
+		token := app.Session.Get(r.Context(), "token").(string)
+		td.Token = token
 		td.User = u
 	}
 
@@ -123,4 +126,3 @@ func (app *application) RenderPage(w http.ResponseWriter, r *http.Request, templ
 
 	return nil
 }
-
