@@ -489,42 +489,50 @@
             form.classList.add('was-validated');
 
             if (form.checkValidity() === true) {
-            let active = parseInt(form.active.value)
-
-            let payload = {
-                host_name : form.host_name.value,
-                canonnical_name : form.canonical_name.value,
-                url : form.url.value,
-                ip : form.ip.value,
-                ipv6 : form.ipv6.value,
-                location : form.location.value,
-                os : form.os.value,
-                active : active,
-                action : form.action.value,
-            }
-
-            const requestOptions = {
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer {{.Token}}`,
-                },
-                body: JSON.stringify(payload),
-            }
-
-            fetch(`{{.PreferenceMap["API"]}}/api/admin/settings`, requestOptions)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error === false) {
-                    if (data.redirect === true) {
-                        window.location.href = data.route;
-                    }
-                } else {
-                    errorAlert(data.message);
+                let payload = {
+                    host_name : form.site_url.value,
+                    notify_name : form.notify_name.value,
+                    notify_email : form.notify_email.value,
+                    smtp_server : form.smtp_server.value,
+                    smtp_port : form.smtp_port.value,
+                    smtp_user : form.smtp_user.value,
+                    smtp_password : form.smtp_password.value,
+                    sms_enabled : form.sms_enabled.value,
+                    sms_provider : form.sms_provider.value,
+                    twilio_phone_number : form.twilio_phone_number.value,
+                    twilio_sid : form.twilio_sid.value,
+                    twilio_auth_token : form.twilio_auth_token.value,
+                    smtp_from_email : form.smtp_from_email.value,
+                    smtp_from_name : form.smtp_from_name.value,
+                    notify_via_sms : form.notify_via_sms.value,
+                    notify_via_email : form.notify_via_email.value,
+                    sms_notify_number : form.sms_notify_number.value,
+                    action : form.action.value,
+                    csrf_token: `{{.CSRFToken}}`,
                 }
-            })
-        }
+
+                const requestOptions = {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer {{.Token}}`,
+                    },
+                    body: JSON.stringify(payload),
+                }
+
+                fetch(`{{.PreferenceMap["API"]}}/api/admin/settings`, requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error === false) {
+                        if (data.redirect === true) {
+                            window.location.href = data.route;
+                        }
+                    } else {
+                        errorAlert(data.message);
+                    }
+                })
+            }
         }
 
         function saveClose() {
@@ -539,42 +547,50 @@
             form.classList.add('was-validated');
 
             if (form.checkValidity() === true) {
-            let active = parseInt(form.active.value)
-
-            let payload = {
-                host_name : form.host_name.value,
-                canonnical_name : form.canonical_name.value,
-                url : form.url.value,
-                ip : form.ip.value,
-                ipv6 : form.ipv6.value,
-                location : form.location.value,
-                os : form.os.value,
-                active : active,
-                action : form.action.value,
-            }
-
-            const requestOptions = {
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer {{.Token}}`,
-                },
-                body: JSON.stringify(payload),
-            }
-
-            fetch(`{{.PreferenceMap["API"]}}/api/admin/host/{{host.ID}}`, requestOptions)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error === false) {
-                    if (data.redirect === true) {
-                        window.location.href = data.route;
-                    }
-                } else {
-                    errorAlert(data.message);
+                let payload = {
+                    host_name : form.site_url.value,
+                    notify_name : form.notify_name.value,
+                    notify_email : form.notify_email.value,
+                    smtp_server : form.smtp_server.value,
+                    smtp_port : form.smtp_port.value,
+                    smtp_user : form.smtp_user.value,
+                    smtp_password : form.smtp_password.value,
+                    sms_enabled : form.sms_enabled.value,
+                    sms_provider : form.sms_provider.value,
+                    twilio_phone_number : form.twilio_phone_number.value,
+                    twilio_sid : form.twilio_sid.value,
+                    twilio_auth_token : form.twilio_auth_token.value,
+                    smtp_from_email : form.smtp_from_email.value,
+                    smtp_from_name : form.smtp_from_name.value,
+                    notify_via_sms : form.notify_via_sms.value,
+                    notify_via_email : form.notify_via_email.value,
+                    sms_notify_number : form.sms_notify_number.value,
+                    action : form.action.value,
+                    csrf_token: `{{.CSRFToken}}`,
                 }
-            })
-        }
+
+                const requestOptions = {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer {{.Token}}`,
+                    },
+                    body: JSON.stringify(payload),
+                }
+
+                fetch(`{{.PreferenceMap["API"]}}/api/admin/settings`, requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error === false) {
+                        if (data.redirect === true) {
+                            window.location.href = data.route;
+                        }
+                    } else {
+                        errorAlert(data.message);
+                    }
+                })
+            }
         }
     </script>
 {{end}}

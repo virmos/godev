@@ -51,7 +51,7 @@ func (app *application) routes() http.Handler {
 		// hosts
 		mux.Post("/host/{id}", app.PostHost)
 		mux.Post("/host/ajax/toggle-service", app.ToggleServiceForHost)
-		mux.Get("/perform-check/{id}/{oldStatus}", app.TestCheck)
+		mux.Post("/perform-check/{id}/{oldStatus}", app.TestCheck)
 	})
 
 	return mux

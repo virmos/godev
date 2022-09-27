@@ -376,24 +376,36 @@ Host
                     active = "0";
                 }
 
-                let formData = new FormData();
-                formData.append("host_id", this.getAttribute("data-host-id"));
-                formData.append("service_id", this.getAttribute("data-service"));
-                formData.append("active", active);
-                formData.append("csrf_token", "{{.CSRFToken}}");
+                let payload = {
+                    host_id : parseInt(this.getAttribute("data-host-id")),
+                    service_id : parseInt(this.getAttribute("data-service")),
+                    active : parseInt(active),
+                    csrf_token: `{{.CSRFToken}}`,
+                }
 
-                fetch("/admin/host/ajax/toggle-service", {
-                    method: "POST",
-                    body: formData,
-                })
+                const requestOptions = {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer {{.Token}}`,
+                    },
+                    body: JSON.stringify(payload),
+                }
+
+                fetch(`{{.PreferenceMap["API"]}}/api/admin/host/ajax/toggle-service`, requestOptions)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.ok) {
+                    if (data.error === false) {
+                        if (data.redirect === true) {
+                            window.location.href = data.route;
+                        }
                         successAlert("Changes saved");
                     } else {
-                        errorAlert("Something went wrong");
+                        errorAlert(data.message);
                     }
                 })
+
             })
         }
     })
@@ -421,8 +433,8 @@ Host
                 os : form.os.value,
                 active : active,
                 action : form.action.value,
+                csrf_token: `{{.CSRFToken}}`,
             }
-            console.log(payload)
 
             const requestOptions = {
                 method: 'post',
@@ -471,6 +483,7 @@ Host
                 os : form.os.value,
                 active : active,
                 action : form.action.value,
+                csrf_token: `{{.CSRFToken}}`,
             }
 
             const requestOptions = {
@@ -498,14 +511,24 @@ Host
     }
 
     function checkNow(id, oldStatus) {
-        console.log("Clicked check now")
+        let payload = {
+            csrf_token: `{{.CSRFToken}}`,
+        }
 
-        fetch('/admin/perform-check/' + id + '/' + oldStatus)
+        const requestOptions = {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer {{.Token}}`,
+            },
+            body: JSON.stringify(payload),
+        }
+
+        fetch('{{.PreferenceMap["API"]}}/api/admin/perform-check/' + id + '/' + oldStatus, requestOptions)
             .then(response => response.json())
             .then(data => {
-                console.log("Ok:", data.ok, "message", data.message)
-
-                if (data.ok) {
+                if (data.error === false) {
                     if (data.old_status !== data.new_status) {
                         attention.toast({
                             msg: data.message,

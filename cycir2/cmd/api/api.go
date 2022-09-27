@@ -163,6 +163,7 @@ func main() {
 
 	log.Println("Host", fmt.Sprintf("%s:%s", cfg.pusherHost, cfg.pusherPort))
 	log.Println("Secure", cfg.pusherSecure)
+	log.Println("Pusher port", cfg.pusherPort)
 
 	app.WsClient = wsClient
 	monitorMap := make(map[int]cron.EntryID)

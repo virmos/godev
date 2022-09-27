@@ -3,7 +3,6 @@ package main
 import (
 	_ "bytes"
 	"cycir/internal/models"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -131,11 +130,17 @@ func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var resp struct {
-		Error   bool   `json:"error"`
-		Message string `json:"message"`
+		Error          bool   `json:"error"`
+		Message        string `json:"message"`
+		Redirect       bool   `json:"redirect"`
+		RedirectStatus int    `json:"status"`
+		Route          string `json:"route"`
 	}
-
 	resp.Error = false
+	resp.Redirect = true
+	resp.Route = "/admin/users"
+	resp.RedirectStatus = http.StatusSeeOther
+
 	app.writeJSON(w, http.StatusOK, resp)
 }
 
@@ -283,34 +288,42 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
+	var newUser models.User
+	err = app.readJSON(w, r, &newUser)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
 	var u models.User
 
 	if id > 0 {
 		u, _ = app.DB.GetUserById(id)
-		u.FirstName = r.Form.Get("first_name")
-		u.LastName = r.Form.Get("last_name")
-		u.Email = r.Form.Get("email")
-		u.UserActive, _ = strconv.Atoi(r.Form.Get("user_active"))
+		u.FirstName = newUser.FirstName
+		u.LastName = newUser.LastName
+		u.Email = newUser.Email
+		u.UserActive = newUser.UserActive
+
 		err := app.DB.UpdateUser(u)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		if len(r.Form.Get("password")) > 0 {
+		if len(newUser.Password) > 0 {
 			// changing password
-			err := app.DB.UpdatePassword(id, r.Form.Get("password"))
+			err := app.DB.UpdatePassword(id, string(newUser.Password))
 			if err != nil {
 				log.Println(err)
 				return
 			}
 		}
 	} else {
-		u.FirstName = r.Form.Get("first_name")
-		u.LastName = r.Form.Get("last_name")
-		u.Email = r.Form.Get("email")
-		u.UserActive, _ = strconv.Atoi(r.Form.Get("user_active"))
-		u.Password = []byte(r.Form.Get("password"))
+		u.FirstName = newUser.FirstName
+		u.LastName = newUser.LastName
+		u.Email = newUser.Email
+		u.UserActive = newUser.UserActive
+		u.Password = newUser.Password
 		u.AccessLevel = 3
 
 		_, err := app.DB.InsertUser(u)
@@ -320,31 +333,42 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Redirect(w, r, "/admin/users", http.StatusSeeOther)
-}
+	var resp struct {
+		Error          bool   `json:"error"`
+		Message        string `json:"message"`
+		Redirect       bool   `json:"redirect"`
+		RedirectStatus int    `json:"status"`
+		Route          string `json:"route"`
+	}
+	resp.Error = false
+	resp.Redirect = true
+	resp.Route = "/admin/users"
+	resp.RedirectStatus = http.StatusSeeOther
 
-type serviceJSON struct {
-	OK bool `json:"ok"`
+	app.writeJSON(w, http.StatusOK, resp)
 }
 
 // ToggleServiceForHost turns a host service on or off (active or inactive)
 func (app *application) ToggleServiceForHost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		log.Println(err)
+	var payload struct {
+		HostID    int `json:"host_id"`
+		ServiceID int `json:"service_id"`
+		Active    int `json:"active"`
 	}
 
-	var resp serviceJSON
-	resp.OK = true
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
 
-	hostID, _ := strconv.Atoi(r.Form.Get("host_id"))
-	serviceID, _ := strconv.Atoi(r.Form.Get("service_id"))
-	active, _ := strconv.Atoi(r.Form.Get("active"))
+	hostID := payload.HostID
+	serviceID := payload.ServiceID
+	active := payload.Active
 
 	err = app.DB.UpdateHostServiceStatus(hostID, serviceID, active)
 	if err != nil {
 		log.Println(err)
-		resp.OK = false
 	}
 
 	// broadcast
@@ -360,37 +384,70 @@ func (app *application) ToggleServiceForHost(w http.ResponseWriter, r *http.Requ
 		app.removeFromMonitorMap(hs)
 	}
 
-	out, _ := json.MarshalIndent(resp, "", "    ")
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(out)
+	var resp struct {
+		Error          bool   `json:"error"`
+		Message        string `json:"message"`
+		Redirect       bool   `json:"redirect"`
+		RedirectStatus int    `json:"status"`
+		Route          string `json:"route"`
+	}
+	resp.Error = false
+	resp.Redirect = false
+
+	app.writeJSON(w, http.StatusOK, resp)
 }
 
 // SetSystemPref sets a given system preference to supplied value, and returns JSON response
 func (app *application) SetSystemPref(w http.ResponseWriter, r *http.Request) {
-	prefName := r.PostForm.Get("pref_name")
-	prefValue := r.PostForm.Get("pref_value")
+	var resp struct {
+		Error          bool   `json:"error"`
+		Message        string `json:"message"`
+		Redirect       bool   `json:"redirect"`
+		RedirectStatus int    `json:"status"`
+		Route          string `json:"route"`
+	}
 
-	var resp jsonResp
-	resp.OK = true
-	resp.Message = ""
+	var payload struct {
+		PrefName  string `json:"pref_name"`
+		PrefValue string `json:"pref_value"`
+	}
 
-	err := app.DB.UpdateSystemPref(prefName, prefValue)
+	err := app.readJSON(w, r, &payload)
 	if err != nil {
-		resp.OK = false
+		app.badRequest(w, r, err)
+		return
+	}
+
+	prefName := payload.PrefName
+	prefValue := payload.PrefValue
+
+	err = app.DB.UpdateSystemPref(prefName, prefValue)
+	if err != nil {
+		resp.Error = true
 		resp.Message = err.Error()
 	}
 
 	app.PreferenceMap["monitoring_live"] = prefValue
 
-	out, _ := json.MarshalIndent(resp, "", "   ")
+	resp.Error = false
+	resp.Redirect = false
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(out)
+	app.writeJSON(w, http.StatusOK, resp)
 }
 
 // ToggleMonitoring turns monitoring on and off
 func (app *application) ToggleMonitoring(w http.ResponseWriter, r *http.Request) {
-	enabled := r.PostForm.Get("enabled")
+	var payload struct {
+		Enabled  string `json:"enabled"`
+	}
+
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	enabled := payload.Enabled
 
 	if enabled == "1" {
 		// start monitoring
@@ -427,11 +484,15 @@ func (app *application) ToggleMonitoring(w http.ResponseWriter, r *http.Request)
 
 	}
 
-	var resp jsonResp
-	resp.OK = true
+	var resp struct {
+		Error          bool   `json:"error"`
+		Message        string `json:"message"`
+		Redirect       bool   `json:"redirect"`
+		RedirectStatus int    `json:"status"`
+		Route          string `json:"route"`
+	}
+	resp.Error = false
+	resp.Redirect = false
 
-	out, _ := json.MarshalIndent(resp, "", "   ")
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(out)
+	app.writeJSON(w, http.StatusOK, resp)
 }
