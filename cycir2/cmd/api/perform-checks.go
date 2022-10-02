@@ -26,13 +26,13 @@ const (
 
 // ScheduledCheck performs a scheduled check on a host service by id
 func (app *application) ScheduledCheck(hostServiceID int) {
-	hs, err := app.DB.GetHostServiceByID(hostServiceID)
+	hs, err := app.repo.GetHostServiceByID(hostServiceID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	h, err := app.DB.GetHostByID(hs.HostID)
+	h, err := app.repo.GetHostByID(hs.HostID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -51,13 +51,13 @@ func (app *application) updateHostServiceStatusCount(h models.Host, hs models.Ho
 	hs.Status = newStatus
 	hs.LastMessage = msg
 	hs.LastCheck = time.Now()
-	err := app.DB.UpdateHostService(hs)
+	err := app.repo.UpdateHostService(hs)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	pending, healthy, warning, problem, err := app.DB.GetAllServiceStatusCounts()
+	pending, healthy, warning, problem, err := app.repo.GetAllServiceStatusCounts()
 	if err != nil {
 		log.Println(err)
 		return
@@ -85,14 +85,14 @@ func (app *application) TestCheck(w http.ResponseWriter, r *http.Request) {
 	okay := true
 
 	// get host service
-	hs, err := app.DB.GetHostServiceByID(hostServiceID)
+	hs, err := app.repo.GetHostServiceByID(hostServiceID)
 	if err != nil {
 		log.Println(err)
 		okay = false
 	}
 
 	// get host
-	h, err := app.DB.GetHostByID(hs.HostID)
+	h, err := app.repo.GetHostByID(hs.HostID)
 	if err != nil {
 		log.Println(err)
 		okay = false
@@ -112,7 +112,7 @@ func (app *application) TestCheck(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}
-	err = app.DB.InsertEvent(event)
+	err = app.repo.InsertEvent(event)
 	if err != nil {
 		log.Println(err)
 	}
@@ -128,7 +128,7 @@ func (app *application) TestCheck(w http.ResponseWriter, r *http.Request) {
 	hs.LastCheck = time.Now()
 	hs.UpdatedAt = time.Now()
 
-	err = app.DB.UpdateHostService(hs)
+	err = app.repo.UpdateHostService(hs)
 	if err != nil {
 		log.Println(err)
 		okay = false
@@ -170,18 +170,19 @@ func (app *application) TestCheck(w http.ResponseWriter, r *http.Request) {
 // testServiceForHost tests a service for a host
 func (app *application) testServiceForHost(h models.Host, hs models.HostService) (string, string) {
 	var msg, newStatus string
+	var statusCode int
 
 	switch hs.ServiceID {
 	case HTTP:
-		msg, newStatus = testHTTPForHost(h.URL)
+		msg, newStatus, statusCode = testHTTPForHost(h.URL)
 		break
 
 	case HTTPS:
-		msg, newStatus = testHTTPSForHost(h.URL)
+		msg, newStatus, statusCode = testHTTPSForHost(h.URL)
 		break
 
 	case SSLCertificate:
-		msg, newStatus = testSSLForHost(h.URL)
+		msg, newStatus, statusCode = testSSLForHost(h.URL)
 		break
 	}
 
@@ -200,10 +201,13 @@ func (app *application) testServiceForHost(h models.Host, hs models.HostService)
 			CreatedAt:     time.Now(),
 			UpdatedAt:     time.Now(),
 		}
-		err := app.DB.InsertEvent(event)
+		err := app.repo.InsertEvent(event)
 		if err != nil {
 			log.Println(err)
 		}
+
+		// add report to elasticsearch
+		err = app.esrepo.InsertHostStatusReport(hs.HostName, strconv.Itoa(statusCode), time.Now().Format("2006-01-02T15:04:05Z07:00"))
 
 		// send email if appropriate
 		if app.PreferenceMap["notify_via_email"] == "1" {
@@ -294,7 +298,7 @@ func (app *application) pushScheduleChangedEvent(hs models.HostService, newStatu
 }
 
 // testHTTPForHost tests HTTP service
-func testHTTPForHost(url string) (string, string) {
+func testHTTPForHost(url string) (string, string, int) {
 	if strings.HasSuffix(url, "/") {
 		url = strings.TrimSuffix(url, "/")
 	}
@@ -303,19 +307,19 @@ func testHTTPForHost(url string) (string, string) {
 
 	resp, err := http.Get(url)
 	if err != nil {
-		return fmt.Sprintf("%s - %s", url, "error connecting"), "problem"
+		return fmt.Sprintf("%s - %s", url, "error connecting"), "problem", resp.StatusCode
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Sprintf("%s - %s", url, resp.Status), "problem"
+		return fmt.Sprintf("%s - %s", url, resp.Status), "problem", resp.StatusCode
 	}
 
-	return fmt.Sprintf("%s - %s", url, resp.Status), "healthy"
+	return fmt.Sprintf("%s - %s", url, resp.Status), "healthy", resp.StatusCode
 }
 
 // testHTTPSForHost tests HTTPS service
-func testHTTPSForHost(url string) (string, string) {
+func testHTTPSForHost(url string) (string, string, int) {
 	log.Println("Testing HTTPS")
 	if strings.HasSuffix(url, "/") {
 		url = strings.TrimSuffix(url, "/")
@@ -326,16 +330,16 @@ func testHTTPSForHost(url string) (string, string) {
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("HTTPS error 1")
-		return fmt.Sprintf("%s - %s", url, "error connecting"), "problem"
+		return fmt.Sprintf("%s - %s", url, "error connecting"), "problem", resp.StatusCode
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		log.Println("HTTPS error 2", resp.StatusCode)
-		return fmt.Sprintf("%s - %s", url, resp.Status), "problem"
+		return fmt.Sprintf("%s - %s", url, resp.Status), "problem", resp.StatusCode
 	}
 
-	return fmt.Sprintf("%s - %s", url, resp.Status), "healthy"
+	return fmt.Sprintf("%s - %s", url, resp.Status), "healthy", resp.StatusCode
 }
 
 // scanHost gets cert details from an internet host
@@ -349,7 +353,7 @@ func scanHost(hostname string, certDetailsChannel chan certificateutils.Certific
 }
 
 // testSSLForHost tests an ssl certificate for a host
-func testSSLForHost(url string) (string, string) {
+func testSSLForHost(url string) (string, string, int) {
 	if strings.HasPrefix(url, "https://") {
 		url = strings.Replace(url, "https://", "", -1)
 	}
@@ -363,6 +367,7 @@ func testSSLForHost(url string) (string, string) {
 
 	var msg string
 	var newStatus string
+	statusCode := http.StatusOK
 
 	scanHost(url, certDetailsChannel, errorsChannel)
 
@@ -379,6 +384,7 @@ func testSSLForHost(url string) (string, string) {
 			if certDetails.DaysUntilExpiration < 7 {
 				msg = certDetails.Hostname + " expiring in " + strconv.Itoa(certDetails.DaysUntilExpiration) + " days"
 				newStatus = "problem"
+				statusCode = http.StatusBadRequest
 			} else {
 				msg = certDetails.Hostname + " expiring in " + strconv.Itoa(certDetails.DaysUntilExpiration) + " days"
 				newStatus = "warning"
@@ -397,9 +403,10 @@ func testSSLForHost(url string) (string, string) {
 		}
 		fmt.Printf("\n")
 		newStatus = "problem"
+		statusCode = http.StatusBadRequest
 	}
 
-	return msg, newStatus
+	return msg, newStatus, statusCode
 }
 
 func (app *application) addToMonitorMap(hs models.HostService) {

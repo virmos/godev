@@ -74,14 +74,14 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 					split := strings.Split(key, "|")
 					uid, hash := split[0], split[1]
 					id, _ := strconv.Atoi(uid)
-					validHash := app.DB.CheckForToken(id, hash)
+					validHash := app.repo.CheckForToken(id, hash)
 
 					if validHash {
 						// valid remember me token, so log the user in
 						_ = session.RenewToken(r.Context())
-						user, _ := app.DB.GetUserById(id)
+						user, _ := app.repo.GetUserById(id)
 						// renew backend token
-						_ = app.DB.RenewToken(id, 24*time.Hour)
+						_ = app.repo.RenewToken(id, 24*time.Hour)
 						hashedPassword := user.Password
 						session.Put(r.Context(), "userID", id)
 						session.Put(r.Context(), "userName", user.FirstName)
@@ -114,7 +114,7 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 					split := strings.Split(key, "|")
 					uid, hash := split[0], split[1]
 					id, _ := strconv.Atoi(uid)
-					validHash := app.DB.CheckForToken(id, hash)
+					validHash := app.repo.CheckForToken(id, hash)
 					if !validHash {
 						deleteRememberCookie(w, r)
 						session.Put(r.Context(), "error", "You've been logged out from another device!")

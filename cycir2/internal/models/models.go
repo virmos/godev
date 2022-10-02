@@ -18,20 +18,16 @@ var (
 	ErrInactiveAccount = errors.New("models: Inactive Account")
 )
 
-// DBModel is the type for database connection values
-type DBModel struct {
+var DB *sql.DB
+
+type PostgresRepository struct {
 	DB *sql.DB
 }
 
-// Models is the wrapper for all models
-type Models struct {
-	DB DBModel
-}
-
-// NewModels returns a model type with database connection pool
-func NewModels(db *sql.DB) Models {
-	return Models{
-		DB: DBModel{DB: db},
+func NewPostgresRepository(pool *sql.DB) *PostgresRepository {
+	DB = pool
+	return &PostgresRepository{
+		DB: pool,
 	}
 }
 

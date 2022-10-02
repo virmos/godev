@@ -17,7 +17,7 @@ import (
 
 // AdminDashboard displays the dashboard
 func (app *application) AdminDashboard(w http.ResponseWriter, r *http.Request) {
-	pending, healthy, warning, problem, err := app.DB.GetAllServiceStatusCounts()
+	pending, healthy, warning, problem, err := app.repo.GetAllServiceStatusCounts()
 	if err != nil {
 		log.Println(err)
 		return
@@ -29,7 +29,7 @@ func (app *application) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 	vars.Set("no_pending", pending)
 	vars.Set("no_warning", warning)
 
-	allHosts, err := app.DB.AllHosts()
+	allHosts, err := app.repo.AllHosts()
 	if err != nil {
 		log.Println(err)
 		return
@@ -44,7 +44,7 @@ func (app *application) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 
 // Events displays the events page
 func (app *application) Events(w http.ResponseWriter, r *http.Request) {
-	events, err := app.DB.GetAllEvents()
+	events, err := app.repo.GetAllEvents()
 	if err != nil {
 		log.Println(err)
 		return
@@ -70,7 +70,7 @@ func (app *application) Settings(w http.ResponseWriter, r *http.Request) {
 // AllHosts displays list of all hosts
 func (app *application) AllHosts(w http.ResponseWriter, r *http.Request) {
 	// get all hosts from database
-	hosts, err := app.DB.AllHosts()
+	hosts, err := app.repo.AllHosts()
 	if err != nil {
 		log.Println(err)
 		return
@@ -94,7 +94,7 @@ func (app *application) Host(w http.ResponseWriter, r *http.Request) {
 
 	if id > 0 {
 		// get the host from the database
-		host, err := app.DB.GetHostByID(id)
+		host, err := app.repo.GetHostByID(id)
 		if err != nil {
 			log.Println(err)
 			return
@@ -115,7 +115,7 @@ func (app *application) Host(w http.ResponseWriter, r *http.Request) {
 func (app *application) AllUsers(w http.ResponseWriter, r *http.Request) {
 	vars := make(jet.VarMap)
 
-	u, err := app.DB.AllUsers()
+	u, err := app.repo.AllUsers()
 	if err != nil {
 		ClientError(w, r, http.StatusBadRequest)
 		return
@@ -139,7 +139,7 @@ func (app *application) OneUser(w http.ResponseWriter, r *http.Request) {
 	vars := make(jet.VarMap)
 
 	if id > 0 {
-		u, err := app.DB.GetUserById(id)
+		u, err := app.repo.GetUserById(id)
 		if err != nil {
 			ClientError(w, r, http.StatusBadRequest)
 			return

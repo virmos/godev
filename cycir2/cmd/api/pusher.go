@@ -13,7 +13,7 @@ import (
 func (app *application) PusherAuth(w http.ResponseWriter, r *http.Request) {
 	userID := 1
 
-	u, _ := app.DB.GetUserById(userID)
+	u, _ := app.repo.GetUserById(userID)
 
 	params, _ := io.ReadAll(r.Body)
 

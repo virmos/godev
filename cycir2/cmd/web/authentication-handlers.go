@@ -34,7 +34,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// id, hash, err := app.DB.Authenticate(r.Form.Get("email"), r.Form.Get("password"))
+	// id, hash, err := app.repo.Authenticate(r.Form.Get("email"), r.Form.Get("password"))
 	// if err == models.ErrInvalidCredentials {
 	// 	app.Session.Put(r.Context(), "error", "Invalid login")
 	// 	err := app.RenderPage(w, r, "login", nil, nil)
@@ -54,7 +54,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	// 	ClientError(w, r, http.StatusBadRequest)
 	// 	return
 	// }
-	user, err := app.DB.GetUserByEmail(r.Form.Get("email"))
+	user, err := app.repo.GetUserByEmail(r.Form.Get("email"))
 	if err != nil {
 		log.Println(err)
 	}
@@ -70,7 +70,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 
 		sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 
-		err = app.DB.InsertRememberMeToken(user.ID, sha)
+		err = app.repo.InsertRememberMeToken(user.ID, sha)
 		if err != nil {
 			log.Println(err)
 		}
@@ -92,7 +92,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// we authenticated. Get the user.
-	u, err := app.DB.GetUserById(user.ID)
+	u, err := app.repo.GetUserById(user.ID)
 	if err != nil {
 		log.Println(err)
 		ClientError(w, r, http.StatusBadRequest)
@@ -131,7 +131,7 @@ func (app *application) Logout(w http.ResponseWriter, r *http.Request) {
 			// key length > 0, so it might be a valid token
 			split := strings.Split(key, "|")
 			hash := split[1]
-			err = app.DB.DeleteToken(hash)
+			err = app.repo.DeleteToken(hash)
 			if err != nil {
 				log.Println(err)
 			}

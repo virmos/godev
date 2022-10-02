@@ -3,6 +3,7 @@ package main
 import (
 	"cycir/internal/channeldata"
 	"cycir/internal/driver"
+	"cycir/internal/elastics"
 	"cycir/internal/models"
 	"encoding/gob"
 	"flag"
@@ -12,6 +13,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/pusher/pusher-http-go"
 	"github.com/robfig/cron/v3"
 )
@@ -43,13 +45,14 @@ type config struct {
 }
 
 type application struct {
-	config       config
-	infoLog      *log.Logger
-	errorLog     *log.Logger
-	version      string
-	DB           models.DBModel
-	PusherSecret string
-	MailQueue    chan channeldata.MailJob
+	config        config
+	infoLog       *log.Logger
+	errorLog      *log.Logger
+	version       string
+	repo          models.Repository
+	esrepo        elastics.Repository
+	PusherSecret  string
+	MailQueue     chan channeldata.MailJob
 	MonitorMap    map[int]cron.EntryID
 	PreferenceMap map[string]string
 	Scheduler     *cron.Cron
@@ -132,11 +135,11 @@ func main() {
 		infoLog:  infoLog,
 		errorLog: errorLog,
 		version:  version,
-		DB:       models.DBModel{DB: db.SQL},
+		repo:     models.NewPostgresRepository(db.SQL),
 	}
 
 	preferenceMap = make(map[string]string)
-	preferences, err := app.DB.AllPreferences()
+	preferences, err := app.repo.AllPreferences()
 	if err != nil {
 		log.Fatal("Cannot read preferences:", err)
 	}
@@ -182,6 +185,28 @@ func main() {
 	if app.PreferenceMap["monitoring_live"] == "1" {
 		app.Scheduler.Start()
 	}
+
+	esCfg := elasticsearch.Config{
+		Addresses: []string{
+			"http://localhost:9200",
+		},
+		Username: "elastic",
+		Password: "EWAq+EaS8dyQV_82TSQd",
+	}
+	es, err := elasticsearch.NewClient(esCfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	esrepo := elastics.NewElasticRepository(es)
+	app.esrepo = esrepo
+
+	// err = esrepo.CreateIndex("cycir")
+	// esrepo.InsertHostStatusReport("my-index-000001")
+	startDate := time.Date(0001, 11, 17, 20, 34, 58, 65138737, time.UTC)
+	endDate := time.Date(2023, 11, 17, 20, 34, 58, 65138737, time.UTC)
+
+	reports, _ := esrepo.RangeReport("my-index-000001", startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
+	log.Println(reports)
 
 	err = app.serve()
 	if err != nil {

@@ -30,7 +30,7 @@ func (app *application) ListEntries(w http.ResponseWriter, r *http.Request) {
 		item.ID = k
 		item.EntryID = v
 		item.Entry = app.Scheduler.Entry(v)
-		hs, err := app.DB.GetHostServiceByID(k)
+		hs, err := app.repo.GetHostServiceByID(k)
 		if err != nil {
 			log.Println(err)
 			return

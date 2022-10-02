@@ -29,14 +29,14 @@ func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// get the user from the database by email; send error if invalid email
-	user, err := app.DB.GetUserByEmail(userInput.Email)
+	user, err := app.repo.GetUserByEmail(userInput.Email)
 	if err != nil {
 		app.invalidCredentials(w)
 		return
 	}
 
 	// validate the password; send error if invalid password
-	_, _, err = app.DB.Authenticate(userInput.Email, userInput.Password)
+	_, _, err = app.repo.Authenticate(userInput.Email, userInput.Password)
 	if err == models.ErrInvalidCredentials {
 		app.invalidCredentials(w)
 		return
@@ -53,7 +53,7 @@ func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// save to database
-	err = app.DB.InsertToken(token, user)
+	err = app.repo.InsertToken(token, user)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
@@ -91,7 +91,7 @@ func (app *application) authenticateToken(r *http.Request) (*models.User, error)
 	}
 
 	// get the user from the tokens table
-	user, err := app.DB.GetUserForToken(token)
+	user, err := app.repo.GetUserForToken(token)
 	if err != nil {
 		return nil, errors.New("no matching user found")
 	}
@@ -123,7 +123,7 @@ func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	userID, _ := strconv.Atoi(id)
 
-	err := app.DB.DeleteUser(userID)
+	err := app.repo.DeleteUser(userID)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
@@ -178,7 +178,7 @@ func (app *application) PostSettings(w http.ResponseWriter, r *http.Request) {
 		prefMap["notify_via_sms"] = "0"
 	}
 
-	err = app.DB.InsertOrUpdateSitePreferences(prefMap)
+	err = app.repo.InsertOrUpdateSitePreferences(prefMap)
 	if err != nil {
 		log.Println(err)
 		return
@@ -227,7 +227,7 @@ func (app *application) PostHost(w http.ResponseWriter, r *http.Request) {
 
 	if id > 0 {
 		// get the host from the database
-		host, err := app.DB.GetHostByID(id)
+		host, err := app.repo.GetHostByID(id)
 		if err != nil {
 			log.Println(err)
 			return
@@ -245,13 +245,13 @@ func (app *application) PostHost(w http.ResponseWriter, r *http.Request) {
 	h.Active = newHost.Active
 
 	if id > 0 {
-		err := app.DB.UpdateHost(h)
+		err := app.repo.UpdateHost(h)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 	} else {
-		newID, err := app.DB.InsertHost(h)
+		newID, err := app.repo.InsertHost(h)
 		if err != nil {
 			log.Println(err)
 			return
@@ -298,13 +298,13 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
 	if id > 0 {
-		u, _ = app.DB.GetUserById(id)
+		u, _ = app.repo.GetUserById(id)
 		u.FirstName = newUser.FirstName
 		u.LastName = newUser.LastName
 		u.Email = newUser.Email
 		u.UserActive = newUser.UserActive
 
-		err := app.DB.UpdateUser(u)
+		err := app.repo.UpdateUser(u)
 		if err != nil {
 			log.Println(err)
 			return
@@ -312,7 +312,7 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 
 		if len(newUser.Password) > 0 {
 			// changing password
-			err := app.DB.UpdatePassword(id, string(newUser.Password))
+			err := app.repo.UpdatePassword(id, string(newUser.Password))
 			if err != nil {
 				log.Println(err)
 				return
@@ -326,7 +326,7 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 		u.Password = newUser.Password
 		u.AccessLevel = 3
 
-		_, err := app.DB.InsertUser(u)
+		_, err := app.repo.InsertUser(u)
 		if err != nil {
 			log.Println(err)
 			return
@@ -366,14 +366,14 @@ func (app *application) ToggleServiceForHost(w http.ResponseWriter, r *http.Requ
 	serviceID := payload.ServiceID
 	active := payload.Active
 
-	err = app.DB.UpdateHostServiceStatus(hostID, serviceID, active)
+	err = app.repo.UpdateHostServiceStatus(hostID, serviceID, active)
 	if err != nil {
 		log.Println(err)
 	}
 
 	// broadcast
-	hs, _ := app.DB.GetHostServiceByHostIDServiceID(hostID, serviceID)
-	h, _ := app.DB.GetHostByID(hostID)
+	hs, _ := app.repo.GetHostServiceByHostIDServiceID(hostID, serviceID)
+	h, _ := app.repo.GetHostByID(hostID)
 
 	// add or remove from schedule
 	if active == 1 {
@@ -421,7 +421,7 @@ func (app *application) SetSystemPref(w http.ResponseWriter, r *http.Request) {
 	prefName := payload.PrefName
 	prefValue := payload.PrefValue
 
-	err = app.DB.UpdateSystemPref(prefName, prefValue)
+	err = app.repo.UpdateSystemPref(prefName, prefValue)
 	if err != nil {
 		resp.Error = true
 		resp.Message = err.Error()

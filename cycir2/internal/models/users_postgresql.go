@@ -10,14 +10,14 @@ import (
 )
 
 // AllUsers returns all users
-func (m *DBModel) AllUsers() ([]*User, error) {
+func (repo *PostgresRepository) AllUsers() ([]*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	stmt := `SELECT id, last_name, first_name, email, user_active, created_at, updated_at FROM users
 		where deleted_at is null`
 
-	rows, err := m.DB.QueryContext(ctx, stmt)
+	rows, err := repo.DB.QueryContext(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -44,14 +44,14 @@ func (m *DBModel) AllUsers() ([]*User, error) {
 }
 
 // GetUserById returns a user by id
-func (m *DBModel) GetUserById(id int) (User, error) {
+func (repo *PostgresRepository) GetUserById(id int) (User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	stmt := `SELECT id, first_name, last_name,  user_active, access_level, email, 
 			created_at, updated_at
 			FROM users where id = $1`
-	row := m.DB.QueryRowContext(ctx, stmt, id)
+	row := repo.DB.QueryRowContext(ctx, stmt, id)
 
 	var u User
 
@@ -75,14 +75,14 @@ func (m *DBModel) GetUserById(id int) (User, error) {
 }
 
 // GetUserByEmail gets a user by email address
-func (m *DBModel) GetUserByEmail(email string) (User, error) {
+func (repo *PostgresRepository) GetUserByEmail(email string) (User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	email = strings.ToLower(email)
 	var u User
 
-	row := m.DB.QueryRowContext(ctx, `
+	row := repo.DB.QueryRowContext(ctx, `
 		select
 			id, first_name, last_name, email, password, created_at, updated_at
 		from
@@ -107,7 +107,7 @@ func (m *DBModel) GetUserByEmail(email string) (User, error) {
 }
 
 // Authenticate authenticates
-func (m *DBModel) Authenticate(email, testPassword string) (int, string, error) {
+func (repo *PostgresRepository) Authenticate(email, testPassword string) (int, string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -124,7 +124,7 @@ func (m *DBModel) Authenticate(email, testPassword string) (int, string, error) 
 			email = $1
 			and deleted_at is null`
 
-	row := m.DB.QueryRowContext(ctx, query, email)
+	row := repo.DB.QueryRowContext(ctx, query, email)
 	err := row.Scan(&id, &hashedPassword, &userActive)
 	if err == sql.ErrNoRows {
 		return 0, "", ErrInvalidCredentials
@@ -150,12 +150,12 @@ func (m *DBModel) Authenticate(email, testPassword string) (int, string, error) 
 }
 
 // InsertRememberMeToken inserts a remember me token into remember_tokens for a user
-func (m *DBModel) InsertRememberMeToken(id int, token string) error {
+func (repo *PostgresRepository) InsertRememberMeToken(id int, token string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	stmt := "insert into remember_tokens (user_id, remember_token) values ($1, $2)"
-	_, err := m.DB.ExecContext(ctx, stmt, id, token)
+	_, err := repo.DB.ExecContext(ctx, stmt, id, token)
 	if err != nil {
 		return err
 	}
@@ -163,12 +163,12 @@ func (m *DBModel) InsertRememberMeToken(id int, token string) error {
 }
 
 // DeleteToken deletes a remember me token
-func (m *DBModel) DeleteToken(token string) error {
+func (repo *PostgresRepository) DeleteToken(token string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	stmt := "delete from remember_tokens where remember_token = $1"
-	_, err := m.DB.ExecContext(ctx, stmt, token)
+	_, err := repo.DB.ExecContext(ctx, stmt, token)
 	if err != nil {
 		return err
 	}
@@ -177,18 +177,18 @@ func (m *DBModel) DeleteToken(token string) error {
 }
 
 // CheckForToken checks for a valid remember me token
-func (m *DBModel) CheckForToken(id int, token string) bool {
+func (repo *PostgresRepository) CheckForToken(id int, token string) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	stmt := "SELECT id  FROM remember_tokens where user_id = $1 and remember_token = $2"
-	row := m.DB.QueryRowContext(ctx, stmt, id, token)
+	row := repo.DB.QueryRowContext(ctx, stmt, id, token)
 	err := row.Scan(&id)
 	return err == nil
 }
 
 // Insert method to add a new record to the users table.
-func (m *DBModel) InsertUser(u User) (int, error) {
+func (repo *PostgresRepository) InsertUser(u User) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -211,7 +211,7 @@ func (m *DBModel) InsertUser(u User) (int, error) {
     VALUES($1, $2, $3, $4, $5, $6) returning id `
 
 	var newId int
-	err = m.DB.QueryRowContext(ctx, stmt,
+	err = repo.DB.QueryRowContext(ctx, stmt,
 		u.FirstName,
 		u.LastName,
 		u.Email,
@@ -226,7 +226,7 @@ func (m *DBModel) InsertUser(u User) (int, error) {
 }
 
 // UpdateUser updates a user by id
-func (m *DBModel) UpdateUser(u User) error {
+func (repo *PostgresRepository) UpdateUser(u User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -243,7 +243,7 @@ func (m *DBModel) UpdateUser(u User) error {
 		where
 			id = $7`
 
-	_, err := m.DB.ExecContext(ctx, stmt,
+	_, err := repo.DB.ExecContext(ctx, stmt,
 		u.FirstName,
 		u.LastName,
 		u.UserActive,
@@ -261,13 +261,13 @@ func (m *DBModel) UpdateUser(u User) error {
 }
 
 // DeleteUser sets a user to deleted by populating deleted_at value
-func (m *DBModel) DeleteUser(id int) error {
+func (repo *PostgresRepository) DeleteUser(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	stmt := `update users set deleted_at = $1, user_active = 0  where id = $2`
 
-	_, err := m.DB.ExecContext(ctx, stmt, time.Now(), id)
+	_, err := repo.DB.ExecContext(ctx, stmt, time.Now(), id)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -277,7 +277,7 @@ func (m *DBModel) DeleteUser(id int) error {
 }
 
 // UpdatePassword resets a password
-func (m *DBModel) UpdatePassword(id int, newPassword string) error {
+func (repo *PostgresRepository) UpdatePassword(id int, newPassword string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -289,7 +289,7 @@ func (m *DBModel) UpdatePassword(id int, newPassword string) error {
 	}
 
 	stmt := `update users set password = $1 where id = $2`
-	_, err = m.DB.ExecContext(ctx, stmt, hashedPassword, id)
+	_, err = repo.DB.ExecContext(ctx, stmt, hashedPassword, id)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -297,7 +297,7 @@ func (m *DBModel) UpdatePassword(id int, newPassword string) error {
 
 	// delete all remember tokens, if any
 	stmt = "delete from remember_tokens where user_id = $1"
-	_, err = m.DB.ExecContext(ctx, stmt, id)
+	_, err = repo.DB.ExecContext(ctx, stmt, id)
 	if err != nil {
 		return err
 	}

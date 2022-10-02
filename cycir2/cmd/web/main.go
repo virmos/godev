@@ -30,7 +30,7 @@ type config struct {
 	db   struct {
 		dsn string
 	}
-	backend     string
+	backend      string
 	pusherHost   string
 	pusherPort   string
 	pusherApp    string
@@ -47,7 +47,7 @@ type application struct {
 	infoLog       *log.Logger
 	errorLog      *log.Logger
 	version       string
-	DB            models.DBModel
+	repo          models.Repository
 	Session       *scs.SessionManager
 	PreferenceMap map[string]string
 	TemplateCache map[string]*template.Template
@@ -81,7 +81,7 @@ func main() {
 	dbPass := flag.String("dbpass", "qwerqwer", "database password")
 	databaseName := flag.String("db", "temp", "database name")
 	dbSsl := flag.String("dbssl", "disable", "database ssl setting")
-	
+
 	if *dbUser == "" || *dbHost == "" || *dbPort == "" || *databaseName == "" {
 		fmt.Println("Missing database required flags.")
 		os.Exit(1)
@@ -137,12 +137,12 @@ func main() {
 		infoLog:  infoLog,
 		errorLog: errorLog,
 		version:  version,
-		DB:       models.DBModel{DB: db.SQL},
+		repo:     models.NewPostgresRepository(db.SQL),
 		Session:  session,
 	}
 
 	preferenceMap = make(map[string]string)
-	preferences, err := app.DB.AllPreferences()
+	preferences, err := app.repo.AllPreferences()
 	if err != nil {
 		log.Fatal("Cannot read preferences:", err)
 	}

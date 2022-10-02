@@ -7,7 +7,7 @@ import (
 )
 
 // InsertHost inserts a host into the database
-func (m *DBModel) InsertHost(h Host) (int, error) {
+func (repo *PostgresRepository) InsertHost(h Host) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -16,7 +16,7 @@ func (m *DBModel) InsertHost(h Host) (int, error) {
 
 	var newID int
 
-	err := m.DB.QueryRowContext(ctx, query,
+	err := repo.DB.QueryRowContext(ctx, query,
 		h.HostName,
 		h.CanonicalName,
 		h.URL,
@@ -39,14 +39,14 @@ func (m *DBModel) InsertHost(h Host) (int, error) {
 	var scheduleUnit []byte
 	query = "SELECT preference FROM preferences WHERE name='check_interval_amount'"
 
-	err = m.DB.QueryRowContext(ctx, query).Scan(&scheduleAmount)
+	err = repo.DB.QueryRowContext(ctx, query).Scan(&scheduleAmount)
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
 	query = "SELECT preference FROM preferences WHERE name='check_interval_unit'"
-	err = m.DB.QueryRowContext(ctx, query).Scan(&scheduleUnit)
+	err = repo.DB.QueryRowContext(ctx, query).Scan(&scheduleUnit)
 	if err != nil {
 		log.Println(err)
 		return 0, err
@@ -54,7 +54,7 @@ func (m *DBModel) InsertHost(h Host) (int, error) {
 
 	// add host services and set to inactive
 	query = `select id from services`
-	serviceRows, err := m.DB.QueryContext(ctx, query)
+	serviceRows, err := repo.DB.QueryContext(ctx, query)
 	if err != nil {
 		log.Println(err)
 		return 0, err
@@ -74,7 +74,7 @@ func (m *DBModel) InsertHost(h Host) (int, error) {
 		    	(host_id, service_id, active, schedule_number, schedule_unit,
 				status, created_at, updated_at) values ($1, $2, 0, $3, $4, 'pending', $5, $6)`
 
-		_, err = m.DB.ExecContext(ctx, stmt, newID, svcID, string(scheduleAmount), string(scheduleUnit), time.Now(), time.Now())
+		_, err = repo.DB.ExecContext(ctx, stmt, newID, svcID, string(scheduleAmount), string(scheduleUnit), time.Now(), time.Now())
 		if err != nil {
 			return newID, err
 		}
@@ -84,7 +84,7 @@ func (m *DBModel) InsertHost(h Host) (int, error) {
 }
 
 // GetHostByID gets a host by id and returns Host
-func (m *DBModel) GetHostByID(id int) (Host, error) {
+func (repo *PostgresRepository) GetHostByID(id int) (Host, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -94,7 +94,7 @@ func (m *DBModel) GetHostByID(id int) (Host, error) {
 		from 
 			hosts where id = $1`
 
-	row := m.DB.QueryRowContext(ctx, query, id)
+	row := repo.DB.QueryRowContext(ctx, query, id)
 
 	var h Host
 
@@ -129,7 +129,7 @@ func (m *DBModel) GetHostByID(id int) (Host, error) {
 				host_id = $1
 			order by s.service_name`
 
-	rows, err := m.DB.QueryContext(ctx, query, h.ID)
+	rows, err := repo.DB.QueryContext(ctx, query, h.ID)
 	if err != nil {
 		log.Println(err)
 		return h, err
@@ -171,7 +171,7 @@ func (m *DBModel) GetHostByID(id int) (Host, error) {
 }
 
 // UpdateHost updates a host in the database
-func (m *DBModel) UpdateHost(h Host) error {
+func (repo *PostgresRepository) UpdateHost(h Host) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -184,7 +184,7 @@ func (m *DBModel) UpdateHost(h Host) error {
 			where 
 			    id = $10`
 
-	_, err := m.DB.ExecContext(ctx, stmt,
+	_, err := repo.DB.ExecContext(ctx, stmt,
 		h.HostName,
 		h.CanonicalName,
 		h.URL,
@@ -205,7 +205,7 @@ func (m *DBModel) UpdateHost(h Host) error {
 	return nil
 }
 
-func (m *DBModel) GetAllServiceStatusCounts() (int, int, int, int, error) {
+func (repo *PostgresRepository) GetAllServiceStatusCounts() (int, int, int, int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -218,7 +218,7 @@ func (m *DBModel) GetAllServiceStatusCounts() (int, int, int, int, error) {
 
 	var pending, healthy, warning, problem int
 
-	row := m.DB.QueryRowContext(ctx, query)
+	row := repo.DB.QueryRowContext(ctx, query)
 	err := row.Scan(
 		&pending,
 		&healthy,
@@ -233,7 +233,7 @@ func (m *DBModel) GetAllServiceStatusCounts() (int, int, int, int, error) {
 }
 
 // AllHosts returns a slice of hosts
-func (m *DBModel) AllHosts() ([]Host, error) {
+func (repo *PostgresRepository) AllHosts() ([]Host, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -246,7 +246,7 @@ func (m *DBModel) AllHosts() ([]Host, error) {
 			order by 
 				host_name`
 
-	rows, err := m.DB.QueryContext(ctx, query)
+	rows, err := repo.DB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +287,7 @@ func (m *DBModel) AllHosts() ([]Host, error) {
 				host_id = $1 
 			and hs.active = 1`
 
-		serviceRows, err := m.DB.QueryContext(ctx, serviceQuery, h.ID)
+		serviceRows, err := repo.DB.QueryContext(ctx, serviceQuery, h.ID)
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -337,13 +337,13 @@ func (m *DBModel) AllHosts() ([]Host, error) {
 }
 
 // UpdateHostServiceStatus updates the active status of a host service
-func (m *DBModel) UpdateHostServiceStatus(hostID, serviceID, active int) error {
+func (repo *PostgresRepository) UpdateHostServiceStatus(hostID, serviceID, active int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	stmt := `update host_services set active = $1 where host_id = $2 and service_id = $3`
 
-	_, err := m.DB.ExecContext(ctx, stmt, active, hostID, serviceID)
+	_, err := repo.DB.ExecContext(ctx, stmt, active, hostID, serviceID)
 	if err != nil {
 		return err
 	}
@@ -351,7 +351,7 @@ func (m *DBModel) UpdateHostServiceStatus(hostID, serviceID, active int) error {
 }
 
 // UpdateHostService updates a host service in the database
-func (m *DBModel) UpdateHostService(hs HostService) error {
+func (repo *PostgresRepository) UpdateHostService(hs HostService) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -363,7 +363,7 @@ func (m *DBModel) UpdateHostService(hs HostService) error {
 				where 
 					id = $10`
 
-	_, err := m.DB.ExecContext(ctx, stmt,
+	_, err := repo.DB.ExecContext(ctx, stmt,
 		hs.HostID,
 		hs.ServiceID,
 		hs.Active,
@@ -382,7 +382,7 @@ func (m *DBModel) UpdateHostService(hs HostService) error {
 }
 
 // GetServicesByStatus returns all active services with a given status
-func (m *DBModel) GetServicesByStatus(status string) ([]HostService, error) {
+func (repo *PostgresRepository) GetServicesByStatus(status string) ([]HostService, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -403,7 +403,7 @@ func (m *DBModel) GetServicesByStatus(status string) ([]HostService, error) {
 
 	var services []HostService
 
-	rows, err := m.DB.QueryContext(ctx, query, status)
+	rows, err := repo.DB.QueryContext(ctx, query, status)
 	if err != nil {
 		return services, err
 	}
@@ -438,7 +438,7 @@ func (m *DBModel) GetServicesByStatus(status string) ([]HostService, error) {
 }
 
 // GetHostServiceByID gets a host service by id
-func (m *DBModel) GetHostServiceByID(id int) (HostService, error) {
+func (repo *PostgresRepository) GetHostServiceByID(id int) (HostService, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -457,7 +457,7 @@ func (m *DBModel) GetHostServiceByID(id int) (HostService, error) {
 
 	var hs HostService
 
-	row := m.DB.QueryRowContext(ctx, query, id)
+	row := repo.DB.QueryRowContext(ctx, query, id)
 
 	err := row.Scan(
 		&hs.ID,
@@ -489,7 +489,7 @@ func (m *DBModel) GetHostServiceByID(id int) (HostService, error) {
 }
 
 // GetServicesToMonitor gets all host services we want to monitor
-func (m *DBModel) GetServicesToMonitor() ([]HostService, error) {
+func (repo *PostgresRepository) GetServicesToMonitor() ([]HostService, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -508,7 +508,7 @@ func (m *DBModel) GetServicesToMonitor() ([]HostService, error) {
 
 	var services []HostService
 
-	rows, err := m.DB.QueryContext(ctx, query)
+	rows, err := repo.DB.QueryContext(ctx, query)
 	if err != nil {
 		log.Println(err)
 	}
@@ -547,7 +547,7 @@ func (m *DBModel) GetServicesToMonitor() ([]HostService, error) {
 }
 
 // GetHostServiceByHostIDServiceID gets a host service by host id and service id
-func (m *DBModel) GetHostServiceByHostIDServiceID(hostID, serviceID int) (HostService, error) {
+func (repo *PostgresRepository) GetHostServiceByHostIDServiceID(hostID, serviceID int) (HostService, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -566,7 +566,7 @@ func (m *DBModel) GetHostServiceByHostIDServiceID(hostID, serviceID int) (HostSe
 
 	var hs HostService
 
-	row := m.DB.QueryRowContext(ctx, query, hostID, serviceID)
+	row := repo.DB.QueryRowContext(ctx, query, hostID, serviceID)
 
 	err := row.Scan(
 		&hs.ID,
@@ -598,7 +598,7 @@ func (m *DBModel) GetHostServiceByHostIDServiceID(hostID, serviceID int) (HostSe
 }
 
 // InsertEvent inserts an event into the database
-func (m *DBModel) InsertEvent(e Event) error {
+func (repo *PostgresRepository) InsertEvent(e Event) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -608,7 +608,7 @@ func (m *DBModel) InsertEvent(e Event) error {
 		values
 			($1, $2, $3, $4, $5, $6, $7, $8)`
 
-	_, err := m.DB.ExecContext(ctx, stmt,
+	_, err := repo.DB.ExecContext(ctx, stmt,
 		e.HostServiceID,
 		e.EventType,
 		e.HostID,
@@ -627,7 +627,7 @@ func (m *DBModel) InsertEvent(e Event) error {
 }
 
 // GetAllEvents gets all events
-func (m *DBModel) GetAllEvents() ([]Event, error) {
+func (repo *PostgresRepository) GetAllEvents() ([]Event, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -636,7 +636,7 @@ func (m *DBModel) GetAllEvents() ([]Event, error) {
 
 	var events []Event
 
-	rows, err := m.DB.QueryContext(ctx, query)
+	rows, err := repo.DB.QueryContext(ctx, query)
 	if err != nil {
 		return events, err
 	}

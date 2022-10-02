@@ -29,7 +29,7 @@ func (app *application) StartMonitoring() {
 		}
 
 		// get all of the services that we want to monitor
-		servicesToMonitor, err := app.DB.GetServicesToMonitor()
+		servicesToMonitor, err := app.repo.GetServicesToMonitor()
 		if err != nil {
 			log.Println(err)
 		}

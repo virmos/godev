@@ -9,7 +9,7 @@ import (
 // AllHealthyServices lists all healthy services
 func (app *application) AllHealthyServices(w http.ResponseWriter, r *http.Request) {
 	// get all host services (with host info) for status pending
-	services, err := app.DB.GetServicesByStatus("healthy")
+	services, err := app.repo.GetServicesByStatus("healthy")
 	if err != nil {
 		log.Println(err)
 		return
@@ -25,7 +25,7 @@ func (app *application) AllHealthyServices(w http.ResponseWriter, r *http.Reques
 // AllWarningServices lists all warning services
 func (app *application) AllWarningServices(w http.ResponseWriter, r *http.Request) {
 	// get all host services (with host info) for status pending
-	services, err := app.DB.GetServicesByStatus("warning")
+	services, err := app.repo.GetServicesByStatus("warning")
 	if err != nil {
 		log.Println(err)
 		return
@@ -41,7 +41,7 @@ func (app *application) AllWarningServices(w http.ResponseWriter, r *http.Reques
 // AllProblemServices lists all problem services
 func (app *application) AllProblemServices(w http.ResponseWriter, r *http.Request) {
 	// get all host services (with host info) for status pending
-	services, err := app.DB.GetServicesByStatus("problem")
+	services, err := app.repo.GetServicesByStatus("problem")
 	if err != nil {
 		log.Println(err)
 		return
@@ -57,7 +57,7 @@ func (app *application) AllProblemServices(w http.ResponseWriter, r *http.Reques
 // AllPendingServices lists all pending services
 func (app *application) AllPendingServices(w http.ResponseWriter, r *http.Request) {
 	// get all host services (with host info) for status pending
-	services, err := app.DB.GetServicesByStatus("pending")
+	services, err := app.repo.GetServicesByStatus("pending")
 	if err != nil {
 		log.Println(err)
 		return

@@ -9,6 +9,7 @@ require (
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/aymerick/douceur v0.2.0
 	github.com/bwmarrin/go-alone v0.0.0-20190806015146-742bb55d1631
+	github.com/elastic/go-elasticsearch/v8 v8.4.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
 	github.com/gomodule/redigo v1.8.9
