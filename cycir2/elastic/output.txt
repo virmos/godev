@@ -1,0 +1,169 @@
+{
+  "took": 2,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 8,
+      "relation": "eq"
+    },
+    "max_score": 0.05715841,
+    "hits": [
+      {
+        "_index": "my-index-000001",
+        "_id": "SlrnkoMB2D7bpWIFCRYV",
+        "_score": 0.05715841,
+        "_source": {
+          "host": "google",
+          "status_code": "500",
+          "@timestamp": "2022-10-01T12:10:30Z"
+        }
+      },
+      {
+        "_index": "my-index-000001",
+        "_id": "S1rnkoMB2D7bpWIFExa2",
+        "_score": 0.05715841,
+        "_source": {
+          "host": "google",
+          "status_code": "500",
+          "@timestamp": "2022-10-01T13:10:30Z"
+        }
+      },
+      {
+        "_index": "my-index-000001",
+        "_id": "TFrnkoMB2D7bpWIFIRb8",
+        "_score": 0.05715841,
+        "_source": {
+          "host": "google",
+          "status_code": "500",
+          "@timestamp": "2022-10-01T14:10:30Z"
+        }
+      },
+      {
+        "_index": "my-index-000001",
+        "_id": "1",
+        "_score": 0.05715841,
+        "_source": {
+          "host": "google",
+          "status_code": "500",
+          "@timestamp": "2022-10-01T12:10:30Z"
+        }
+      },
+      {
+        "_index": "my-index-000001",
+        "_id": "RlrkkoMB2D7bpWIFJhaP",
+        "_score": 0.05715841,
+        "_source": {
+          "host": "github",
+          "status_code": "500",
+          "@timestamp": "2022-10-01T12:10:30Z"
+        }
+      },
+      {
+        "_index": "my-index-000001",
+        "_id": "R1rkkoMB2D7bpWIFmhZU",
+        "_score": 0.05715841,
+        "_source": {
+          "host": "logstash",
+          "status_code": "500",
+          "@timestamp": "2022-10-01T12:10:30Z"
+        }
+      },
+      {
+        "_index": "my-index-000001",
+        "_id": "SFrkkoMB2D7bpWIFnhZl",
+        "_score": 0.05715841,
+        "_source": {
+          "host": "kibana",
+          "status_code": "500",
+          "@timestamp": "2022-10-01T12:10:30Z"
+        }
+      },
+      {
+        "_index": "my-index-000001",
+        "_id": "SVrkkoMB2D7bpWIFrxau",
+        "_score": 0.05715841,
+        "_source": {
+          "host": "logstash",
+          "status_code": "500",
+          "@timestamp": "2022-10-01T12:10:30Z"
+        }
+      }
+    ]
+  },
+  "aggregations": {
+    "query": {
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0,
+      "buckets": [
+        {
+          "key": "google",
+          "doc_count": 4,
+          "timestamp": {
+            "buckets": [
+              {
+                "key_as_string": "2022-10-01T12:00:00.000Z",
+                "key": 1664625600000,
+                "doc_count": 2
+              },
+              {
+                "key_as_string": "2022-10-01T13:00:00.000Z",
+                "key": 1664629200000,
+                "doc_count": 1
+              },
+              {
+                "key_as_string": "2022-10-01T14:00:00.000Z",
+                "key": 1664632800000,
+                "doc_count": 1
+              }
+            ]
+          }
+        },
+        {
+          "key": "logstash",
+          "doc_count": 2,
+          "timestamp": {
+            "buckets": [
+              {
+                "key_as_string": "2022-10-01T12:00:00.000Z",
+                "key": 1664625600000,
+                "doc_count": 2
+              }
+            ]
+          }
+        },
+        {
+          "key": "github",
+          "doc_count": 1,
+          "timestamp": {
+            "buckets": [
+              {
+                "key_as_string": "2022-10-01T12:00:00.000Z",
+                "key": 1664625600000,
+                "doc_count": 1
+              }
+            ]
+          }
+        },
+        {
+          "key": "kibana",
+          "doc_count": 1,
+          "timestamp": {
+            "buckets": [
+              {
+                "key_as_string": "2022-10-01T12:00:00.000Z",
+                "key": 1664625600000,
+                "doc_count": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
