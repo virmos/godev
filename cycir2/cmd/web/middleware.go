@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cycir/internal/models"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -19,11 +20,11 @@ func SessionLoad(next http.Handler) http.Handler {
 // userID in the session
 func (app *application) Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
-		if !app.Session.Exists(r.Context(), "userID") {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		if app.Session.Exists(r.Context(), "userID") && app.Session.Exists(r.Context(), "token") {
+			next.ServeHTTP(w, r)
 			return
 		}
-		next.ServeHTTP(w, r)
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 	})
 }
 
@@ -80,8 +81,12 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 						// valid remember me token, so log the user in
 						_ = session.RenewToken(r.Context())
 						user, _ := app.repo.GetUserById(id)
+
 						// renew backend token
-						_ = app.repo.RenewToken(id, 24*time.Hour)
+						token, _ := models.GenerateToken(id, 24*time.Hour, models.ScopeAuthentication)
+						_ = app.repo.InsertToken(token, user)
+						app.Session.Put(r.Context(), "token", string(token.PlainText))
+						
 						hashedPassword := user.Password
 						session.Put(r.Context(), "userID", id)
 						session.Put(r.Context(), "userName", user.FirstName)

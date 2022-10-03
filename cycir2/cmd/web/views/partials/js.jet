@@ -279,7 +279,7 @@
                             // want to turn monitoring off
                             console.log("Would turn monitoring off");
                             updateSystemPref("monitoring_live", "0");
-                            toggleMonitoring(0);
+                            toggleMonitoring("0");
                         } else {
                             document.getElementById("monitoring-live").checked = true;
                         }
@@ -287,7 +287,7 @@
                 })
             } else {
                 updateSystemPref("monitoring_live", "1");
-                toggleMonitoring(1);
+                toggleMonitoring("1");
             }
         })
     });
@@ -295,7 +295,7 @@
     function updateSystemPref(prefName, prefValue) {
         let payload = {
             pref_name : prefName,
-            canonnical_name : prefValue,
+            pref_value : prefValue,
             csrf_token: `{{.CSRFToken}}`,
         }
 
@@ -346,7 +346,7 @@
                     window.location.href = data.route;
                 }
             } else {
-                errorAlert("Errors: " + resp.message);
+                errorAlert("Errors: " + data.message);
             }
         })
 

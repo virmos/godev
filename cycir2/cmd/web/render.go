@@ -37,13 +37,6 @@ func addTemplateFunctions() {
 	})
 }
 
-func UTCDate(t time.Time) string {
-	if t.IsZero() {
-		return ""
-	}
-	return t.Format("2006-01-02T15:04:05Z07:00")
-}
-
 // HumanDate formats a time in YYYY-MM-DD format
 func HumanDate(t time.Time) string {
 	if t.IsZero() {

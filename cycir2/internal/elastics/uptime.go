@@ -11,12 +11,12 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
 
-func (es *ElasticRepository) CreateIndex(name string) error {
+func (es *ElasticRepository) CreateIndex(index string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	checkExistsReq := esapi.IndicesExistsRequest{
-		Index: []string{name},
+		Index: []string{index},
 	}
 	res, err := checkExistsReq.Do(ctx, es.Client)
 	if err != nil {
@@ -46,7 +46,7 @@ func (es *ElasticRepository) CreateIndex(name string) error {
 		}`
 
 		req := esapi.IndicesCreateRequest{
-			Index: name,
+			Index: index,
 			Body:  strings.NewReader(string(mapping)),
 		}
 		_, err = req.Do(ctx, es.Client)
@@ -58,20 +58,51 @@ func (es *ElasticRepository) CreateIndex(name string) error {
 	return nil
 }
 
-type Report struct {
-	Host           string `json:"host"`
-	StatusCode     string `json:"status_code"`
-	Time           string `json:"@timestamp"`
-	HoursHistogram []int  `json:"@hours_histogram"`
-	DayssHistogram []int  `json:"@days_histogram"`
+// testing
+func (es *ElasticRepository) GetAllReports(index string) (map[string]interface{}, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"match_all": map[string]interface{}{
+
+			},
+		},
+	}
+
+	var buf bytes.Buffer
+	var r map[string]interface{}
+	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+		log.Fatalf("Error encoding query: %s", err)
+		return nil, err
+	}
+
+	res, err := es.Client.Search(
+		es.Client.Search.WithContext(ctx),
+		es.Client.Search.WithIndex(index),
+		es.Client.Search.WithBody(&buf),
+		es.Client.Search.WithTrackTotalHits(true),
+		es.Client.Search.WithPretty(),
+	)
+
+	if err != nil {
+		log.Fatalf("Error querying elasticsearch: %s", err)
+	}
+
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		log.Fatalf("Error parsing the response body: %s", err)
+	}
+
+	return r, nil
 }
 
-func (es *ElasticRepository) InsertHostStatusReport(name, statusCode, date string) error {
+func (es *ElasticRepository) InsertHostStatusReport(index, hostName, statusCode, date string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	report := Report{
-		Host:       name,
+		Host:       hostName,
 		StatusCode: statusCode,
 		Time:       date,
 	}
@@ -81,24 +112,27 @@ func (es *ElasticRepository) InsertHostStatusReport(name, statusCode, date strin
 	}
 
 	req := esapi.IndexRequest{
-		Index:   name,
+		Index:   index,
 		Body:    bytes.NewReader(data),
 		Refresh: "true",
 	}
 
 	// Perform the request with the client.
-	_, err = req.Do(ctx, es.Client)
+	res, err := req.Do(ctx, es.Client)
 
 	if err != nil {
 		log.Fatalf("Error insert into elasticsearch: %s", err)
 		return err
 	}
 
+	log.Println(res.StatusCode)
+	log.Println("Adding report to elasticsearch")
+
 	return nil
 }
 
 // startDate and Endate are in UTC format
-func (es *ElasticRepository) YesterdayUptimeReport(name string) ([]Report, error) {
+func (es *ElasticRepository) GetYesterdayUptimeReport(index string) (map[string]Report, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -146,7 +180,7 @@ func (es *ElasticRepository) YesterdayUptimeReport(name string) ([]Report, error
 
 	res, err := es.Client.Search(
 		es.Client.Search.WithContext(ctx),
-		es.Client.Search.WithIndex(name),
+		es.Client.Search.WithIndex(index),
 		es.Client.Search.WithBody(&buf),
 		es.Client.Search.WithTrackTotalHits(true),
 		es.Client.Search.WithPretty(),
@@ -160,7 +194,7 @@ func (es *ElasticRepository) YesterdayUptimeReport(name string) ([]Report, error
 		log.Fatalf("Error parsing the response body: %s", err)
 	}
 
-	var uptimeReports []Report
+	timeReports := make(map[string]Report)
 	for _, bucket := range r["aggregations"].(map[string]interface{})["query"].(map[string]interface{})["buckets"].([]interface{}) {
 		host := bucket.(map[string]interface{})["key"]
 		reports := bucket.(map[string]interface{})["timestamp"].(map[string]interface{})["buckets"]
@@ -171,17 +205,16 @@ func (es *ElasticRepository) YesterdayUptimeReport(name string) ([]Report, error
 			count := report.(map[string]interface{})["doc_count"]
 			time, _ := DateFromUTCString(timestamp.(string))
 			hoursHistogram[time.Hour()] = int(count.(float64))
-
-			report := Report{Host: host.(string), HoursHistogram: hoursHistogram}
-			uptimeReports = append(uptimeReports, report)
 		}
+		timeReports[host.(string)] = Report{HoursHistogram: hoursHistogram}
 	}
 
-	return uptimeReports, nil
+	return timeReports, nil
+
 }
 
 // startDate and Endate are in UTC format
-func (es *ElasticRepository) YesterdayReport(name string) ([]Report, error) {
+func (es *ElasticRepository) GetYesterdayReport(index string) (map[string]Report, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -224,7 +257,7 @@ func (es *ElasticRepository) YesterdayReport(name string) ([]Report, error) {
 
 	res, err := es.Client.Search(
 		es.Client.Search.WithContext(ctx),
-		es.Client.Search.WithIndex(name),
+		es.Client.Search.WithIndex(index),
 		es.Client.Search.WithBody(&buf),
 		es.Client.Search.WithTrackTotalHits(true),
 		es.Client.Search.WithPretty(),
@@ -238,7 +271,7 @@ func (es *ElasticRepository) YesterdayReport(name string) ([]Report, error) {
 		log.Fatalf("Error parsing the response body: %s", err)
 	}
 
-	var timeReports []Report
+	timeReports := make(map[string]Report)
 	for _, bucket := range r["aggregations"].(map[string]interface{})["query"].(map[string]interface{})["buckets"].([]interface{}) {
 		host := bucket.(map[string]interface{})["key"]
 		reports := bucket.(map[string]interface{})["timestamp"].(map[string]interface{})["buckets"]
@@ -249,17 +282,15 @@ func (es *ElasticRepository) YesterdayReport(name string) ([]Report, error) {
 			count := report.(map[string]interface{})["doc_count"]
 			time, _ := DateFromUTCString(timestamp.(string))
 			hoursHistogram[time.Hour()] = int(count.(float64))
-
-			report := Report{Host: host.(string), HoursHistogram: hoursHistogram}
-			timeReports = append(timeReports, report)
 		}
+		timeReports[host.(string)] = Report{HoursHistogram: hoursHistogram}
 	}
 
 	return timeReports, nil
 }
 
 // startDate and Endate are in UTC format
-func (es *ElasticRepository) RangeUptimeReport(name, startDate, endDate string) ([]Report, error) {
+func (es *ElasticRepository) GetRangeUptimeReport(index, startDate, endDate string) (map[string]Report, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -268,7 +299,7 @@ func (es *ElasticRepository) RangeUptimeReport(name, startDate, endDate string) 
 			"bool": map[string]interface{}{
 				"must": map[string]interface{}{
 					"match": map[string]interface{}{
-						"status_code": "200",
+						"status_code": "400",
 					},
 				},
 				"filter": map[string]interface{}{
@@ -307,7 +338,7 @@ func (es *ElasticRepository) RangeUptimeReport(name, startDate, endDate string) 
 
 	res, err := es.Client.Search(
 		es.Client.Search.WithContext(ctx),
-		es.Client.Search.WithIndex(name),
+		es.Client.Search.WithIndex(index),
 		es.Client.Search.WithBody(&buf),
 		es.Client.Search.WithTrackTotalHits(true),
 		es.Client.Search.WithPretty(),
@@ -321,85 +352,7 @@ func (es *ElasticRepository) RangeUptimeReport(name, startDate, endDate string) 
 		log.Fatalf("Error parsing the response body: %s", err)
 	}
 
-	var uptimeReports []Report
-	for _, bucket := range r["aggregations"].(map[string]interface{})["query"].(map[string]interface{})["buckets"].([]interface{}) {
-		host := bucket.(map[string]interface{})["key"]
-		reports := bucket.(map[string]interface{})["timestamp"].(map[string]interface{})["buckets"]
-		daysHistogram := make([]int, 31, 31)
-
-		for _, report := range reports.([]interface{}) {
-			timestamp := report.(map[string]interface{})["key_as_string"]
-			count := report.(map[string]interface{})["doc_count"]
-			time, _ := DateFromUTCString(timestamp.(string))
-			daysHistogram[time.Day()] = int(count.(float64))
-
-			report := Report{Host: host.(string), DayssHistogram: daysHistogram}
-			uptimeReports = append(uptimeReports, report)
-		}
-	}
-
-	return uptimeReports, nil
-}
-
-// startDate and Endate are in UTC format
-func (es *ElasticRepository) RangeReport(name, startDate, endDate string) ([]Report, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
-	query := map[string]interface{}{
-		"query": map[string]interface{}{
-			"bool": map[string]interface{}{
-				"filter": map[string]interface{}{
-					"range": map[string]interface{}{
-						"@timestamp": map[string]interface{}{
-							"gte": startDate,
-							"lt":  endDate,
-						},
-					},
-				},
-			},
-		},
-		"aggs": map[string]interface{}{
-			"query": map[string]interface{}{
-				"terms": map[string]interface{}{
-					"field": "host",
-				},
-				"aggs": map[string]interface{}{
-					"timestamp": map[string]interface{}{
-						"date_histogram": map[string]interface{}{
-							"field":             "@timestamp",
-							"calendar_interval": "day",
-						},
-					},
-				},
-			},
-		},
-	}
-
-	var buf bytes.Buffer
-	var r map[string]interface{}
-	if err := json.NewEncoder(&buf).Encode(query); err != nil {
-		log.Fatalf("Error encoding query: %s", err)
-		return nil, err
-	}
-
-	res, err := es.Client.Search(
-		es.Client.Search.WithContext(ctx),
-		es.Client.Search.WithIndex(name),
-		es.Client.Search.WithBody(&buf),
-		es.Client.Search.WithTrackTotalHits(true),
-		es.Client.Search.WithPretty(),
-	)
-
-	if err != nil {
-		log.Fatalf("Error querying elasticsearch: %s", err)
-	}
-
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		log.Fatalf("Error parsing the response body: %s", err)
-	}
-
-	var timeReports []Report
+	timeReports := make(map[string]Report)
 	for _, bucket := range r["aggregations"].(map[string]interface{})["query"].(map[string]interface{})["buckets"].([]interface{}) {
 		host := bucket.(map[string]interface{})["key"]
 		reports := bucket.(map[string]interface{})["timestamp"].(map[string]interface{})["buckets"]
@@ -410,10 +363,84 @@ func (es *ElasticRepository) RangeReport(name, startDate, endDate string) ([]Rep
 			count := report.(map[string]interface{})["doc_count"]
 			time, _ := DateFromUTCString(timestamp.(string))
 			daysHistogram[time.Hour()] = int(count.(float64))
-
-			report := Report{Host: host.(string), DayssHistogram: daysHistogram}
-			timeReports = append(timeReports, report)
 		}
+		timeReports[host.(string)] = Report{DaysHistogram: daysHistogram}
+	}
+
+	return timeReports, nil
+}
+
+// startDate and Endate are in UTC format
+func (es *ElasticRepository) GetRangeReport(index, startDate, endDate string) (map[string]Report, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"filter": map[string]interface{}{
+					"range": map[string]interface{}{
+						"@timestamp": map[string]interface{}{
+							"gte": startDate,
+							"lt":  endDate,
+						},
+					},
+				},
+			},
+		},
+		"aggs": map[string]interface{}{
+			"query": map[string]interface{}{
+				"terms": map[string]interface{}{
+					"field": "host",
+				},
+				"aggs": map[string]interface{}{
+					"timestamp": map[string]interface{}{
+						"date_histogram": map[string]interface{}{
+							"field":             "@timestamp",
+							"calendar_interval": "day",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	var buf bytes.Buffer
+	var r map[string]interface{}
+	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+		log.Fatalf("Error encoding query: %s", err)
+		return nil, err
+	}
+
+	res, err := es.Client.Search(
+		es.Client.Search.WithContext(ctx),
+		es.Client.Search.WithIndex(index),
+		es.Client.Search.WithBody(&buf),
+		es.Client.Search.WithTrackTotalHits(true),
+		es.Client.Search.WithPretty(),
+	)
+
+	if err != nil {
+		log.Fatalf("Error querying elasticsearch: %s", err)
+	}
+
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		log.Fatalf("Error parsing the response body: %s", err)
+	}
+
+	timeReports := make(map[string]Report)
+	for _, bucket := range r["aggregations"].(map[string]interface{})["query"].(map[string]interface{})["buckets"].([]interface{}) {
+		host := bucket.(map[string]interface{})["key"]
+		reports := bucket.(map[string]interface{})["timestamp"].(map[string]interface{})["buckets"]
+		daysHistogram := make([]int, 31, 31)
+
+		for _, report := range reports.([]interface{}) {
+			timestamp := report.(map[string]interface{})["key_as_string"]
+			count := report.(map[string]interface{})["doc_count"]
+			time, _ := DateFromUTCString(timestamp.(string))
+			daysHistogram[time.Hour()] = int(count.(float64))
+		}
+		timeReports[host.(string)] = Report{DaysHistogram: daysHistogram}
 	}
 
 	return timeReports, nil

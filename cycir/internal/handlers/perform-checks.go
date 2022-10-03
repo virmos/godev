@@ -195,7 +195,7 @@ func (repo *DBRepo) testServiceForHost(h models.Host, hs models.HostService) (st
 	}
 
 	// broadcast to clients if appropriate
-	if hs.Status != newStatus {
+	if hs.Status == newStatus {
 		repo.pushStatusChangedEvent(h, hs, newStatus)
 
 		// save event

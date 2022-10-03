@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type Repository interface {
 	// users
 	AllUsers() ([]*User, error)
@@ -17,7 +15,6 @@ type Repository interface {
 	UpdatePassword(id int, newPassword string) error
 
 	// tokens
-	RenewToken(userID int, ttl time.Duration) error
 	InsertToken(t *Token, u User) error
 	GetUserForToken(token string) (*User, error)
 

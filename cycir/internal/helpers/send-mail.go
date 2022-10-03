@@ -1,6 +1,8 @@
 package helpers
 
-import "cycir/internal/channeldata"
+import (
+	"cycir/internal/channeldata"
+)
 
 // SendEmail sends an email
 func SendEmail(mailMessage channeldata.MailData) {

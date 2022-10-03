@@ -33,6 +33,11 @@ type config struct {
 	db   struct {
 		dsn string
 	}
+	esAddress    string
+	esUsername   string
+	esPassword   string
+	esIndex      string
+
 	frontend     string
 	pusherHost   string
 	pusherPort   string
@@ -110,6 +115,11 @@ func main() {
 	flag.StringVar(&cfg.Domain, "domain", "localhost", "domain name (e.g. example.com)")
 	flag.BoolVar(&cfg.InProduction, "production", false, "application is in production")
 
+	flag.StringVar(&cfg.esAddress, "esAddress", "http://localhost:9200", "elasticsearch address")
+	flag.StringVar(&cfg.esUsername, "esUsername", "elastic", "elasticsearch username")
+	flag.StringVar(&cfg.esPassword, "esPassword", "EWAq+EaS8dyQV_82TSQd", "elasticsearch password")
+	flag.StringVar(&cfg.esIndex, "esIndex", "my-index-000001", "elasticsearch index")
+
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -130,12 +140,27 @@ func main() {
 	dispatcher := NewDispatcher(mailQueue, maxJobMaxWorkers)
 	dispatcher.run()
 
+	// Start elasticsearch
+	esCfg := elasticsearch.Config{
+		Addresses: []string{
+			cfg.esAddress,
+		},
+		Username: cfg.esUsername,
+		Password: cfg.esPassword,
+	}
+	es, err := elasticsearch.NewClient(esCfg)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	esrepo := elastics.NewElasticRepository(es)
+	
 	app := &application{
 		config:   cfg,
 		infoLog:  infoLog,
 		errorLog: errorLog,
 		version:  version,
 		repo:     models.NewPostgresRepository(db.SQL),
+		esrepo:   esrepo,
 	}
 
 	preferenceMap = make(map[string]string)
@@ -185,28 +210,13 @@ func main() {
 	if app.PreferenceMap["monitoring_live"] == "1" {
 		app.Scheduler.Start()
 	}
+	// err = esrepo.CreateIndex("my-index-000001")
+	// if err != nil {
+	// 	errorLog.Fatal(err)
+	// }
 
-	esCfg := elasticsearch.Config{
-		Addresses: []string{
-			"http://localhost:9200",
-		},
-		Username: "elastic",
-		Password: "EWAq+EaS8dyQV_82TSQd",
-	}
-	es, err := elasticsearch.NewClient(esCfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-	esrepo := elastics.NewElasticRepository(es)
-	app.esrepo = esrepo
-
-	// err = esrepo.CreateIndex("cycir")
-	// esrepo.InsertHostStatusReport("my-index-000001")
-	startDate := time.Date(0001, 11, 17, 20, 34, 58, 65138737, time.UTC)
-	endDate := time.Date(2023, 11, 17, 20, 34, 58, 65138737, time.UTC)
-
-	reports, _ := esrepo.RangeReport("my-index-000001", startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
-	log.Println(reports)
+	// reports, _ := app.esrepo.GetAllReports("my-index-000001")
+	// log.Println(reports)
 
 	err = app.serve()
 	if err != nil {

@@ -1,8 +1,8 @@
 package elastics
 
 import (
-	"github.com/elastic/go-elasticsearch/v8"
 	"fmt"
+	"github.com/elastic/go-elasticsearch/v8"
 	"time"
 )
 
@@ -27,4 +27,14 @@ func DateFromUTCString(s string) (time.Time, error) {
 		return yearOne, err
 	}
 	return t, err
+}
+
+type Report struct {
+	Host           string   `json:"host"`
+	StatusCode     string   `json:"status_code"`
+	Time           string   `json:"@timestamp"`
+	HoursHistogram []int    `json:"@hours_histogram"`
+	DaysHistogram  []int    `json:"@days_histogram"`
+	Histogram      []string `json:"@histogram"`
+	Count          []string `json:"@count"`
 }

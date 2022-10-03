@@ -23,8 +23,9 @@ func NewHelpers(app *application) {
 
 // IsAuthenticated returns true if a user is authenticated
 func IsAuthenticated(r *http.Request) bool {
-	exists := a.Session.Exists(r.Context(), "userID")
-	return exists
+	existsUserID := a.Session.Exists(r.Context(), "userID")
+	existsToken := a.Session.Exists(r.Context(), "token")
+	return existsUserID && existsToken
 }
 
 // RandomString returns a random string of letters of length n

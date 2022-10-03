@@ -1,10 +1,12 @@
 package main
 
 import (
+	"cycir/internal/elastics"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -116,3 +118,59 @@ func (app *application) passwordMatches(hash []byte, password string) (bool, err
 	return true, nil
 }
 
+func parseUptimeReports(uptimeReports, reports map[string]elastics.Report) (map[string]elastics.Report, error) {
+	results :=  make(map[string]elastics.Report)
+
+	for key, report := range reports {
+		var result elastics.Report
+		result.Histogram = make([]string, 24)
+		result.Count = make([]string, 24)
+		result.Host = key
+
+		_, found := uptimeReports[key]
+		for j := 0; j < 24; j++ { // number of hours in a day
+			result.Count[j] = strconv.Itoa(report.HoursHistogram[j])
+			if (found) {
+				uptime := uptimeReports[key].HoursHistogram[j]	
+				reportTime := report.HoursHistogram[j]	
+				
+				if (reportTime == 0) {
+					result.Histogram[j] = "0%"
+				} else {
+					percent := float64(uptime) / float64(reportTime) * 100
+					result.Histogram[j] = strconv.FormatFloat(percent, 'E', -1, 64) + "%"
+				}
+			}
+		}
+		results[key] = result
+	}
+	return results, nil
+}
+
+func parseUptimeRangeReports(uptimeReports, reports map[string]elastics.Report) (map[string]elastics.Report, error) {
+	results :=  make(map[string]elastics.Report)
+
+	for key, report := range reports {
+		var result elastics.Report
+		result.Histogram = make([]string, 31)
+		result.Count = make([]string, 31)
+		result.Host = key
+
+		_, found := uptimeReports[key]
+		for j := 0; j < 31; j++ { // number of days in a month
+			result.Count[j] = strconv.Itoa(report.DaysHistogram[j])
+			result.Histogram[j] = "0%"
+			if (found) {
+				uptime := uptimeReports[key].DaysHistogram[j]	
+				reportTime := report.DaysHistogram[j]	
+				
+				if (reportTime != 0) {
+					percent := float64(uptime) / float64(reportTime) * 100
+					result.Histogram[j] = strconv.FormatFloat(percent, 'E', -1, 64) + "%"
+				} 
+			}
+		}
+		results[key] = result
+	}
+	return results, nil
+}

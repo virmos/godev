@@ -39,10 +39,17 @@ func (app *application) ScheduledCheck(hostServiceID int) {
 	}
 
 	// tests the service
-	newStatus, msg := app.testServiceForHost(h, hs)
+	newStatus, msg, statusCode := app.testServiceForHost(h, hs)
 
 	if newStatus != hs.Status {
 		app.updateHostServiceStatusCount(h, hs, newStatus, msg)
+		
+		// add report to elasticsearch
+		err = app.esrepo.InsertHostStatusReport(app.config.esIndex, hs.HostName, strconv.Itoa(statusCode), time.Now().Format("2006-01-02T15:04:05Z07:00"))
+		if (err != nil) {
+			log.Println(err)
+			return
+		}
 	}
 }
 
@@ -99,7 +106,7 @@ func (app *application) TestCheck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// test the service
-	newStatus, msg := app.testServiceForHost(h, hs)
+	newStatus, msg, _ := app.testServiceForHost(h, hs)
 
 	// save event
 	event := models.Event{
@@ -168,7 +175,7 @@ func (app *application) TestCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 // testServiceForHost tests a service for a host
-func (app *application) testServiceForHost(h models.Host, hs models.HostService) (string, string) {
+func (app *application) testServiceForHost(h models.Host, hs models.HostService) (string, string, int) {
 	var msg, newStatus string
 	var statusCode int
 
@@ -187,7 +194,7 @@ func (app *application) testServiceForHost(h models.Host, hs models.HostService)
 	}
 
 	// broadcast to clients if appropriate
-	if hs.Status != newStatus {
+	if hs.Status == newStatus { // here
 		app.pushStatusChangedEvent(h, hs, newStatus)
 
 		// save event
@@ -206,9 +213,6 @@ func (app *application) testServiceForHost(h models.Host, hs models.HostService)
 			log.Println(err)
 		}
 
-		// add report to elasticsearch
-		err = app.esrepo.InsertHostStatusReport(hs.HostName, strconv.Itoa(statusCode), time.Now().Format("2006-01-02T15:04:05Z07:00"))
-
 		// send email if appropriate
 		if app.PreferenceMap["notify_via_email"] == "1" {
 			if hs.Status != "pending" {
@@ -219,19 +223,44 @@ func (app *application) testServiceForHost(h models.Host, hs models.HostService)
 
 				if newStatus == "healthy" {
 					mm.Subject = fmt.Sprintf("HEALTHY: service %s on %s", hs.Service.ServiceName, hs.HostName)
-					mm.Content = template.HTML(fmt.Sprintf(`<p>Service %s on %s apprted healthy status</p>
+					mm.Content = template.HTML(fmt.Sprintf(`<p>Service %s on %s reported healthy status</p>
 						<p><strong>Message received: %s</strong>/p>`, hs.Service.ServiceName, hs.HostName, msg))
 				} else if newStatus == "problem" {
 					mm.Subject = fmt.Sprintf("PROBLEM: service %s on %s", hs.Service.ServiceName, hs.HostName)
-					mm.Content = template.HTML(fmt.Sprintf(`<p>Service %s on %s apprted problem</p>
+					mm.Content = template.HTML(fmt.Sprintf(`<p>Service %s on %s reported problem</p>
 						<p><strong>Message received: %s</strong></p>`, hs.Service.ServiceName, hs.HostName, msg))
 				} else if newStatus == "warning" {
 
 				}
-
-				SendEmail(mm)
+				app.SendEmail(mm)
 			}
 		}
+
+		mm := channeldata.MailData{
+			ToName:    app.PreferenceMap["notify_name"],
+			ToAddress: app.PreferenceMap["notify_email"],
+		}
+		startDate := time.Date(0001, 11, 17, 20, 34, 58, 65138737, time.UTC)
+		endDate := time.Date(2023, 11, 17, 20, 34, 58, 65138737, time.UTC)
+	
+		reports, _ := app.esrepo.GetRangeReport(app.config.esIndex, startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
+		uptimeReports, _ := app.esrepo.GetRangeUptimeReport(app.config.esIndex, startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
+		results, _ := parseUptimeRangeReports(uptimeReports, reports)
+		msgBuilder := ""
+		for key, report := range results {
+			msgBuilder = fmt.Sprintf(`Host %s 31 days uptime percentage report: `, key) + msgBuilder
+			msgBuilder = `<p>` + msgBuilder 
+			msgBuilder = msgBuilder + strings.Join(report.Histogram, ", ")
+			msgBuilder = msgBuilder + `</p>`  
+
+			msgBuilder = `<p>` + msgBuilder 
+			msgBuilder = msgBuilder + strings.Join(report.Count, ", ")
+			msgBuilder = msgBuilder + `</p>`  
+		}
+		mm.Subject = fmt.Sprintf("Range uptime report")
+		mm.Content = template.HTML(msgBuilder)
+		app.SendEmail(mm)
+	
 
 		// // send sms if appropriate
 		// if app.PreferenceMap["notify_via_sms"] == "1" {
@@ -255,7 +284,7 @@ func (app *application) testServiceForHost(h models.Host, hs models.HostService)
 
 	app.pushScheduleChangedEvent(hs, newStatus)
 
-	return newStatus, msg
+	return newStatus, msg, statusCode
 }
 
 func (app *application) pushStatusChangedEvent(h models.Host, hs models.HostService, newStatus string) {
@@ -266,7 +295,7 @@ func (app *application) pushStatusChangedEvent(h models.Host, hs models.HostServ
 	data["service_name"] = hs.Service.ServiceName
 	data["icon"] = hs.Service.Icon
 	data["status"] = newStatus
-	data["message"] = fmt.Sprintf("%s on %s apprts %s", hs.Service.ServiceName, h.HostName, newStatus)
+	data["message"] = fmt.Sprintf("%s on %s reports %s", hs.Service.ServiceName, h.HostName, newStatus)
 	data["last_check"] = time.Now().Format("2006-01-02 3:04:06 PM")
 
 	app.broadcastMessage("public-channel", "host-service-status-changed", data)

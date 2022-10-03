@@ -38,7 +38,6 @@ func (w Worker) start() {
 		for {
 			// Add jobQueue to the worker pool.
 			w.workerPool <- w.jobQueue
-
 			select {
 			case job := <-w.jobQueue:
 				w.processMailQueueJob(job.MailMessage)
@@ -113,7 +112,7 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 		Content:       mailMessage.Content,
 		FromName:      mailMessage.FromName,
 		From:          mailMessage.FromAddress,
-		PreferenceMap: preferenceMap,
+		PreferenceMap: app.PreferenceMap,
 		IntMap:        mailMessage.IntMap,
 		StringMap:     mailMessage.StringMap,
 		FloatMap:      mailMessage.FloatMap,
@@ -121,11 +120,10 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 	}
 
 	paths := []string{
-		"./views/mail.tmpl",
+		"../web/views/mail.tmpl",
 	}
 
 	t := template.Must(template.New("mail.tmpl").ParseFiles(paths...))
-
 	var tpl bytes.Buffer
 	if err := t.Execute(&tpl, data); err != nil {
 		fmt.Print(err)

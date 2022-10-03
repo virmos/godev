@@ -42,24 +42,6 @@ func GenerateToken(userID int, ttl time.Duration, scope string) (*Token, error) 
 	return token, nil
 }
 
-func (repo *PostgresRepository) RenewToken(userID int, ttl time.Duration) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
-	stmt := `update 
-						tokens
-					set
-						expiry = $1
-					where
-						user_id = $2`
-						
-	_, err := repo.DB.ExecContext(ctx, stmt, time.Now().Add(ttl), userID)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (repo *PostgresRepository) InsertToken(t *Token, u User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
