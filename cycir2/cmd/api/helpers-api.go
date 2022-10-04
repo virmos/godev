@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -121,8 +120,6 @@ func (app *application) passwordMatches(hash []byte, password string) (bool, err
 
 func parseUptimeReports(uptimeReports, reports map[string]elastics.Report) (map[string]elastics.Report, error) {
 	results :=  make(map[string]elastics.Report)
-	log.Println(uptimeReports)
-	log.Println(reports)
 
 	for key, report := range reports {
 		var result elastics.Report
