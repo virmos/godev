@@ -188,12 +188,16 @@ function Prompt() {
             focusConfirm: false,
             showCancelButton: true,
             showConfirmButton: showConfirmButton,
-
-            onOpen: () => {
-                if (c.onOpen !== undefined) {
-                    c.onOpen();
+            willOpen: () => {
+                if (c.willOpen !== undefined) {
+                    c.willOpen();
                 }
-            }
+            },
+            didOpen: () => {
+                if (c.didOpen !== undefined) {
+                    c.didOpen();
+                }
+            },
         })
 
         if (result) {

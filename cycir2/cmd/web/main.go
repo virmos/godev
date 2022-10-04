@@ -15,6 +15,7 @@ import (
 
 	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
+	"github.com/gomodule/redigo/redis"
 )
 
 const version = "1.0.0"
@@ -22,6 +23,7 @@ const version = "1.0.0"
 var preferenceMap map[string]string
 var app *application
 var session *scs.SessionManager
+var redisCache *cache.RedisCache
 var cfg config
 
 type config struct {
@@ -29,6 +31,11 @@ type config struct {
 	env  string
 	db   struct {
 		dsn string
+	}
+	redis struct {
+		prefix   string
+		host     string
+		password string
 	}
 	backend      string
 	pusherHost   string
@@ -95,6 +102,10 @@ func main() {
 		*databaseName,
 		*dbSsl)
 
+	flag.StringVar(&cfg.redis.prefix, "redisPrefix", "cycir", "redis prefix")
+	flag.StringVar(&cfg.redis.host, "redisHost", "localhost:6379", "redis host")
+	flag.StringVar(&cfg.redis.password, "redisPass", "", "redis password")
+
 	flag.StringVar(&cfg.pusherHost, "pusherHost", "", "pusher host")
 	flag.StringVar(&cfg.pusherPort, "pusherPort", "443", "pusher port")
 	flag.StringVar(&cfg.pusherApp, "pusherApp", "9", "pusher app id")
@@ -115,6 +126,7 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	// database
 	db, err := driver.ConnectPostgres(cfg.db.dsn)
 	if err != nil {
 		errorLog.Fatal(err)
@@ -141,6 +153,11 @@ func main() {
 		Session:  session,
 	}
 
+	// redis
+	redisCache = app.createClientRedisCache()
+	app.Cache = redisCache
+
+	// preference map
 	preferenceMap = make(map[string]string)
 	preferences, err := app.repo.AllPreferences()
 	if err != nil {
@@ -166,5 +183,31 @@ func main() {
 	err = app.serve()
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func (app *application) createClientRedisCache() *cache.RedisCache {
+	cacheClient := cache.RedisCache{
+		Conn:   app.createRedisPool(),
+		Prefix: app.config.redis.prefix,
+	}
+	return &cacheClient
+}
+
+func (app *application) createRedisPool() *redis.Pool {
+	return &redis.Pool{
+		MaxIdle:     50,
+		MaxActive:   10000,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp",
+				app.config.redis.host,
+				redis.DialPassword(app.config.redis.password))
+		},
+
+		TestOnBorrow: func(conn redis.Conn, t time.Time) error {
+			_, err := conn.Do("PING")
+			return err
+		},
 	}
 }

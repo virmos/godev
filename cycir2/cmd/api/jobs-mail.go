@@ -117,7 +117,6 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 		FloatMap:      mailMessage.FloatMap,
 		RowSets:       mailMessage.RowSets,
 	}
-	log.Println(preferenceMap)
 	paths := []string{
 		"./cmd/web/views/mail.tmpl",
 	}

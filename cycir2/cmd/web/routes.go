@@ -24,6 +24,12 @@ func (app *application) routes() http.Handler {
 		// all admin routes are protected
 		mux.Use(app.Auth)
 
+		// redis cache
+		mux.Post("/save-in-cache", app.SaveInCache)
+		mux.Post("/get-from-cache", app.GetFromCache)
+		mux.Post("/delete-from-cache", app.DeleteFromCache)
+		mux.Post("/empty-cache", app.EmptyCache)
+
 		// overview
 		mux.Get("/overview", app.AdminDashboard)
 

@@ -216,10 +216,10 @@ func main() {
 	if app.PreferenceMap["monitoring_live"] == "1" {
 		app.Scheduler.Start()
 	}
-	err = esrepo.CreateIndex(app.config.esIndex)
-	if err != nil {
-		errorLog.Fatal(err)
-	}
+	// err = esrepo.CreateIndex(app.config.esIndex)
+	// if err != nil {
+	// 	errorLog.Fatal(err)
+	// }
 
 	// reports, _ := app.esrepo.GetAllReports("cycir")
 	// log.Println(reports)

@@ -50,6 +50,7 @@ func (app *application) ScheduledCheck(hostServiceID int) {
 		log.Println(err)
 		return
 	}
+
 }
 
 func (app *application) updateHostServiceStatusCount(h models.Host, hs models.HostService, newStatus, msg string) {
@@ -297,6 +298,10 @@ func (app *application) pushScheduleChangedEvent(hs models.HostService, newStatu
 	data["icon"] = hs.Service.Icon
 
 	app.broadcastMessage("public-channel", "schedule-changed-event", data)
+}
+
+func (app *application) pushReportChangedEvent() {
+	app.broadcastMessage("public-channel", "host-service-status-changed", nil)
 }
 
 // testHTTPForHost tests HTTP service

@@ -284,7 +284,7 @@ func (es *ElasticRepository) GetYesterdayReport(index string) (map[string]Report
 }
 
 // startDate and Endate are in UTC format
-func (es *ElasticRepository) GetRangeUptimeReport(index, startDate, endDate string) (map[string]Report, error) {
+func (es *ElasticRepository) GetRangeUptimeReport(index, hostName, startDate, endDate string) (map[string]Report, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -351,6 +351,9 @@ func (es *ElasticRepository) GetRangeUptimeReport(index, startDate, endDate stri
 		host := bucket.(map[string]interface{})["key"]
 		reports := bucket.(map[string]interface{})["timestamp"].(map[string]interface{})["buckets"]
 		daysHistogram := make([]int, 31, 31)
+		if host.(string) != hostName {
+			continue
+		}
 
 		for _, report := range reports.([]interface{}) {
 			timestamp := report.(map[string]interface{})["key_as_string"]
@@ -365,7 +368,7 @@ func (es *ElasticRepository) GetRangeUptimeReport(index, startDate, endDate stri
 }
 
 // startDate and Endate are in UTC format
-func (es *ElasticRepository) GetRangeReport(index, startDate, endDate string) (map[string]Report, error) {
+func (es *ElasticRepository) GetRangeReport(index, hostName, startDate, endDate string) (map[string]Report, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -427,6 +430,10 @@ func (es *ElasticRepository) GetRangeReport(index, startDate, endDate string) (m
 		host := bucket.(map[string]interface{})["key"]
 		reports := bucket.(map[string]interface{})["timestamp"].(map[string]interface{})["buckets"]
 		daysHistogram := make([]int, 31, 31)
+		
+		if host.(string) != hostName {
+			continue
+		}
 
 		for _, report := range reports.([]interface{}) {
 			timestamp := report.(map[string]interface{})["key_as_string"]

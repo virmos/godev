@@ -40,7 +40,7 @@
                 <th>OS</th>
                 <th>Location</th>
                 <th>Status</th>
-                <th>Availability</th>
+                <th>Uptime</th>
             </tr>
             </thead>
             <tbody>
@@ -62,9 +62,11 @@
                         {{end}}
                     </td>
                     <td> 
-                        <a>
-                        <span id="check-availability-button" class="badge bg-warning">Check Availability</span>
-                        </a>
+                        <a> <span 
+                        id="check-availability-button" class="badge bg-warning"
+                        data-host-name="{{.HostName}}"
+                            >Send
+                        </span></a>
                     </td>
                 </tr>
             {{end}}
@@ -95,11 +97,13 @@
             </div>
         </form>
         `
+        let currentElement = this
+
         attention.custom({
             msg: html,
             title: "Choose your dates",
 
-            willOpen: () => {
+            willOpen: function () {
                 const elem = document.getElementById('reservation-dates-modal');
                 const rp = new DateRangePicker(elem, {
                     format: 'yyyy-mm-dd',
@@ -108,48 +112,73 @@
                 })
             },
 
-            didOpen: () => {
+            didOpen: function () {
                 document.getElementById('start').removeAttribute('disabled');
                 document.getElementById('end').removeAttribute('disabled');
 
             },
 
             callback: function (result) {
-                console.log("called");
-
-                let form = document.getElementById("check-availability-form");
-                let formData = new FormData(form);
+                let formData = new FormData();
+                formData.append("key", currentElement.getAttribute("data-host-name"));
                 formData.append("csrf_token", "{{.CSRFToken}}");
-                formData.append("room_id", "1");
 
-                fetch('/search-availability-json', {
-                    method: "post",
+                fetch('/admin/get-from-cache', {
+                    method: 'POST',
                     body: formData,
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.ok) {
-                        attention.custom({
-                            icon: 'success',
-                            showConfirmButton: false,
-                            msg: '<p>Room is available!</p>'
-                                + '<p><a href="/book-room?id='
-                                + data.room_id
-                                + '&s='
-                                + data.start_date
-                                + '&e='
-                                + data.end_date
-                                + '" class="btn btn-primary">'
-                                + 'Book now!</a></p>',
-                        })
-                    } else {
-                        attention.error({
-                            msg: "No availability",
+                    if (data.error === true) {
+                        let form = document.getElementById("check-availability-form");
+                
+                        let payload = {
+                            start_date: document.getElementById("start").value,
+                            end_date: document.getElementById("end").value,
+                            host_name : currentElement.getAttribute("data-host-name"),
+                            csrf_token: `{{.CSRFToken}}`,
+                        }
+
+                        const requestOptions = {
+                            method: 'post',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer {{.Token}}`,
+                            },
+                            body: JSON.stringify(payload),
+                        }
+
+                        fetch("{{.PreferenceMap["API"]}}/api/admin/send-range-uptime-report", requestOptions)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error === false) {
+                                successAlert(data.message);
+                                saveReportToCache(data.host_name, data.histogram, data.count)
+                            } else {
+                                errorAlert(data.message);
+                            }
                         })
                     }
                 })
             }
         });
     })
+
+    function saveReportToCache(key, histogram, count) {                
+        let formData = new FormData();
+        formData.append("key", key);
+        formData.append("value", histogram + "|" + count);
+        formData.append("csrf_token", "{{.CSRFToken}}");
+
+        fetch("/admin/save-in-cache", {
+            method: 'post',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+        })
+    }
 </script>
 {{end}}

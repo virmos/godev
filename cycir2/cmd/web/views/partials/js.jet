@@ -220,6 +220,20 @@
         }
     })
 
+    publicChannel.bind("host-service-status-changed", function(data) {
+        let formData = new FormData();
+        formData.append("csrf_token", "{{.CSRFToken}}");
+
+        fetch("/admin/empty-cache", {
+            method: 'post',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+        })
+    })
+
     // things we want to look for
     //  - service goes down
     //  - service comes up

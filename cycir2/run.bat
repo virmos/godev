@@ -1,6 +1,3 @@
-@REM cd ipe
-@REM start /min cmd /c ipe.exe &
-@REM cd ..
 go build -o cycir.exe ./cmd/web/.
 @REM docker compose up -d
 @REM soda migrate

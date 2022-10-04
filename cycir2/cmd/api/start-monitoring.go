@@ -48,8 +48,8 @@ func (app *application) StartMonitoring() {
 			if x.ScheduleUnit == "d" {
 				sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber*24, "h")
 			} else {
-				// sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber, x.ScheduleUnit)
-				sch = fmt.Sprintf("@every %d%s", 3, "s")
+				sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber, x.ScheduleUnit)
+				// sch = fmt.Sprintf("@every %d%s", 3, "s")
 			}
 
 			// create a job
