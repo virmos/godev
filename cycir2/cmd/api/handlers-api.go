@@ -463,9 +463,14 @@ func (app *application) ToggleMonitoring(w http.ResponseWriter, r *http.Request)
 			app.Scheduler.Remove(x)
 		}
 
-		// empty the map
+		// empty the monitor map
 		for k := range app.MonitorMap {
 			delete(app.MonitorMap, k)
+		}
+
+		// empty the schedule map
+		for k := range app.MonitorMap {
+			delete(app.FunctionMap, k)
 		}
 
 		// delete all entries from schedule, to be sure
@@ -481,7 +486,6 @@ func (app *application) ToggleMonitoring(w http.ResponseWriter, r *http.Request)
 		if err != nil {
 			log.Println(err)
 		}
-
 	}
 
 	var resp struct {

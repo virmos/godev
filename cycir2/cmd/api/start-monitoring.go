@@ -8,13 +8,20 @@ import (
 )
 
 // job is the unit of work to be performed
+
+var a *application
+
 type job struct {
 	HostServiceID int
 }
 
+func NewScheduler(app *application) {
+	a = app
+}
+
 // Run runs the scheduled job
 func (j job) Run() {
-	app.ScheduledCheck(j.HostServiceID)
+	a.ScheduledCheck(j.HostServiceID)
 }
 
 // StartMonitoring starts the monitoring process
@@ -41,7 +48,8 @@ func (app *application) StartMonitoring() {
 			if x.ScheduleUnit == "d" {
 				sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber*24, "h")
 			} else {
-				sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber, x.ScheduleUnit)
+				// sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber, x.ScheduleUnit)
+				sch = fmt.Sprintf("@every %d%s", 3, "s")
 			}
 
 			// create a job
@@ -51,9 +59,17 @@ func (app *application) StartMonitoring() {
 			if err != nil {
 				log.Println(err)
 			}
-
 			// save the id of the job so we can start/stop it
 			app.MonitorMap[x.ID] = scheduleID
+
+			// create a schedule
+			funcID, err := app.Scheduler.AddFunc("0 5 * * ?", app.ScheduleReport)
+			// funcID, err := app.Scheduler.AddFunc("@every 0h0m1s", app.ScheduleReport)
+			if err != nil {
+				log.Println(err)
+			}
+			// save the id of the function so we can start/stop it
+			app.FunctionMap[x.ID] = funcID
 
 			// broadcast over websockets the fact that the service is scheduled
 			payload := make(map[string]string)

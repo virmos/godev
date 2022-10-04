@@ -72,9 +72,21 @@ func SetViews(path string) {
 
 // DefaultData adds default data which is accessible to all templates
 func (app *application) DefaultData(td TemplateData, r *http.Request, w http.ResponseWriter) TemplateData {
+	// refresh reference map every render
+	preferenceMap = make(map[string]string)
+	preferences, err := app.repo.AllPreferences()
+	if err != nil {
+		log.Fatal("Cannot read preferences:", err)
+	}
+
+	for _, pref := range preferences {
+		app.PreferenceMap[pref.Name] = string(pref.Preference)
+	}
+
 	td.CSRFToken = nosurf.Token(r)
 	td.IsAuthenticated = IsAuthenticated(r)
 	td.PreferenceMap = app.PreferenceMap
+	
 	// if logged in, store user id in template data
 	if td.IsAuthenticated {
 		u := app.Session.Get(r.Context(), "user").(models.User)
