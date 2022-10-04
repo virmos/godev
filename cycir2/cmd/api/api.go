@@ -215,9 +215,6 @@ func main() {
 	// 	errorLog.Fatal(err)
 	// }
 
-	// reports, _ := app.esrepo.GetAllReports("my-index-000001")
-	// log.Println(reports)
-
 	err = app.serve()
 	if err != nil {
 		log.Fatal(err)
