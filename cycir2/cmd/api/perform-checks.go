@@ -43,13 +43,12 @@ func (app *application) ScheduledCheck(hostServiceID int) {
 
 	if newStatus != hs.Status {
 		app.updateHostServiceStatusCount(h, hs, newStatus, msg)
-		
-		// add report to elasticsearch
-		err = app.esrepo.InsertHostStatusReport(app.config.esIndex, hs.HostName, strconv.Itoa(statusCode), time.Now().Format("2006-01-02T15:04:05Z07:00"))
-		if (err != nil) {
-			log.Println(err)
-			return
-		}
+	}
+	// add report to elasticsearch
+	err = app.esrepo.InsertHostStatusReport(app.config.esIndex, hs.HostName, strconv.Itoa(statusCode), time.Now().Format("2006-01-02T15:04:05Z07:00"))
+	if (err != nil) {
+		log.Println(err)
+		return
 	}
 }
 
@@ -194,7 +193,7 @@ func (app *application) testServiceForHost(h models.Host, hs models.HostService)
 	}
 
 	// broadcast to clients if appropriate
-	if hs.Status == newStatus { // here
+	if hs.Status != newStatus { 
 		app.pushStatusChangedEvent(h, hs, newStatus)
 
 		// save event
@@ -235,32 +234,6 @@ func (app *application) testServiceForHost(h models.Host, hs models.HostService)
 				app.SendEmail(mm)
 			}
 		}
-
-		mm := channeldata.MailData{
-			ToName:    app.PreferenceMap["notify_name"],
-			ToAddress: app.PreferenceMap["notify_email"],
-		}
-		startDate := time.Date(0001, 11, 17, 20, 34, 58, 65138737, time.UTC)
-		endDate := time.Date(2023, 11, 17, 20, 34, 58, 65138737, time.UTC)
-	
-		reports, _ := app.esrepo.GetRangeReport(app.config.esIndex, startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
-		uptimeReports, _ := app.esrepo.GetRangeUptimeReport(app.config.esIndex, startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
-		results, _ := parseUptimeRangeReports(uptimeReports, reports)
-		msgBuilder := ""
-		for key, report := range results {
-			msgBuilder = fmt.Sprintf(`Host %s 31 days uptime percentage report: `, key) + msgBuilder
-			msgBuilder = `<p>` + msgBuilder 
-			msgBuilder = msgBuilder + strings.Join(report.Histogram, ", ")
-			msgBuilder = msgBuilder + `</p>`  
-
-			msgBuilder = `<p>` + msgBuilder 
-			msgBuilder = msgBuilder + strings.Join(report.Count, ", ")
-			msgBuilder = msgBuilder + `</p>`  
-		}
-		mm.Subject = fmt.Sprintf("Range uptime report")
-		mm.Content = template.HTML(msgBuilder)
-		app.SendEmail(mm)
-	
 
 		// // send sms if appropriate
 		// if app.PreferenceMap["notify_via_sms"] == "1" {

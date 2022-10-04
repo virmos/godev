@@ -98,7 +98,6 @@ func (d *Dispatcher) dispatch() {
 
 // processMailQueueJob processes the main queue job (sends email)
 func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
-
 	data := struct {
 		Content       template.HTML
 		From          string
@@ -120,7 +119,7 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 	}
 	log.Println(preferenceMap)
 	paths := []string{
-		"../web/views/mail.tmpl",
+		"./cmd/web/views/mail.tmpl",
 	}
 
 	t := template.Must(template.New("mail.tmpl").ParseFiles(paths...))
@@ -151,6 +150,7 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 	server.Port = port
 	server.Username = preferenceMap["smtp_user"]
 	server.Password = preferenceMap["smtp_password"]
+
 	if preferenceMap["smtp_server"] == "localhost" {
 		server.Authentication = mail.AuthPlain
 	} else {

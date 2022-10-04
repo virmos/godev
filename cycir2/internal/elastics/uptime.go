@@ -23,37 +23,35 @@ func (es *ElasticRepository) CreateIndex(index string) error {
 		log.Fatalf("Error checking index existence: %s", err)
 		return err
 	}
-	if res.StatusCode != 404 {
-		log.Fatalf("Index already exists: %s", err)
-		return err
+	if res.StatusCode == 200 {
+		log.Println("Index already exists.")
+		return nil
 	}
 
-	if res.StatusCode == 200 {
-		mapping := `{
-			"mappings": {
-				"properties": {
-					"host": {
-						"type": "keyword"
-					},
-					"status_code": {
-						"type": "keyword"
-					},
-					"@timestamp": {
-						"type": "date" 
-					}
+	mapping := `{
+		"mappings": {
+			"properties": {
+				"host": {
+					"type": "keyword"
+				},
+				"status_code": {
+					"type": "keyword"
+				},
+				"@timestamp": {
+					"type": "date" 
 				}
 			}
-		}`
+		}
+	}`
 
-		req := esapi.IndicesCreateRequest{
-			Index: index,
-			Body:  strings.NewReader(string(mapping)),
-		}
-		_, err = req.Do(ctx, es.Client)
-		if err != nil {
-			log.Fatalf("Error getting response: %s", err)
-			return err
-		}
+	req := esapi.IndicesCreateRequest{
+		Index: index,
+		Body:  strings.NewReader(string(mapping)),
+	}
+	_, err = req.Do(ctx, es.Client)
+	if err != nil {
+		log.Fatalf("Error getting response: %s", err)
+		return err
 	}
 	return nil
 }
@@ -118,15 +116,12 @@ func (es *ElasticRepository) InsertHostStatusReport(index, hostName, statusCode,
 	}
 
 	// Perform the request with the client.
-	res, err := req.Do(ctx, es.Client)
+	_, err = req.Do(ctx, es.Client)
 
 	if err != nil {
 		log.Fatalf("Error insert into elasticsearch: %s", err)
 		return err
 	}
-
-	log.Println(res.StatusCode)
-	log.Println("Adding report to elasticsearch")
 
 	return nil
 }
@@ -148,7 +143,7 @@ func (es *ElasticRepository) GetYesterdayUptimeReport(index string) (map[string]
 					"range": map[string]interface{}{
 						"@timestamp": map[string]interface{}{
 							"gte": "now-1d/d",
-							"lt":  "now/d",
+							
 						},
 					},
 				},
@@ -210,7 +205,6 @@ func (es *ElasticRepository) GetYesterdayUptimeReport(index string) (map[string]
 	}
 
 	return timeReports, nil
-
 }
 
 // startDate and Endate are in UTC format
@@ -225,7 +219,7 @@ func (es *ElasticRepository) GetYesterdayReport(index string) (map[string]Report
 					"range": map[string]interface{}{
 						"@timestamp": map[string]interface{}{
 							"gte": "now-1d/d",
-							"lt":  "now/d",
+							
 						},
 					},
 				},
@@ -299,7 +293,7 @@ func (es *ElasticRepository) GetRangeUptimeReport(index, startDate, endDate stri
 			"bool": map[string]interface{}{
 				"must": map[string]interface{}{
 					"match": map[string]interface{}{
-						"status_code": "400",
+						"status_code": "200",
 					},
 				},
 				"filter": map[string]interface{}{

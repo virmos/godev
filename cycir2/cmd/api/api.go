@@ -33,10 +33,10 @@ type config struct {
 	db   struct {
 		dsn string
 	}
-	esAddress    string
-	esUsername   string
-	esPassword   string
-	esIndex      string
+	esAddress  string
+	esUsername string
+	esPassword string
+	esIndex    string
 
 	frontend     string
 	pusherHost   string
@@ -58,7 +58,8 @@ type application struct {
 	esrepo        elastics.Repository
 	PusherSecret  string
 	MailQueue     chan channeldata.MailJob
-	MonitorMap    map[int]cron.EntryID
+	MonitorMap    map[int]cron.EntryID // check server status after 3 minutes
+	FunctionMap   map[int]cron.EntryID // send uptime report at 6 am local time
 	PreferenceMap map[string]string
 	Scheduler     *cron.Cron
 	WsClient      pusher.Client
@@ -153,14 +154,15 @@ func main() {
 		errorLog.Fatal(err)
 	}
 	esrepo := elastics.NewElasticRepository(es)
-	
+
 	app := &application{
-		config:   cfg,
-		infoLog:  infoLog,
-		errorLog: errorLog,
-		version:  version,
-		repo:     models.NewPostgresRepository(db.SQL),
-		esrepo:   esrepo,
+		config:    cfg,
+		infoLog:   infoLog,
+		errorLog:  errorLog,
+		version:   version,
+		repo:      models.NewPostgresRepository(db.SQL),
+		MailQueue: mailQueue,
+		esrepo:    esrepo,
 	}
 
 	preferenceMap = make(map[string]string)
@@ -194,8 +196,11 @@ func main() {
 	log.Println("Pusher port", cfg.pusherPort)
 
 	app.WsClient = wsClient
+	
 	monitorMap := make(map[int]cron.EntryID)
 	app.MonitorMap = monitorMap
+	functionMap := make(map[int]cron.EntryID)
+	app.FunctionMap = functionMap
 
 	localZone, _ := time.LoadLocation("Local")
 	scheduler := cron.New(cron.WithLocation(localZone), cron.WithChain(
@@ -206,14 +211,18 @@ func main() {
 	app.Scheduler = scheduler
 
 	go app.StartMonitoring()
+	NewScheduler(app)
 
 	if app.PreferenceMap["monitoring_live"] == "1" {
 		app.Scheduler.Start()
 	}
-	// err = esrepo.CreateIndex("my-index-000001")
-	// if err != nil {
-	// 	errorLog.Fatal(err)
-	// }
+	err = esrepo.CreateIndex(app.config.esIndex)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
+	// reports, _ := app.esrepo.GetAllReports("cycir")
+	// log.Println(reports)
 
 	err = app.serve()
 	if err != nil {

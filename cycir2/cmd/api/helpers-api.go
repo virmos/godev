@@ -137,8 +137,8 @@ func parseUptimeReports(uptimeReports, reports map[string]elastics.Report) (map[
 				if (reportTime == 0) {
 					result.Histogram[j] = "0%"
 				} else {
-					percent := float64(uptime) / float64(reportTime) * 100
-					result.Histogram[j] = strconv.FormatFloat(percent, 'E', -1, 64) + "%"
+					percent := int(float32(uptime) / float32(reportTime) * 100)
+					result.Histogram[j] = strconv.Itoa(percent) + "%"
 				}
 			}
 		}
@@ -149,7 +149,7 @@ func parseUptimeReports(uptimeReports, reports map[string]elastics.Report) (map[
 
 func parseUptimeRangeReports(uptimeReports, reports map[string]elastics.Report) (map[string]elastics.Report, error) {
 	results :=  make(map[string]elastics.Report)
-
+	
 	for key, report := range reports {
 		var result elastics.Report
 		result.Histogram = make([]string, 31)
@@ -165,8 +165,8 @@ func parseUptimeRangeReports(uptimeReports, reports map[string]elastics.Report) 
 				reportTime := report.DaysHistogram[j]	
 				
 				if (reportTime != 0) {
-					percent := float64(uptime) / float64(reportTime) * 100
-					result.Histogram[j] = strconv.FormatFloat(percent, 'E', -1, 64) + "%"
+					percent := int(float32(uptime) / float32(reportTime) * 100)
+					result.Histogram[j] = strconv.Itoa(percent) + "%"
 				} 
 			}
 		}

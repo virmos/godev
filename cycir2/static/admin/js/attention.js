@@ -172,11 +172,51 @@ function Prompt() {
         })
     }
 
+    async function custom(c) {
+        const {
+            icon = "",
+            msg = "",
+            title = "",
+            showConfirmButton = true,
+        } = c;
+
+        const {value: result} = await Swal.fire({
+            icon: icon,
+            title: title,
+            html: msg,
+            backdrop: false,
+            focusConfirm: false,
+            showCancelButton: true,
+            showConfirmButton: showConfirmButton,
+
+            onOpen: () => {
+                if (c.onOpen !== undefined) {
+                    c.onOpen();
+                }
+            }
+        })
+
+        if (result) {
+            if (result.dismiss !== Swal.DismissReason.cancel) {
+                if (result.value !== "") {
+                    if (c.callback !== undefined) {
+                        c.callback(result);
+                    }
+                } else {
+                    c.callback(false);
+                }
+            } else {
+                c.callback(false);
+            }
+        }
+    }
+
     return {
         confirm: confirm,
         alert: alert,
         promptConfirm: promptConfirm,
         prompt: prompt,
         toast: toast,
+        custom: custom,
     };
 }
