@@ -378,7 +378,16 @@ func (app *application) SendRangeUptimeReport(w http.ResponseWriter, r *http.Req
 		app.badRequest(w, r, err)
 		return
 	}
-	numDays := endDate.Sub(startDate).Hours() / 24
+	numDays := int(endDate.Sub(startDate).Hours() / 24) + 1
+
+	var endReportedDate string
+	if numDays < 31 {
+		endReportedDate = startDate.AddDate(0, 0, numDays).Format("2006-01-02")
+	}
+	if numDays == 31 {
+		endReportedDate = startDate.AddDate(0, 0, 31).Format("2006-01-02")
+	}
+
 	var resp struct {
 		Error          bool   `json:"error"`
 		Message        string `json:"message"`
@@ -406,14 +415,15 @@ func (app *application) SendRangeUptimeReport(w http.ResponseWriter, r *http.Req
 				resp.Count = countString
 				resp.HostName = key
 
-				msgBuilder = fmt.Sprintf(`<h2> Host %s 31 days uptime percentage report: </h2>`, key) + msgBuilder
-				msgBuilder = `<p>` + msgBuilder
+				msgBuilder = msgBuilder + fmt.Sprintf(`<h2> Host %s %s days uptime percentage report. </h2>`, key, strconv.Itoa(numDays))
+				msgBuilder = msgBuilder + fmt.Sprintf(`<p> Data between to dates: %s to %s are reported: </p>`, payload.StartDate, payload.EndDate)
+				msgBuilder = msgBuilder + fmt.Sprintf(`<p> Start Day: %s ----> Percentage: `, payload.StartDate)
 				msgBuilder = msgBuilder + histogramString
-				msgBuilder = msgBuilder + `</p>`
+				msgBuilder = msgBuilder + fmt.Sprintf(` <---- End Day: %s</p>`, endReportedDate)
 
-				msgBuilder = `<p>` + msgBuilder
+				msgBuilder = msgBuilder + fmt.Sprintf(`<p> Start Day: %s ----> Total reqs: `, payload.StartDate)
 				msgBuilder = msgBuilder + countString
-				msgBuilder = msgBuilder + `</p>`
+				msgBuilder = msgBuilder + fmt.Sprintf(` <---- End Day: %s</p>`, endReportedDate)
 			}
 			mm.Subject = "Range uptime report"
 			mm.Content = template.HTML(msgBuilder)
@@ -422,6 +432,84 @@ func (app *application) SendRangeUptimeReport(w http.ResponseWriter, r *http.Req
 			resp.Error = false
 			resp.Message = "Sent report to mail"
 		}
+	} else {
+		resp.Error = true
+		resp.Message = "Date range too big (>31 days)"
+	}
+
+	resp.Redirect = false
+	resp.Route = "/admin/host/all"
+	resp.RedirectStatus = http.StatusSeeOther
+
+	app.writeJSON(w, http.StatusOK, resp)
+}
+
+func (app *application) SendRangeUptimeReportCached(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		StartDate string `json:"start_date"`
+		EndDate   string `json:"end_date"`
+		HostName  string `json:"host_name"`
+		Histogram string `json:"histogram"`
+		Count     string `json:"count"`
+		CSRF      string `json:"csrf_token"`
+	}
+
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+	mm := channeldata.MailData{
+		ToName:    app.PreferenceMap["notify_name"],
+		ToAddress: app.PreferenceMap["notify_email"],
+	}
+	startDate, err := time.Parse("2006-01-02", payload.StartDate)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+	endDate, err := time.Parse("2006-01-02", payload.EndDate)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+	numDays := int(endDate.Sub(startDate).Hours() / 24) + 1
+
+	var endReportedDate string
+	if numDays < 31 {
+		endReportedDate = startDate.AddDate(0, 0, numDays).Format("2006-01-02")
+	}
+	if numDays == 31 {
+		endReportedDate = startDate.AddDate(0, 0, 31).Format("2006-01-02")
+	}
+
+	var resp struct {
+		Error          bool   `json:"error"`
+		Message        string `json:"message"`
+		Redirect       bool   `json:"redirect"`
+		RedirectStatus int    `json:"status"`
+		Route          string `json:"route"`
+	}
+	if numDays <= 31 {
+		msgBuilder := ""
+		histogramString := payload.Histogram
+		countString := payload.Count
+
+		msgBuilder = msgBuilder + fmt.Sprintf(`<h2> Host %s %s days uptime percentage report. </h2>`, payload.HostName, strconv.Itoa(numDays))
+		msgBuilder = msgBuilder + fmt.Sprintf(`<p> Start Day: %s ----> Percentage: `, payload.StartDate)
+		msgBuilder = msgBuilder + histogramString
+		msgBuilder = msgBuilder + fmt.Sprintf(` <---- End Day: %s</p>`, endReportedDate)
+
+		msgBuilder = msgBuilder + fmt.Sprintf(`<p> Start Day: %s ----> Total reqs: `, payload.StartDate)
+		msgBuilder = msgBuilder + countString
+		msgBuilder = msgBuilder + fmt.Sprintf(` <---- End Day: %s</p>`, endReportedDate)
+
+		mm.Subject = "Range uptime report"
+		mm.Content = template.HTML(msgBuilder)
+		app.SendEmail(mm)
+
+		resp.Error = false
+		resp.Message = "Sent report to mail"
 	} else {
 		resp.Error = true
 		resp.Message = "Date range too big (>31 days)"

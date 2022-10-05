@@ -50,7 +50,7 @@ func (app *application) ScheduledCheck(hostServiceID int) {
 		log.Println(err)
 		return
 	}
-
+	app.pushReportChangedEvent()
 }
 
 func (app *application) updateHostServiceStatusCount(h models.Host, hs models.HostService, newStatus, msg string) {
@@ -301,7 +301,7 @@ func (app *application) pushScheduleChangedEvent(hs models.HostService, newStatu
 }
 
 func (app *application) pushReportChangedEvent() {
-	app.broadcastMessage("public-channel", "host-service-status-changed", nil)
+	app.broadcastMessage("public-channel", "report-changed", nil)
 }
 
 // testHTTPForHost tests HTTP service
@@ -327,7 +327,6 @@ func testHTTPForHost(url string) (string, string, int) {
 
 // testHTTPSForHost tests HTTPS service
 func testHTTPSForHost(url string) (string, string, int) {
-	log.Println("Testing HTTPS")
 	if strings.HasSuffix(url, "/") {
 		url = strings.TrimSuffix(url, "/")
 	}

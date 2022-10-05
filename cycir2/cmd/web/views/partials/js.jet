@@ -220,7 +220,7 @@
         }
     })
 
-    publicChannel.bind("host-service-status-changed", function(data) {
+    publicChannel.bind("report-changed", function(data) {
         let formData = new FormData();
         formData.append("csrf_token", "{{.CSRFToken}}");
 
@@ -230,6 +230,7 @@
         })
         .then(response => response.json())
         .then(data => {
+            console.log("emptied cache")
             console.log(data)
         })
     })

@@ -20,14 +20,14 @@ func (app *application) ScheduleReport() {
 	
 	msgBuilder := ""
 	for key, report := range results {
-		msgBuilder = fmt.Sprintf(`<h2> Yesterday of %s uptime percentage report in 24 hours: </h2>`, key) + msgBuilder
-		msgBuilder = `<p>` + msgBuilder 
+		msgBuilder = msgBuilder + fmt.Sprintf(`<div style="font-size: 2rem;"> Yesterday of %s uptime percentage report in 24 hours: </div>`, key)
+		msgBuilder = msgBuilder + `<p> First Hour ----> Percentage: `
 		msgBuilder = msgBuilder + strings.Join(report.Histogram, ", ")
-		msgBuilder = msgBuilder + `</p>`  
+		msgBuilder = msgBuilder + ` <---- Final Hour </p>`  
 
-		msgBuilder = `<p>` + msgBuilder 
+		msgBuilder = msgBuilder + `<p> First Hour ----> Total reqs: ` 
 		msgBuilder = msgBuilder + strings.Join(report.Count, ", ")
-		msgBuilder = msgBuilder + `</p>`  
+		msgBuilder = msgBuilder + `<---- Final Hour </p>`  
 	}
 	mm.Subject = "Yesterday uptime report"
 	mm.Content = template.HTML(msgBuilder)

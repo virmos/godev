@@ -13,6 +13,7 @@
 
 
 {{block cardContent()}}
+
 <div class="row">
     <div class="col">
         <ol class="breadcrumb mt-1">
@@ -115,13 +116,14 @@
             didOpen: function () {
                 document.getElementById('start').removeAttribute('disabled');
                 document.getElementById('end').removeAttribute('disabled');
-
             },
 
             callback: function (result) {
                 let formData = new FormData();
                 formData.append("key", currentElement.getAttribute("data-host-name"));
                 formData.append("csrf_token", "{{.CSRFToken}}");
+                let startDate = document.getElementById("start").value
+                let endDate = document.getElementById("end").value
 
                 fetch('/admin/get-from-cache', {
                     method: 'POST',
@@ -130,11 +132,10 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.error === true) {
-                        let form = document.getElementById("check-availability-form");
-                
+                        // data doesn't exist in cache
                         let payload = {
-                            start_date: document.getElementById("start").value,
-                            end_date: document.getElementById("end").value,
+                            start_date: startDate,
+                            end_date: endDate,
                             host_name : currentElement.getAttribute("data-host-name"),
                             csrf_token: `{{.CSRFToken}}`,
                         }
@@ -148,7 +149,7 @@
                             },
                             body: JSON.stringify(payload),
                         }
-
+                        // send request to the api to get data & send mail
                         fetch("{{.PreferenceMap["API"]}}/api/admin/send-range-uptime-report", requestOptions)
                         .then(response => response.json())
                         .then(data => {
@@ -159,13 +160,62 @@
                                 errorAlert(data.message);
                             }
                         })
+                    } else {
+                        // data exists, get from cache
+                        let formData = new FormData();
+                        let key = currentElement.getAttribute("data-host-name");
+                        let histogram, count;
+                        formData.append("key", key);
+                        formData.append("csrf_token", "{{.CSRFToken}}");
+
+                        fetch("/admin/get-from-cache", {
+                            method: 'post',
+                            body: formData,
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("get from cache");
+                            histogram = data.value.split("|")[0];
+                            count = data.value.split("|")[1];
+                            
+                            // send mail with cached data
+                            let payload = {
+                                start_date: startDate,
+                                end_date: endDate,
+                                host_name: key,
+                                histogram: histogram,
+                                count: count,
+                                host_name : currentElement.getAttribute("data-host-name"),
+                                csrf_token: `{{.CSRFToken}}`,
+                            }
+
+                            const requestOptions = {
+                                method: 'post',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer {{.Token}}`,
+                                },
+                                body: JSON.stringify(payload),
+                            }
+
+                            fetch("{{.PreferenceMap["API"]}}/api/admin/send-range-uptime-report-cached", requestOptions)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.error === false) {
+                                    successAlert(data.message);
+                                } else {
+                                    errorAlert(data.message);
+                                }
+                            })  
+                        })
                     }
                 })
             }
         });
     })
 
-    function saveReportToCache(key, histogram, count) {                
+    function saveReportToCache(key, histogram, count) {
         let formData = new FormData();
         formData.append("key", key);
         formData.append("value", histogram + "|" + count);
@@ -177,7 +227,7 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data)
+            console.log("saved to cache")
         })
     }
 </script>

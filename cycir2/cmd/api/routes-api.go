@@ -55,6 +55,7 @@ func (app *application) routes() http.Handler {
 
 		// uptime report
 		mux.Post("/send-range-uptime-report", app.SendRangeUptimeReport)
+		mux.Post("/send-range-uptime-report-cached", app.SendRangeUptimeReportCached)
 	})
 
 	return mux
