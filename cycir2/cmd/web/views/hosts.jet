@@ -5,6 +5,10 @@
         ::file-selector-button {
             display: none;
         }
+
+        form {
+            display: inline;
+        }
     </style>
 {{end}}
 
@@ -32,8 +36,11 @@
 
         <div class="float-right">
             <span>
-                <label for="upload-excel" class="btn btn-outline-secondary">Upload Hosts</label>
-                <input class="form-control d-none" id="upload-excel" type='file'>
+                <form type="hidden" enctype="multipart/form-data" action="" id="form-upload-excel" method="post">
+                    <label for="input-excel" class="btn btn-outline-secondary">Upload Hosts</label>
+                    <input class="form-control d-none" id="input-excel" type='file'>
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                </form>
             </span>
             <a class="btn btn-outline-secondary" href="/admin/host/0#host">New Host</a>
         </div>
@@ -87,6 +94,32 @@
 
 {{block js()}}
 <script>
+    document.getElementById("input-excel").addEventListener("change", function(e) {
+        let form = document.getElementById("form-upload-excel");
+        let formData = new FormData(form);
+        formData.append("input-excel", e.target.files[0])
+
+        const requestOptions = {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer {{.Token}}`,
+            },
+            body: formData,
+        }
+        // send request to the api to get data & send mail
+        fetch("{{.PreferenceMap["API"]}}/api/admin/upload-excel", requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error === false) {
+                successAlert(data.message);
+            } else {
+                errorAlert(data.message);
+            }
+        })
+
+    })
+    
     document.getElementById("check-availability-button").addEventListener("click", function () {
         let html = `
         <form id="check-availability-form" action="" method="post" novalidate class="needs-validation">

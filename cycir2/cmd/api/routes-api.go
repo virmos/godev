@@ -33,6 +33,9 @@ func (app *application) routes() http.Handler {
 
 		//  future use: message when user deleted
 		mux.Get("/private-message", app.SendPrivateMessage)
+		
+		// excel
+		mux.Post("/upload-excel", app.PostExcel)
 
 		// settings
 		mux.Post("/settings", app.PostSettings)
