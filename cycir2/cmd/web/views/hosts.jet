@@ -2,7 +2,9 @@
 
 {{block css()}}
     <style>
-
+        ::file-selector-button {
+            display: none;
+        }
     </style>
 {{end}}
 
@@ -29,6 +31,10 @@
     <div class="col">
 
         <div class="float-right">
+            <span>
+                <label for="upload-excel" class="btn btn-outline-secondary">Upload Hosts</label>
+                <input class="form-control d-none" id="upload-excel" type='file'>
+            </span>
             <a class="btn btn-outline-secondary" href="/admin/host/0#host">New Host</a>
         </div>
         <div class="clearfix"></div>
