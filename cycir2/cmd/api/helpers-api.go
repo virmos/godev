@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -173,4 +174,60 @@ func parseUptimeRangeReports(uptimeReports, reports map[string]elastics.Report) 
 		results[key] = result
 	}
 	return results, nil
+}
+
+// SetSystemPref sets a given system preference to supplied value, and returns JSON response
+func (app *application) setSystemPref(prefName, prefValue string) error {
+	err := app.repo.UpdateSystemPref(prefName, prefValue)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	app.PreferenceMap[prefName] = prefValue
+	return nil
+}
+
+// ToggleMonitoring turns monitoring on and off
+func (app *application) toggleMonitoring(enabled string) error {
+	if enabled == "1" {
+		// start monitoring
+		app.PreferenceMap["monitoring_live"] = "1"
+		app.StartMonitoring()
+		app.Scheduler.Start()
+	} else {
+		// stop monitoring
+		app.PreferenceMap["monitoring_live"] = "0"
+
+		// remove all items in map from schedule
+		for _, x := range app.MonitorMap {
+			app.Scheduler.Remove(x)
+		}
+
+		// empty the monitor map
+		for k := range app.MonitorMap {
+			delete(app.MonitorMap, k)
+		}
+
+		// empty the schedule map
+		for k := range app.MonitorMap {
+			delete(app.FunctionMap, k)
+		}
+
+		// delete all entries from schedule, to be sure
+		for _, i := range app.Scheduler.Entries() {
+			app.Scheduler.Remove(i.ID)
+		}
+
+		app.Scheduler.Stop()
+
+		data := make(map[string]string)
+		data["message"] = "Monitoring is off!"
+		err := app.WsClient.Trigger("public-channel", "app-stopping", data)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+	return nil
 }

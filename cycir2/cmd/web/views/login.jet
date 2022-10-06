@@ -195,6 +195,7 @@
                     fetch("{{.PreferenceMap["API"]}}/api/authenticate", requestOptions)
                     .then(response => response.json())
                     .then(data => {
+                        console.log("login")
                         console.log(data);
                         if (data.error === false) {
                             form.token.value = data.authentication_token.token

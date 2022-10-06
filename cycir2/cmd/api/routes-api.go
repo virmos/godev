@@ -36,6 +36,7 @@ func (app *application) routes() http.Handler {
 		
 		// excel
 		mux.Post("/upload-excel", app.PostExcel)
+		mux.Post("/download-excel", app.GetExcel)
 
 		// settings
 		mux.Post("/settings", app.PostSettings)

@@ -304,6 +304,16 @@ func (app *application) pushReportChangedEvent() {
 	app.broadcastMessage("public-channel", "report-changed", nil)
 }
 
+func (app *application) pushHostChangedEvent(hosts []models.Host) {
+	// TODO
+	data := make(map[string]string)
+	// data["host_name"] = h.HostName
+	// data["os"] = h.OS
+	// data["status"] = strconv.Itoa(h.Active)
+
+	app.broadcastMessage("public-channel", "host-changed", data)
+}
+
 // testHTTPForHost tests HTTP service
 func testHTTPForHost(url string) (string, string, int) {
 	if strings.HasSuffix(url, "/") {

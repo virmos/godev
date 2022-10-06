@@ -2,7 +2,9 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -83,6 +85,132 @@ func (repo *PostgresRepository) InsertHost(h Host) (int, error) {
 	return newID, nil
 }
 
+// BulkInsertHost inserts hosts into the database
+func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// drop foreign key reference to host table: host_services_hosts_id_fk
+	// no need to drop the foreign key refernece to services table: host_services_services_id_fk
+	stmt := "ALTER TABLE host_services DROP CONSTRAINT host_services_hosts_id_fk;"
+	_, err := repo.DB.ExecContext(ctx, stmt)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// truncate hosts table
+	stmt = "TRUNCATE hosts;"
+	_, err = repo.DB.ExecContext(ctx, stmt)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// truncate host_services table
+	stmt = "TRUNCATE host_services;"
+	_, err = repo.DB.ExecContext(ctx, stmt)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// get preference map
+	var scheduleAmount []byte
+	var scheduleUnit []byte
+	query := "SELECT preference FROM preferences WHERE name='check_interval_amount'"
+
+	err = repo.DB.QueryRowContext(ctx, query).Scan(&scheduleAmount)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	query = "SELECT preference FROM preferences WHERE name='check_interval_unit'"
+	err = repo.DB.QueryRowContext(ctx, query).Scan(&scheduleUnit)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	
+	valueStrings := make([]string, 0, len(hosts))
+	valueArgs := make([]interface{}, 0, len(hosts) * 11)
+
+	for i, h := range hosts {
+		a := []int{11*i+1, 11*i+2, 11*i+3, 11*i+4, 11*i+5, 11*i+6, 11*i+7, 11*i+8, 11*i+9, 11*i+10, 11*i+11}
+		arg := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(a)), ", $"), "[]")
+		if i == (len(hosts) - 1) {
+			arg = "($" + arg + ");"
+		} else {
+			arg = "($" + arg + "), "
+		}
+
+		valueStrings = append(valueStrings, arg)
+		valueArgs = append(valueArgs, h.ID)
+		valueArgs = append(valueArgs, h.HostName)
+		valueArgs = append(valueArgs, h.CanonicalName)
+		valueArgs = append(valueArgs, h.URL)
+		valueArgs = append(valueArgs, h.IP)
+		valueArgs = append(valueArgs, h.IPV6)
+		valueArgs = append(valueArgs, h.Location)
+		valueArgs = append(valueArgs, h.OS)
+		valueArgs = append(valueArgs, h.Active)
+		valueArgs = append(valueArgs, time.Now())
+		valueArgs = append(valueArgs, time.Now())
+	}
+	stmt = fmt.Sprintf("insert into hosts (id, host_name, canonical_name, url, ip, ipv6, location, os, active, created_at, updated_at) VALUES %s", 
+                        strings.Join(valueStrings, ""))
+	_, err = repo.DB.Exec(stmt, valueArgs...)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// get all service ids
+	query = `select id from services`
+	serviceRows, err := repo.DB.QueryContext(ctx, query)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer serviceRows.Close()
+
+	var svcIDs []int
+	for serviceRows.Next() {
+		var svcID int
+		err := serviceRows.Scan(&svcID)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		svcIDs = append(svcIDs, svcID)
+	}
+
+	// populate into host_services
+	for _, h := range hosts {
+		for _, svcID := range svcIDs {
+			stmt = `
+			insert into host_services 
+					(host_id, service_id, active, schedule_number, schedule_unit,
+				status, created_at, updated_at) values ($1, $2, 0, $3, $4, 'pending', $5, $6)`
+
+			_, err = repo.DB.ExecContext(ctx, stmt, h.ID, svcID, string(scheduleAmount), string(scheduleUnit), time.Now(), time.Now())
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// add foreign key reference to hosts table
+	stmt = "ALTER TABLE host_services ADD CONSTRAINT host_services_hosts_id_fk FOREIGN KEY (host_id) REFERENCES hosts (id);"
+	_, err = repo.DB.ExecContext(ctx, stmt)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
 // GetHostByID gets a host by id and returns Host
 func (repo *PostgresRepository) GetHostByID(id int) (Host, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
