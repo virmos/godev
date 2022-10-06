@@ -68,7 +68,7 @@ func (app *application) PostExcel(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	app.pushHostChangedEvent(hosts)
+	// app.pushHostChangedEvent(hosts)
 	resp.Message = "Hosts imported successfully, reset to see changes, as i am lazy"
 	app.writeJSON(w, http.StatusOK, resp)
 }

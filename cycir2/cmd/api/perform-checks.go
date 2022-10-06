@@ -311,7 +311,14 @@ func (app *application) pushHostChangedEvent(hosts []models.Host) {
 	// data["os"] = h.OS
 	// data["status"] = strconv.Itoa(h.Active)
 
-	app.broadcastMessage("public-channel", "host-changed", data)
+	app.broadcastMessage("public-channel", "host-changed-event", data)
+}
+
+func (app *application) pushHostRemovedEvent(id string) {
+	data := make(map[string]string)
+	data["host_id"] = id
+
+	app.broadcastMessage("public-channel", "host-removed-event", data)
 }
 
 // testHTTPForHost tests HTTP service

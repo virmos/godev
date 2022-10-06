@@ -283,6 +283,30 @@ func (app *application) PostHost(w http.ResponseWriter, r *http.Request) {
 	app.writeJSON(w, http.StatusOK, resp)
 }
 
+// PostHost handles posting of host form
+func (app *application) DeleteHost(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	hostID, _ := strconv.Atoi(id)
+
+	err := app.repo.DeleteHost(hostID)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	var resp struct {
+		Error          bool   `json:"error"`
+		Message        string `json:"message"`
+		Redirect       bool   `json:"redirect"`
+		RedirectStatus int    `json:"status"`
+		Route          string `json:"route"`
+	}
+	resp.Error = false
+	resp.Message = "Host deleted"
+	app.pushHostRemovedEvent(id)
+ 	app.writeJSON(w, http.StatusOK, resp)
+}
+
 // PostOneUser adds/edits a user
 func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
@@ -378,7 +402,7 @@ func (app *application) SendRangeUptimeReport(w http.ResponseWriter, r *http.Req
 		app.badRequest(w, r, err)
 		return
 	}
-	numDays := int(endDate.Sub(startDate).Hours() / 24) + 1
+	numDays := int(endDate.Sub(startDate).Hours()/24) + 1
 
 	var endReportedDate string
 	if numDays < 31 {
@@ -473,7 +497,7 @@ func (app *application) SendRangeUptimeReportCached(w http.ResponseWriter, r *ht
 		app.badRequest(w, r, err)
 		return
 	}
-	numDays := int(endDate.Sub(startDate).Hours() / 24) + 1
+	numDays := int(endDate.Sub(startDate).Hours()/24) + 1
 
 	var endReportedDate string
 	if numDays < 31 {

@@ -114,6 +114,7 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 		log.Println(err)
 		return err
 	}
+	log.Println("truncated")
 
 	// get preference map
 	var scheduleAmount []byte
@@ -134,10 +135,10 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 	}
 	
 	valueStrings := make([]string, 0, len(hosts))
-	valueArgs := make([]interface{}, 0, len(hosts) * 11)
+	valueArgs := make([]interface{}, 0, len(hosts) * 10)
 
 	for i, h := range hosts {
-		a := []int{11*i+1, 11*i+2, 11*i+3, 11*i+4, 11*i+5, 11*i+6, 11*i+7, 11*i+8, 11*i+9, 11*i+10, 11*i+11}
+		a := []int{10*i+1, 10*i+2, 10*i+3, 10*i+4, 10*i+5, 10*i+6, 10*i+7, 10*i+8, 10*i+9, 10*i+10}
 		arg := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(a)), ", $"), "[]")
 		if i == (len(hosts) - 1) {
 			arg = "($" + arg + ");"
@@ -146,7 +147,6 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 		}
 
 		valueStrings = append(valueStrings, arg)
-		valueArgs = append(valueArgs, h.ID)
 		valueArgs = append(valueArgs, h.HostName)
 		valueArgs = append(valueArgs, h.CanonicalName)
 		valueArgs = append(valueArgs, h.URL)
@@ -158,12 +158,34 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 		valueArgs = append(valueArgs, time.Now())
 		valueArgs = append(valueArgs, time.Now())
 	}
-	stmt = fmt.Sprintf("insert into hosts (id, host_name, canonical_name, url, ip, ipv6, location, os, active, created_at, updated_at) VALUES %s", 
+
+	log.Println("inserting hosts")
+
+	stmt = fmt.Sprintf("insert into hosts (host_name, canonical_name, url, ip, ipv6, location, os, active, created_at, updated_at) VALUES %s", 
                         strings.Join(valueStrings, ""))
 	_, err = repo.DB.Exec(stmt, valueArgs...)
 	if err != nil {
 		log.Println(err)
 		return err
+	}
+	log.Println("finish inserting")
+
+	query = `select id from hosts`
+	hostRows, err := repo.DB.QueryContext(ctx, query)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer hostRows.Close()
+	var hostIDs []int
+	for hostRows.Next() {
+		var hostID int
+		err := hostRows.Scan(&hostID)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		hostIDs = append(hostIDs, hostID)
 	}
 
 	// get all service ids
@@ -185,16 +207,17 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 		}
 		svcIDs = append(svcIDs, svcID)
 	}
+	log.Println(hostIDs)
 
 	// populate into host_services
-	for _, h := range hosts {
+	for _, hID := range hostIDs {
 		for _, svcID := range svcIDs {
 			stmt = `
 			insert into host_services 
 					(host_id, service_id, active, schedule_number, schedule_unit,
 				status, created_at, updated_at) values ($1, $2, 0, $3, $4, 'pending', $5, $6)`
 
-			_, err = repo.DB.ExecContext(ctx, stmt, h.ID, svcID, string(scheduleAmount), string(scheduleUnit), time.Now(), time.Now())
+			_, err = repo.DB.ExecContext(ctx, stmt, hID, svcID, string(scheduleAmount), string(scheduleUnit), time.Now(), time.Now())
 			if err != nil {
 				return err
 			}
@@ -211,6 +234,49 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 
 	return nil
 }
+
+// InsertHost inserts a host into the database
+func (repo *PostgresRepository) DeleteHost(ID int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	stmt := "ALTER TABLE host_services DROP CONSTRAINT host_services_hosts_id_fk;"
+	_, err := repo.DB.ExecContext(ctx, stmt)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	stmt = `
+		delete from hosts where id = $1`
+
+	_, err = repo.DB.ExecContext(ctx, stmt, ID)
+	if err != nil {
+		return err
+	}
+		
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	stmt = `
+		delete from host_services where host_id = $1`
+	_, err = repo.DB.ExecContext(ctx, stmt, ID)
+	if err != nil {
+		return err
+	}
+
+	// add foreign key reference to hosts table
+	stmt = "ALTER TABLE host_services ADD CONSTRAINT host_services_hosts_id_fk FOREIGN KEY (host_id) REFERENCES hosts (id);"
+	_, err = repo.DB.ExecContext(ctx, stmt)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	
+	return nil
+}
+
 // GetHostByID gets a host by id and returns Host
 func (repo *PostgresRepository) GetHostByID(id int) (Host, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

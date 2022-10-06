@@ -55,11 +55,12 @@
                 <th>Location</th>
                 <th>Status</th>
                 <th>Uptime</th>
+                <th>Remove</th>
             </tr>
             </thead>
             <tbody>
             {{range hosts}}
-                <tr>
+                <tr id="host-{{.ID}}">
                     <td><a href="/admin/host/{{.ID}}">{{.HostName}}</a></td>
                     <td>
                         {{range .HostServices}}
@@ -82,6 +83,13 @@
                             >Send
                         </span></a>
                     </td>
+                    <td>
+                        <a> <span 
+                        class="badge bg-danger"
+                        data-host-id="{{.ID}}"
+                            >Delete
+                        </span></a>
+                    </td>
                 </tr>
             {{end}}
 
@@ -94,6 +102,47 @@
 
 {{block js()}}
 <script>
+    let deleteButtons = document.querySelectorAll("[data-host-id]");
+    for (let i = 0; i < deleteButtons.length; i++) {
+        deleteButtons[i].addEventListener("click", function(){
+            let currentElement = this;
+
+            attention.confirm({
+                html: "This will delete the chosen host. Are you sure?",
+                callback: function(result) {
+                    if (result) {
+                        let payload = {
+                            csrf_token: `{{.CSRFToken}}`,
+                        }
+                        let id = parseInt(currentElement.getAttribute("data-host-id"))
+
+                        const requestOptions = {
+                            method: 'post',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer {{.Token}}`,
+                            },
+                            body: JSON.stringify(payload),
+                        }
+
+                        fetch(`{{.PreferenceMap["API"]}}/api/admin/host/delete/` + id, requestOptions)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error === false) {
+                                successAlert("Changes saved");
+                            } else {
+                                errorAlert(data.message);
+                            }
+                        })
+                    } else {
+                        
+                    }
+                }
+            })
+        })
+    }
+
     document.getElementById("input-excel").addEventListener("change", function(e) {
         let form = document.getElementById("form-upload-excel");
         let formData = new FormData(form);

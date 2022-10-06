@@ -26,6 +26,7 @@ type Repository interface {
 
 	// hosts
 	InsertHost(h Host) (int, error)
+	DeleteHost(ID int) error
 	BulkInsertHost(h []Host) error
 	GetHostByID(id int) (Host, error)
 	UpdateHost(h Host) error
