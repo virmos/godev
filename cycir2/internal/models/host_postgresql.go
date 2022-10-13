@@ -114,7 +114,6 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 		log.Println(err)
 		return err
 	}
-	log.Println("truncated")
 
 	// get preference map
 	var scheduleAmount []byte
@@ -159,8 +158,6 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 		valueArgs = append(valueArgs, time.Now())
 	}
 
-	log.Println("inserting hosts")
-
 	stmt = fmt.Sprintf("insert into hosts (host_name, canonical_name, url, ip, ipv6, location, os, active, created_at, updated_at) VALUES %s", 
                         strings.Join(valueStrings, ""))
 	_, err = repo.DB.Exec(stmt, valueArgs...)
@@ -168,7 +165,6 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 		log.Println(err)
 		return err
 	}
-	log.Println("finish inserting")
 
 	query = `select id from hosts`
 	hostRows, err := repo.DB.QueryContext(ctx, query)
@@ -207,7 +203,6 @@ func (repo *PostgresRepository) BulkInsertHost(hosts []Host) error {
 		}
 		svcIDs = append(svcIDs, svcID)
 	}
-	log.Println(hostIDs)
 
 	// populate into host_services
 	for _, hID := range hostIDs {
