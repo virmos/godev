@@ -144,6 +144,8 @@ func main() {
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Secure = cfg.InProduction
 
+	log.Println(cfg)
+
 	app := &application{
 		config:   cfg,
 		infoLog:  infoLog,

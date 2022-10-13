@@ -33,6 +33,10 @@
 
 <div class="row">
     <div class="col">
+        <div class="float-left">
+            <label for="output-excel" class="btn btn-outline-secondary">Download Hosts</label>
+            <input class="form-control d-none" id="output-excel" type='button'>
+        </div>
 
         <div class="float-right">
             <span>
@@ -168,6 +172,35 @@
         })
 
     })
+
+    document.getElementById("output-excel").addEventListener("click", function(e) {
+        let payload = {
+            file_name: "Hosts",
+            csrf_token: `{{.CSRFToken}}`,
+        }
+
+        const requestOptions = {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer {{.Token}}`,
+            },
+            body: JSON.stringify(payload),
+        }
+        // send request to the api to get data & send mail
+        fetch("{{.PreferenceMap["API"]}}/api/admin/download-excel", requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            if (data.error === false) {
+                successAlert(data.message);
+            } else {
+                errorAlert(data.message);
+            }
+        })
+
+    })
+
     
     let checkButtons = document.querySelectorAll(`[name="check-availability-button"`);
     for (let i = 0; i < checkButtons.length; i++) {

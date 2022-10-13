@@ -98,6 +98,7 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 					} else {
 						// invalid token, so delete the cookie
 						deleteRememberCookie(w, r)
+						session.Clear(r.Context()) // clear both userID and token
 						session.Put(r.Context(), "error", "You've been logged out from another device!")
 						next.ServeHTTP(w, r)
 					}
@@ -122,6 +123,7 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 					validHash := app.repo.CheckForToken(id, hash)
 					if !validHash {
 						deleteRememberCookie(w, r)
+						session.Clear(r.Context()) // clear both userID and token
 						session.Put(r.Context(), "error", "You've been logged out from another device!")
 						next.ServeHTTP(w, r)
 					} else {
@@ -153,7 +155,9 @@ func deleteRememberCookie(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &newCookie)
 
 	// log them out
-	session.Remove(r.Context(), "userID")
+	// session.Remove(r.Context(), "userID")
+	session.Clear(r.Context()) // clear both userID and token
+
 	_ = session.Destroy(r.Context())
 	_ = session.RenewToken(r.Context())
 }

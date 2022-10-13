@@ -2,20 +2,21 @@ package main
 
 import (
 	"cycir/internal/models"
+	"github.com/xuri/excelize/v2"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"github.com/xuri/excelize/v2"
 )
 
 type response struct {
-	Error          bool   `json:"error"`
-	Message        string `json:"message"`
-	Redirect       bool   `json:"redirect"`
-	RedirectStatus int    `json:"status"`
-	Route          string `json:"route"`
+	Error          bool        `json:"error"`
+	Message        string      `json:"message"`
+	Data           [][9]string `json:"data"`
+	Redirect       bool        `json:"redirect"`
+	RedirectStatus int         `json:"status"`
+	Route          string      `json:"route"`
 }
 
 func (app *application) PostExcel(w http.ResponseWriter, r *http.Request) {
@@ -27,22 +28,22 @@ func (app *application) PostExcel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	
-	f, err := os.OpenFile("./excel/"+ handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+
+	f, err := os.OpenFile("./excel/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
 	}
 	defer f.Close()
 	io.Copy(f, file)
-	
+
 	// toggle monitoring off
 	app.setSystemPref("monitoring_live", "0")
 	app.toggleMonitoring("0")
 
 	// add hosts
 	hostsData, err := readHostsExcel("./excel/" + handler.Filename)
-	if (err != nil) {
+	if err != nil {
 		app.badRequest(w, r, err)
 		return
 	}
@@ -74,25 +75,28 @@ func (app *application) PostExcel(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) GetExcel(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(32 << 20)
-	file, handler, err := r.FormFile("input-excel")
+	var payload struct {
+		FileName string `json:"file_name"`
+		CSRF     string `json:"csrf_token"`
+	}
+
+	err := app.readJSON(w, r, &payload)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
 	}
-	defer file.Close()
-	
-	// var colMap = []string {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}
-	f, err := os.OpenFile("./excel/"+ handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+
+	// add hosts
+	hostsData, err := readHostsExcel("./excel/" + payload.FileName + ".xlsx")
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
 	}
-	defer f.Close()
-	io.Copy(f, file)
-	excelize.OpenFile("Hosts.xlsx")
+	log.Println(hostsData)
 
 	var resp response
+	resp.Data = hostsData
+	resp.Message = "Hosts downloaded."
 	app.writeJSON(w, http.StatusOK, resp)
 }
 
@@ -109,8 +113,8 @@ func readHostsExcel(filename string) ([][9]string, error) {
 			return
 		}
 	}()
-	
-	var data[][9]string // len 9 = len(['id,	host_name,	canonical_name,	url,	ip,	ipv6,	location,	os,	active'])
+
+	var data [][9]string // len 9 = len(['id,	host_name,	canonical_name,	url,	ip,	ipv6,	location,	os,	active'])
 
 	rows, err := f.GetRows("Sheet1")
 	if err != nil {
@@ -118,10 +122,43 @@ func readHostsExcel(filename string) ([][9]string, error) {
 		return nil, err
 	}
 	for i, rows := range rows {
-		var row[9]string
-		if (i == 0) {
+		var row [9]string
+		if i == 0 {
 			continue // ignore column title, get only data
 		}
+		for j, colCells := range rows {
+			row[j] = colCells
+		}
+		data = append(data, row)
+	}
+
+	return data, nil
+}
+
+func readHostsExcelWithTitle(filename string) ([][9]string, error) {
+	f, err := excelize.OpenFile(filename)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer func() {
+		// Close the spreadsheet.
+		if err := f.Close(); err != nil {
+			log.Println(err)
+			return
+		}
+	}()
+
+	var data [][9]string // len 9 = len(['id,	host_name,	canonical_name,	url,	ip,	ipv6,	location,	os,	active'])
+
+	rows, err := f.GetRows("Sheet1")
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	for _, rows := range rows {
+		var row [9]string
+	
 		for j, colCells := range rows {
 			row[j] = colCells
 		}
