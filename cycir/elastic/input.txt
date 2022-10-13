@@ -1,0 +1,86 @@
+PUT my-index-000001
+{
+  "mappings": {
+    "properties": {
+      "host": {
+        "type": "keyword"
+      },
+      "status_code": {
+        "type": "keyword"
+      },
+      "@timestamp": {
+        "type": "date" 
+      }
+    }
+  }
+}
+
+GET my-index-000001/_search 
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+POST my-index-000001/_doc/
+{ "host": "google", "status_code": "500", "@timestamp": "2022-10-01T12:10:30Z" } 
+
+POST my-index-000001/_doc/
+{ "host": "google", "status_code": "500", "@timestamp": "2022-10-01T12:10:30Z" } 
+
+POST my-index-000001/_doc/
+{ "host": "google", "status_code": "500", "@timestamp": "2022-10-01T13:10:30Z" } 
+
+POST my-index-000001/_doc/
+{ "host": "google", "status_code": "500", "@timestamp": "2022-10-01T14:10:30Z" } 
+
+POST my-index-000001/_doc/
+{ "host": "github", "status_code": "500", "@timestamp": "2022-10-01T12:10:30Z" } 
+
+POST my-index-000001/_doc/
+{ "host": "elasticsearch", "status_code": "500", "@timestamp": "2022-10-01T12:10:30Z" } 
+
+POST my-index-000001/_doc/
+{ "host": "kibana", "status_code": "500", "@timestamp": "2022-10-01T12:10:30Z" } 
+
+POST my-index-000001/_doc/
+{ "host": "logstash", "status_code": "500", "@timestamp": "2022-10-01T12:10:30Z" } 
+
+// yesterday
+GET my-index-000001/_search
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match": {
+          "status_code": "500"
+        }
+      },
+      "filter": {
+        "range": {
+          "@timestamp": {
+            "gte": "now-1d/d",
+            "lt": "now/d"
+          }
+        }
+      }
+    }
+  },
+  "aggs": {
+    "query": {
+      "terms": {
+        "field": "host"
+      },
+      "aggs": {
+        "timestamp": {
+          "date_histogram": {
+            "field": "@timestamp",
+            "calendar_interval": "hour"
+          }
+        }
+      }
+    }
+  }
+}
+

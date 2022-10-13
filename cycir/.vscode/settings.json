@@ -1,8 +1,0 @@
-{
-  "[go]": {
-    "editor.formatOnSave": false 
-  },
-  "gopls": {
-    "experimentalWorkspaceModule": true,
-  },
-}
