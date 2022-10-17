@@ -43,6 +43,7 @@ func TestMain(m *testing.M) {
 	testRedisCache = testApp.createClientRedisCache()
 
 	NewHelpers(testApp)
+	SetViews("./cmd/web/views")
 
 	os.Exit(m.Run())
 }

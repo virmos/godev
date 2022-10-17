@@ -85,11 +85,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
-	err = app.serve()
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func run() error {
@@ -204,7 +199,7 @@ func run() error {
 		cron.Recover(cron.DefaultLogger),
 	))
 
-	app = &application{
+	app := &application{
 		config:    cfg,
 		infoLog:   infoLog,
 		errorLog:  errorLog,
@@ -224,6 +219,12 @@ func run() error {
 
 	if app.PreferenceMap["monitoring_live"] == "1" {
 		app.Scheduler.Start()
+	}
+
+	err = app.serve()
+	if err != nil {
+		log.Fatal(err)
+		return err
 	}
 
 	// err = esrepo.CreateIndex(app.config.esIndex)

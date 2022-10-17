@@ -81,11 +81,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
-	err = app.serve()
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func run() error {
@@ -175,7 +170,7 @@ func run() error {
 	log.Println("Host", fmt.Sprintf("%s:%s", cfg.pusherHost, cfg.pusherPort))
 	log.Println("Secure", cfg.pusherSecure)
 
-	app = &application{
+	app := &application{
 		config:   cfg,
 		infoLog:  infoLog,
 		errorLog: errorLog,
@@ -183,13 +178,17 @@ func run() error {
 		repo:     repo,
 		Session:  session,
 		PreferenceMap: preferenceMap,
-		Cache: redisCache,
-
 	}
 	NewHelpers(app)
 	// redis
-	redisCache = app.createClientRedisCache()
+	redisCache := app.createClientRedisCache()
+	app.Cache = redisCache
 
+	err = app.serve()
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
 	return nil
 }
 

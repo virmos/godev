@@ -30,7 +30,7 @@ func TestRenderTemplate(t *testing.T) {
 	var ww myWriter
 	
 	// add template functions
-	err = testApp.RenderPage(&ww, r, "dashboard", nil, nil)
+	err = testApp.RenderPage(&ww, r, "login", nil, nil)
 
 	if err != nil {
 		t.Error("error writing template to browser")
