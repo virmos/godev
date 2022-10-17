@@ -80,13 +80,21 @@ func (app *application) serve() error {
 	return srv.ListenAndServe()
 }
 
-func init() {
-	gob.Register(models.User{})
-	_ = os.Setenv("TZ", "America/Halifax")
+func main() {
+	err := run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	err = app.serve()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func main() {
-	var cfg config
+func run() error {
+	gob.Register(models.User{})
+	_ = os.Setenv("TZ", "America/Halifax")
 
 	flag.IntVar(&cfg.port, "port", 4002, "Server port to listen on")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment {development|production|maintenance}")
@@ -94,7 +102,7 @@ func main() {
 	flag.StringVar(&cfg.frontend, "frontend", "http://localhost:4000", "url to front end")
 
 	dbHost := flag.String("dbhost", "localhost", "database host")
-	dbPort := flag.String("dbport", "5432", "database port")
+	dbPort := flag.String("dbport", "8888", "database port")
 	dbUser := flag.String("dbuser", "postgres", "database user")
 	dbPass := flag.String("dbpass", "qwerqwer", "database password")
 	databaseName := flag.String("db", "temp", "database name")
@@ -155,20 +163,13 @@ func main() {
 	}
 	esrepo := elastics.NewElasticRepository(es)
 
-	app := &application{
-		config:    cfg,
-		infoLog:   infoLog,
-		errorLog:  errorLog,
-		version:   version,
-		repo:      models.NewPostgresRepository(db.SQL),
-		MailQueue: mailQueue,
-		esrepo:    esrepo,
-	}
-
+	// preference map
+	repo := models.NewPostgresRepository(db.SQL)
 	preferenceMap = make(map[string]string)
-	preferences, err := app.repo.AllPreferences()
+	preferences, err := repo.AllPreferences()
 	if err != nil {
 		log.Fatal("Cannot read preferences:", err)
+		return err
 	}
 
 	for _, pref := range preferences {
@@ -179,8 +180,6 @@ func main() {
 	preferenceMap["pusher-port"] = cfg.pusherPort
 	preferenceMap["pusher-key"] = cfg.pusherKey
 	preferenceMap["API"] = cfg.frontend
-
-	app.PreferenceMap = preferenceMap
 
 	// create pusher client
 	wsClient = pusher.Client{
@@ -195,12 +194,9 @@ func main() {
 	log.Println("Secure", cfg.pusherSecure)
 	log.Println("Pusher port", cfg.pusherPort)
 
-	app.WsClient = wsClient
-	
+	// monitoring
 	monitorMap := make(map[int]cron.EntryID)
-	app.MonitorMap = monitorMap
 	functionMap := make(map[int]cron.EntryID)
-	app.FunctionMap = functionMap
 
 	localZone, _ := time.LoadLocation("Local")
 	scheduler := cron.New(cron.WithLocation(localZone), cron.WithChain(
@@ -208,7 +204,20 @@ func main() {
 		cron.Recover(cron.DefaultLogger),
 	))
 
-	app.Scheduler = scheduler
+	app = &application{
+		config:    cfg,
+		infoLog:   infoLog,
+		errorLog:  errorLog,
+		version:   version,
+		repo:      repo,
+		MailQueue: mailQueue,
+		esrepo:    esrepo,
+		PreferenceMap: preferenceMap,
+		WsClient: wsClient,
+		MonitorMap: monitorMap,
+		FunctionMap: functionMap,
+		Scheduler: scheduler,
+	}
 
 	go app.StartMonitoring()
 	NewScheduler(app)
@@ -216,6 +225,7 @@ func main() {
 	if app.PreferenceMap["monitoring_live"] == "1" {
 		app.Scheduler.Start()
 	}
+
 	// err = esrepo.CreateIndex(app.config.esIndex)
 	// if err != nil {
 	// 	errorLog.Fatal(err)
@@ -223,9 +233,5 @@ func main() {
 
 	// reports, _ := app.esrepo.GetAllReports("cycir")
 	// log.Println(reports)
-
-	err = app.serve()
-	if err != nil {
-		log.Fatal(err)
-	}
+	return nil
 }

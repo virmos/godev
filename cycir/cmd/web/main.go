@@ -76,14 +76,24 @@ func (app *application) serve() error {
 	return srv.ListenAndServe()
 }
 
-func init() {
-	gob.Register(models.User{})
-	_ = os.Setenv("TZ", "America/Halifax")
+func main() {
+	err := run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	err = app.serve()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func main() {
+func run() error {
+	gob.Register(models.User{})
+	_ = os.Setenv("TZ", "America/Halifax")
+
 	dbHost := flag.String("dbhost", "localhost", "database host")
-	dbPort := flag.String("dbport", "5432", "database port")
+	dbPort := flag.String("dbport", "8888", "database port")
 	dbUser := flag.String("dbuser", "postgres", "database user")
 	dbPass := flag.String("dbpass", "qwerqwer", "database password")
 	databaseName := flag.String("db", "temp", "database name")
@@ -144,22 +154,10 @@ func main() {
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Secure = cfg.InProduction
 
-	app := &application{
-		config:   cfg,
-		infoLog:  infoLog,
-		errorLog: errorLog,
-		version:  version,
-		repo:     models.NewPostgresRepository(db.SQL),
-		Session:  session,
-	}
-
-	// redis
-	redisCache = app.createClientRedisCache()
-	app.Cache = redisCache
-
 	// preference map
 	preferenceMap = make(map[string]string)
-	preferences, err := app.repo.AllPreferences()
+	repo := models.NewPostgresRepository(db.SQL)
+	preferences, err := repo.AllPreferences()
 	if err != nil {
 		log.Fatal("Cannot read preferences:", err)
 	}
@@ -172,18 +170,27 @@ func main() {
 	preferenceMap["pusher-port"] = cfg.pusherPort
 	preferenceMap["pusher-key"] = cfg.pusherKey
 	preferenceMap["API"] = cfg.backend
-	preferenceMap["version"] = app.version
-
-	app.PreferenceMap = preferenceMap
-	NewHelpers(app)
+	preferenceMap["version"] = version
 
 	log.Println("Host", fmt.Sprintf("%s:%s", cfg.pusherHost, cfg.pusherPort))
 	log.Println("Secure", cfg.pusherSecure)
 
-	err = app.serve()
-	if err != nil {
-		log.Fatal(err)
+	app = &application{
+		config:   cfg,
+		infoLog:  infoLog,
+		errorLog: errorLog,
+		version:  version,
+		repo:     repo,
+		Session:  session,
+		PreferenceMap: preferenceMap,
+		Cache: redisCache,
+
 	}
+	NewHelpers(app)
+	// redis
+	redisCache = app.createClientRedisCache()
+
+	return nil
 }
 
 func (app *application) createClientRedisCache() *cache.RedisCache {

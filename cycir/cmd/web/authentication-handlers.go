@@ -37,6 +37,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	user, err := app.repo.GetUserByEmail(r.Form.Get("email"))
 	if err != nil {
 		log.Println(err)
+		ClientError(w, r, http.StatusBadRequest)
 	}
 
 	if r.Form.Get("remember") == "remember" {
@@ -46,6 +47,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		_, err = hasher.Write([]byte(randomString))
 		if err != nil {
 			log.Println(err)
+			ClientError(w, r, http.StatusBadRequest)
 		}
 
 		sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
@@ -53,6 +55,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		err = app.repo.InsertRememberMeToken(user.ID, sha)
 		if err != nil {
 			log.Println(err)
+			ClientError(w, r, http.StatusBadRequest)
 		}
 
 		// write a cookie
