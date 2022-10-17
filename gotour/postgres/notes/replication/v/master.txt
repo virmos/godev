@@ -1,0 +1,5 @@
+#update the path of the volume to match your own path (left hand side only)
+
+docker run --name pgmaster -v /Users/HusseinNasser/postgres/v/master_data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=postgres -d -p:5432:5432 postgres:13
+
+

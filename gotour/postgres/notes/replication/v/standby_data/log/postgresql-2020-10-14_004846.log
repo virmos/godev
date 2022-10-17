@@ -1,0 +1,73 @@
+2020-10-14 00:48:46.960 UTC [1] LOG:  starting PostgreSQL 13.0 (Debian 13.0-1.pgdg100+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 8.3.0-6) 8.3.0, 64-bit
+2020-10-14 00:48:46.961 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2020-10-14 00:48:46.961 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2020-10-14 00:48:46.968 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2020-10-14 00:48:46.989 UTC [29] LOG:  database system was shut down in recovery at 2020-10-14 00:48:39 UTC
+2020-10-14 00:48:46.994 UTC [29] LOG:  entering standby mode
+2020-10-14 00:48:47.013 UTC [29] LOG:  redo starts at 0/15CE370
+2020-10-14 00:48:47.013 UTC [29] LOG:  consistent recovery state reached at 0/15CE420
+2020-10-14 00:48:47.013 UTC [29] LOG:  invalid record length at 0/15CE458: wanted 24, got 0
+2020-10-14 00:48:47.014 UTC [1] LOG:  database system is ready to accept read only connections
+2020-10-14 00:48:47.060 UTC [33] LOG:  started streaming WAL from primary at 0/1000000 on timeline 1
+2020-10-14 00:54:00.374 UTC [48] ERROR:  syntax error at or near ";" at character 18
+2020-10-14 00:54:00.374 UTC [48] STATEMENT:  create table test;
+2020-10-14 00:54:33.648 UTC [48] ERROR:  syntax error at or near "desc" at character 1
+2020-10-14 00:54:33.648 UTC [48] STATEMENT:  desc test;
+2020-10-14 01:42:05.538 UTC [33] FATAL:  terminating walreceiver due to timeout
+2020-10-14 01:42:05.547 UTC [29] LOG:  invalid record length at 0/2253890: wanted 24, got 0
+2020-10-14 01:42:05.583 UTC [57] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 01:43:41.072 UTC [57] FATAL:  terminating walreceiver due to timeout
+2020-10-14 01:43:41.135 UTC [58] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 01:57:35.732 UTC [58] FATAL:  terminating walreceiver due to timeout
+2020-10-14 01:57:35.891 UTC [59] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 02:36:28.831 UTC [59] FATAL:  terminating walreceiver due to timeout
+2020-10-14 02:36:28.882 UTC [60] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 04:36:57.825 UTC [60] FATAL:  terminating walreceiver due to timeout
+2020-10-14 04:36:57.868 UTC [61] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 06:37:55.987 UTC [61] FATAL:  terminating walreceiver due to timeout
+2020-10-14 06:37:56.173 UTC [62] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 06:38:45.803 UTC [62] FATAL:  could not receive data from WAL stream: server closed the connection unexpectedly
+		This probably means the server terminated abnormally
+		before or while processing the request.
+2020-10-14 06:38:46.052 UTC [63] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 08:38:54.548 UTC [63] FATAL:  terminating walreceiver due to timeout
+2020-10-14 08:38:54.698 UTC [64] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 10:10:03.110 UTC [64] FATAL:  terminating walreceiver due to timeout
+2020-10-14 10:10:03.161 UTC [65] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 12:11:01.772 UTC [65] FATAL:  terminating walreceiver due to timeout
+2020-10-14 12:11:01.824 UTC [66] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 14:11:31.558 UTC [66] FATAL:  terminating walreceiver due to timeout
+2020-10-14 14:11:31.603 UTC [67] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 14:15:13.345 UTC [67] FATAL:  terminating walreceiver due to timeout
+2020-10-14 14:15:13.502 UTC [68] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 15:26:57.089 UTC [68] FATAL:  terminating walreceiver due to timeout
+2020-10-14 15:26:57.159 UTC [69] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 15:47:13.167 UTC [48] ERROR:  cannot execute CREATE TABLE in a read-only transaction
+2020-10-14 15:47:13.167 UTC [48] STATEMENT:  create table test1 (id int, t varchar2(200));
+2020-10-14 17:35:48.216 UTC [69] FATAL:  terminating walreceiver due to timeout
+2020-10-14 17:35:48.336 UTC [70] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 17:57:20.085 UTC [70] FATAL:  terminating walreceiver due to timeout
+2020-10-14 17:57:20.152 UTC [71] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 18:20:47.048 UTC [71] FATAL:  terminating walreceiver due to timeout
+2020-10-14 18:20:47.100 UTC [72] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 18:25:02.061 UTC [72] FATAL:  terminating walreceiver due to timeout
+2020-10-14 18:25:02.142 UTC [73] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 18:37:37.919 UTC [73] FATAL:  terminating walreceiver due to timeout
+2020-10-14 18:37:38.060 UTC [74] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 18:40:46.071 UTC [74] FATAL:  terminating walreceiver due to timeout
+2020-10-14 18:40:46.174 UTC [75] LOG:  started streaming WAL from primary at 0/2000000 on timeline 1
+2020-10-14 19:08:48.715 UTC [75] LOG:  replication terminated by primary server
+2020-10-14 19:08:48.715 UTC [75] DETAIL:  End of WAL reached on timeline 1 at 0/2253908.
+2020-10-14 19:08:48.715 UTC [75] FATAL:  could not send end-of-streaming message to primary: no COPY in progress
+2020-10-14 19:08:48.727 UTC [29] LOG:  invalid record length at 0/2253908: wanted 24, got 0
+2020-10-14 19:08:48.753 UTC [76] FATAL:  could not connect to the primary server: server closed the connection unexpectedly
+		This probably means the server terminated abnormally
+		before or while processing the request.
+2020-10-14 19:08:53.745 UTC [77] FATAL:  could not connect to the primary server: could not connect to server: Connection refused
+		Is the server running on host "husseinmac" (192.168.254.10) and accepting
+		TCP/IP connections on port 5432?
+2020-10-14 19:08:55.737 UTC [1] LOG:  received fast shutdown request
+2020-10-14 19:08:55.739 UTC [1] LOG:  aborting any active transactions
+2020-10-14 19:08:55.740 UTC [48] FATAL:  terminating connection due to administrator command
+2020-10-14 19:08:55.764 UTC [30] LOG:  shutting down
+2020-10-14 19:08:55.810 UTC [1] LOG:  database system is shut down

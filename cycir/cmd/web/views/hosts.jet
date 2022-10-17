@@ -1,0 +1,325 @@
+{{extends "./layouts/layout.jet"}}
+
+{{block css()}}
+    <style>
+        ::file-selector-button {
+            display: none;
+        }
+
+        form {
+            display: inline;
+        }
+    </style>
+{{end}}
+
+
+{{block cardTitle()}}
+    Hosts
+{{end}}
+
+
+{{block cardContent()}}
+
+<div class="row">
+    <div class="col">
+        <ol class="breadcrumb mt-1">
+            <li class="breadcrumb-item"><a href="/admin/overview">Overview</a></li>
+            <li class="breadcrumb-item active">Hosts</li>
+        </ol>
+        <h4 class="mt-4">Hosts</h4>
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+
+        <div class="float-right">
+            <span>
+                <form type="hidden" enctype="multipart/form-data" action="" id="form-upload-excel" method="post">
+                    <label for="input-excel" class="btn btn-outline-secondary">Upload Hosts</label>
+                    <input class="form-control d-none" id="input-excel" type='file'>
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                </form>
+            </span>
+            <a class="btn btn-outline-secondary" href="/admin/host/0#host">New Host</a>
+        </div>
+        <div class="clearfix"></div>
+
+        <table class="table table-condensed table-striped">
+            <thead>
+            <tr>
+                <th>Host</th>
+                <th>Services</th>
+                <th>OS</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Uptime</th>
+                <th>Remove</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range hosts}}
+                <tr id="host-{{.ID}}">
+                    <td><a href="/admin/host/{{.ID}}">{{.HostName}}</a></td>
+                    <td>
+                        {{range .HostServices}}
+                        <span class="badge bg-info">{{.Service.ServiceName}}</span>
+                        {{end}}
+                    </td>
+                    <td>{{.OS}}</td>
+                    <td>{{.Location}}</td>
+                    <td>
+                        {{if .Active == 1}}
+                            <span class="badge bg-success">Active</span>
+                        {{else}}
+                            <span class="badge bg-danger">Inactive</span>
+                        {{end}}
+                    </td>
+                    <td> 
+                        <a> <span 
+                        name="check-availability-button" class="badge bg-warning"
+                        data-host-name="{{.HostName}}"
+                            >Send
+                        </span></a>
+                    </td>
+                    <td>
+                        <a> <span 
+                        class="badge bg-danger"
+                        data-host-id="{{.ID}}"
+                            >Delete
+                        </span></a>
+                    </td>
+                </tr>
+            {{end}}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{end}}
+
+{{block js()}}
+<script>
+    let deleteButtons = document.querySelectorAll("[data-host-id]");
+    for (let i = 0; i < deleteButtons.length; i++) {
+        deleteButtons[i].addEventListener("click", function(){
+            let currentElement = this;
+
+            attention.confirm({
+                html: "This will delete the chosen host. Are you sure?",
+                callback: function(result) {
+                    if (result) {
+                        let payload = {
+                            csrf_token: `{{.CSRFToken}}`,
+                        }
+                        let id = parseInt(currentElement.getAttribute("data-host-id"))
+
+                        const requestOptions = {
+                            method: 'post',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer {{.Token}}`,
+                            },
+                            body: JSON.stringify(payload),
+                        }
+
+                        fetch(`{{.PreferenceMap["API"]}}/api/admin/host/delete/` + id, requestOptions)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error === false) {
+                                successAlert("Changes saved");
+                            } else {
+                                errorAlert(data.message);
+                            }
+                        })
+                    } else {
+                        
+                    }
+                }
+            })
+        })
+    }
+
+    document.getElementById("input-excel").addEventListener("change", function(e) {
+        let form = document.getElementById("form-upload-excel");
+        let formData = new FormData(form);
+        formData.append("input-excel", e.target.files[0])
+
+        const requestOptions = {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer {{.Token}}`,
+            },
+            body: formData,
+        }
+        // send request to the api to get data & send mail
+        fetch("{{.PreferenceMap["API"]}}/api/admin/upload-excel", requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error === false) {
+                successAlert(data.message);
+            } else {
+                errorAlert(data.message);
+            }
+        })
+
+    })
+    
+    let checkButtons = document.querySelectorAll(`[name="check-availability-button"`);
+    for (let i = 0; i < checkButtons.length; i++) {
+        checkButtons[i].addEventListener("click", function () {
+            let html = `
+            <form id="check-availability-form" action="" method="post" novalidate class="needs-validation">
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-row" id="reservation-dates-modal">
+                            <div class="col">
+                                <input disabled required class="form-control" type="text" name="start" id="start" placeholder="Arrival">
+                            </div>
+                            <div class="col">
+                                <input disabled required class="form-control" type="text" name="end" id="end" placeholder="Departure">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            `
+            let currentElement = this
+
+            attention.custom({
+                msg: html,
+                title: "Choose your dates",
+
+                willOpen: function () {
+                    const elem = document.getElementById('reservation-dates-modal');
+                    const rp = new DateRangePicker(elem, {
+                        format: 'yyyy-mm-dd',
+                        showOnFocus: true,
+                        minDate: new Date(),
+                    })
+                },
+
+                didOpen: function () {
+                    document.getElementById('start').removeAttribute('disabled');
+                    document.getElementById('end').removeAttribute('disabled');
+                },
+
+                callback: function (result) {
+                    let formData = new FormData();
+                    formData.append("key", currentElement.getAttribute("data-host-name"));
+                    formData.append("csrf_token", "{{.CSRFToken}}");
+                    let startDate = document.getElementById("start").value
+                    let endDate = document.getElementById("end").value
+
+                    fetch('/admin/get-from-cache', {
+                        method: 'POST',
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error === true) {
+                            // data doesn't exist in cache
+                            let payload = {
+                                start_date: startDate,
+                                end_date: endDate,
+                                host_name : currentElement.getAttribute("data-host-name"),
+                                csrf_token: `{{.CSRFToken}}`,
+                            }
+
+                            const requestOptions = {
+                                method: 'post',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer {{.Token}}`,
+                                },
+                                body: JSON.stringify(payload),
+                            }
+                            // send request to the api to get data & send mail
+                            fetch("{{.PreferenceMap["API"]}}/api/admin/send-range-uptime-report", requestOptions)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.error === false) {
+                                    successAlert(data.message);
+                                    saveReportToCache(data.host_name, data.histogram, data.count)
+                                } else {
+                                    errorAlert(data.message);
+                                }
+                            })
+                        } else {
+                            // data exists, get from cache
+                            let formData = new FormData();
+                            let key = currentElement.getAttribute("data-host-name");
+                            let histogram, count;
+                            formData.append("key", key);
+                            formData.append("csrf_token", "{{.CSRFToken}}");
+
+                            fetch("/admin/get-from-cache", {
+                                method: 'post',
+                                body: formData,
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log("get from cache");
+                                histogram = data.value.split("|")[0];
+                                count = data.value.split("|")[1];
+                                
+                                // send mail with cached data
+                                let payload = {
+                                    start_date: startDate,
+                                    end_date: endDate,
+                                    host_name: key,
+                                    histogram: histogram,
+                                    count: count,
+                                    host_name : currentElement.getAttribute("data-host-name"),
+                                    csrf_token: `{{.CSRFToken}}`,
+                                }
+
+                                const requestOptions = {
+                                    method: 'post',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer {{.Token}}`,
+                                    },
+                                    body: JSON.stringify(payload),
+                                }
+
+                                fetch("{{.PreferenceMap["API"]}}/api/admin/send-range-uptime-report-cached", requestOptions)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.error === false) {
+                                        successAlert(data.message);
+                                    } else {
+                                        errorAlert(data.message);
+                                    }
+                                })  
+                            })
+                        }
+                    })
+                }
+            });
+        })
+    }
+
+    function saveReportToCache(key, histogram, count) {
+        let formData = new FormData();
+        formData.append("key", key);
+        formData.append("value", histogram + "|" + count);
+        formData.append("csrf_token", "{{.CSRFToken}}");
+
+        fetch("/admin/save-in-cache", {
+            method: 'post',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("saved to cache")
+        })
+    }
+</script>
+{{end}}

@@ -1,0 +1,62 @@
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'1', E'Tier 1', NULL);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'2', E'Department 1', 1);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'3', E'Department 2', 1);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'4', E'Department 3', 2);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'5', E'Department 4', 2);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'6', E'Department 5', 3);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'7', E'Department 6', 3);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'8', E'Department 7', 7);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'9', E'Department 8', 7);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'10', E'Department 9', 7);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'11', E'Department 10', 8);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'12', E'Department 11', 11);
+`);
+
+
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'13', E'Tier 2', NULL);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'14', E'Department 1', 13);
+`);
+sql(`INSERT INTO "public"."departments"("id", "name", "parent_id")
+     VALUES
+     (E'15', E'Department 2', 14);
+`);

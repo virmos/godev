@@ -1,0 +1,13 @@
+2022-03-18 02:56:19.700 UTC [1] LOG:  starting PostgreSQL 13.1 (Debian 13.1-1.pgdg100+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 8.3.0-6) 8.3.0, 64-bit
+2022-03-18 02:56:19.700 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2022-03-18 02:56:19.700 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2022-03-18 02:56:19.707 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2022-03-18 02:56:19.728 UTC [29] LOG:  database system was shut down at 2022-03-18 02:56:16 UTC
+2022-03-18 02:56:19.756 UTC [1] LOG:  database system is ready to accept connections
+2022-03-18 02:56:21.130 UTC [36] LOG:  standby "standby" is now a synchronous standby with priority 1
+2022-03-18 03:01:24.511 UTC [42] LOG:  standby "standby" is now a synchronous standby with priority 1
+2022-03-18 03:02:29.877 UTC [1] LOG:  received fast shutdown request
+2022-03-18 03:02:29.879 UTC [1] LOG:  aborting any active transactions
+2022-03-18 03:02:29.881 UTC [1] LOG:  background worker "logical replication launcher" (PID 35) exited with exit code 1
+2022-03-18 03:02:29.884 UTC [30] LOG:  shutting down
+2022-03-18 03:02:29.945 UTC [1] LOG:  database system is shut down

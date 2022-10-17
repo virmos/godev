@@ -1,0 +1,7 @@
+sql(`
+INSERT INTO "public"."services"("id", "service_name", "active", "icon","created_at","updated_at")
+VALUES
+(E'1',E'HTTP', E'1', E'fa-server',E'2020-06-26 07:49:33.648011',E'2020-06-26 07:49:33.648011'),
+(E'2',E'HTTPS', E'1', E'fa-server',E'2020-06-26 07:49:33.648011',E'2020-06-26 07:49:33.648011'),
+(E'3',E'SSL', E'1', E'fa-lock',E'2020-06-26 07:49:33.648011',E'2020-06-26 07:49:33.648011');
+`)
