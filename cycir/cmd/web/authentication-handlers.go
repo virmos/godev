@@ -34,26 +34,6 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// id, hash, err := app.repo.Authenticate(r.Form.Get("email"), r.Form.Get("password"))
-	// if err == models.ErrInvalidCredentials {
-	// 	app.Session.Put(r.Context(), "error", "Invalid login")
-	// 	err := app.RenderPage(w, r, "login", nil, nil)
-	// 	if err != nil {
-	// 		printTemplateError(w, err)
-	// 	}
-	// 	return
-	// } else if err == models.ErrInactiveAccount {
-	// 	app.Session.Put(r.Context(), "error", "Inactive account!")
-	// 	err := app.RenderPage(w, r, "login", nil, nil)
-	// 	if err != nil {
-	// 		printTemplateError(w, err)
-	// 	}
-	// 	return
-	// } else if err != nil {
-	// 	log.Println(err)
-	// 	ClientError(w, r, http.StatusBadRequest)
-	// 	return
-	// }
 	user, err := app.repo.GetUserByEmail(r.Form.Get("email"))
 	if err != nil {
 		log.Println(err)

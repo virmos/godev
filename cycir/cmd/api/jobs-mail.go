@@ -159,10 +159,11 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 	server.KeepAlive = false
 	server.ConnectTimeout = 10 * time.Second
 	server.SendTimeout = 10 * time.Second
-
+	
 	smtpClient, err := server.Connect()
 	if err != nil {
 		log.Println(err)
+		log.Println("default mail server port is 1025")
 	}
 
 	email := mail.NewMSG()

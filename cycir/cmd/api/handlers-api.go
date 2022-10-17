@@ -423,48 +423,48 @@ func (app *application) SendRangeUptimeReport(w http.ResponseWriter, r *http.Req
 		Route          string `json:"route"`
 	}
 	if numDays <= 31 {
-		reports, _ := app.esrepo.GetRangeReport(app.config.esIndex, payload.HostName, startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
-		uptimeReports, _ := app.esrepo.GetRangeUptimeReport(app.config.esIndex, payload.HostName, startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
-		results, _ := parseUptimeRangeReports(uptimeReports, reports)
-
-		if len(results) == 0 {
+		if numDays == 1 { 
 			resp.Error = true
-			resp.Message = "No report was made between specified dates"
+			resp.Message = "Please specify range of days"
 		} else {
-			msgBuilder := ""
-			for key, report := range results {
-				histogramString := strings.Join(report.Histogram, ", ")
-				countString := strings.Join(report.Count, ", ")
-				resp.Histogram = histogramString
-				resp.Count = countString
-				resp.HostName = key
-
-				msgBuilder = msgBuilder + fmt.Sprintf(`<h2> Host %s %s days uptime percentage report. </h2>`, key, strconv.Itoa(numDays))
-				msgBuilder = msgBuilder + fmt.Sprintf(`<p> Data between to dates: %s to %s are reported: </p>`, payload.StartDate, payload.EndDate)
-				msgBuilder = msgBuilder + fmt.Sprintf(`<p> Start Day: %s ----> Percentage: `, payload.StartDate)
-				msgBuilder = msgBuilder + histogramString
-				msgBuilder = msgBuilder + fmt.Sprintf(` <---- End Day: %s</p>`, endReportedDate)
-
-				msgBuilder = msgBuilder + fmt.Sprintf(`<p> Start Day: %s ----> Total reqs: `, payload.StartDate)
-				msgBuilder = msgBuilder + countString
-				msgBuilder = msgBuilder + fmt.Sprintf(` <---- End Day: %s</p>`, endReportedDate)
+			reports, _ := app.esrepo.GetRangeReport(app.config.esIndex, payload.HostName, startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
+			uptimeReports, _ := app.esrepo.GetRangeUptimeReport(app.config.esIndex, payload.HostName, startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
+			results, _ := parseUptimeRangeReports(uptimeReports, reports)
+	
+			if len(results) == 0 {
+				resp.Error = true
+				resp.Message = "No report was made between specified dates"
+			} else {
+				msgBuilder := ""
+				for key, report := range results {
+					histogramString := strings.Join(report.Histogram, ", ")
+					countString := strings.Join(report.Count, ", ")
+					resp.Histogram = histogramString
+					resp.Count = countString
+					resp.HostName = key
+	
+					msgBuilder = msgBuilder + fmt.Sprintf(`<h2> Host %s %s days uptime percentage report. </h2>`, key, strconv.Itoa(numDays))
+					msgBuilder = msgBuilder + fmt.Sprintf(`<p> Data between to dates: %s to %s are reported: </p>`, payload.StartDate, payload.EndDate)
+					msgBuilder = msgBuilder + fmt.Sprintf(`<p> Start Day: %s ----> Percentage: `, payload.StartDate)
+					msgBuilder = msgBuilder + histogramString
+					msgBuilder = msgBuilder + fmt.Sprintf(` <---- End Day: %s</p>`, endReportedDate)
+	
+					msgBuilder = msgBuilder + fmt.Sprintf(`<p> Start Day: %s ----> Total reqs: `, payload.StartDate)
+					msgBuilder = msgBuilder + countString
+					msgBuilder = msgBuilder + fmt.Sprintf(` <---- End Day: %s</p>`, endReportedDate)
+				}
+				mm.Subject = "Range uptime report"
+				mm.Content = template.HTML(msgBuilder)
+				app.SendEmail(mm)
+	
+				resp.Error = false
+				resp.Message = "Sent report to mail"
 			}
-			mm.Subject = "Range uptime report"
-			mm.Content = template.HTML(msgBuilder)
-			app.SendEmail(mm)
-
-			resp.Error = false
-			resp.Message = "Sent report to mail"
 		}
 	} else {
 		resp.Error = true
 		resp.Message = "Date range too big (>31 days)"
 	}
-
-	resp.Redirect = false
-	resp.Route = "/admin/host/all"
-	resp.RedirectStatus = http.StatusSeeOther
-
 	app.writeJSON(w, http.StatusOK, resp)
 }
 

@@ -36,6 +36,9 @@ func (app *application) routes() http.Handler {
 		// events
 		mux.Get("/events", app.Events)
 
+		// schedule
+		mux.Get("/schedule", app.ListEntries)
+
 		// settings
 		mux.Get("/settings", app.Settings)
 

@@ -41,9 +41,6 @@ func (app *application) routes() http.Handler {
 		// settings
 		mux.Post("/settings", app.PostSettings)
 
-		// schedule
-		mux.Get("/schedule", app.ListEntries)
-
 		// users
 		mux.Post("/user/{id}", app.PostOneUser)
 		mux.Post("/user/delete/{id}", app.DeleteUser)

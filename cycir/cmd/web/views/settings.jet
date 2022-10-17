@@ -490,7 +490,7 @@
 
             if (form.checkValidity() === true) {
                 let payload = {
-                    host_name : form.site_url.value,
+                    site_url : form.site_url.value,
                     notify_name : form.notify_name.value,
                     notify_email : form.notify_email.value,
                     smtp_server : form.smtp_server.value,
@@ -548,7 +548,7 @@
 
             if (form.checkValidity() === true) {
                 let payload = {
-                    host_name : form.site_url.value,
+                    site_url : form.site_url.value,
                     notify_name : form.notify_name.value,
                     notify_email : form.notify_email.value,
                     smtp_server : form.smtp_server.value,
