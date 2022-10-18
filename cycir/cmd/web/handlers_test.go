@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"testing"
 	"strings"
+	"testing"
 )
 
 type postData struct {
@@ -19,36 +19,40 @@ var theTests = []struct {
 	name               string
 	url                string
 	method             string
+	expectedStatusCode int
 }{
-	{"login page", "/", "GET"},
-	{"dashboard page", "/admin/overview", "GET"},
-	{"events page", "/admin/events", "GET"},
-	{"schedule page", "/admin/schedule", "GET"},
-	{"settings page", "/admin/settings", "GET"},
-	{"all healthy", "/admin/all-healthy", "GET"},
-	{"all warnings", "/admin/all-warning", "GET"},
-	{"all problems", "/admin/all-problems", "GET"},
-	{"all pendings", "/admin/all-pending", "GET"},
-	{"all users", "/admin/users", "GET"},
-	{"one user", "/admin/users/{id}", "GET"},	
-	{"all hosts", "/admin/hosts", "GET"},
-	{"one host", "/admin/hosts/{id}", "GET"},
+	{"login page", "/", "GET", http.StatusOK},
+	{"dashboard page", "/admin/overview", "GET", http.StatusOK},
+	{"events page", "/admin/events", "GET", http.StatusOK},
+	{"schedule page", "/admin/schedule", "GET", http.StatusOK},
+	{"settings page", "/admin/settings", "GET", http.StatusOK},
+	{"all healthy", "/admin/all-healthy", "GET", http.StatusOK},
+	{"all warnings", "/admin/all-warning", "GET", http.StatusOK},
+	{"all problems", "/admin/all-problems", "GET", http.StatusOK},
+	{"all pendings", "/admin/all-pending", "GET", http.StatusOK},
+	{"all users", "/admin/users", "GET", http.StatusOK},
+	{"one user", "/admin/user/1", "GET", http.StatusOK},	
+	{"all hosts", "/admin/host/all", "GET", http.StatusOK},
+	{"one host", "/admin/host/1", "GET", http.StatusOK},
 }
 
 // TestHandlers tests all routes that don't require extra tests (gets)
 func TestHandlers(t *testing.T) {
-	routes := testApp.routes()
+	routes := getRoutes()
 	ts := httptest.NewTLSServer(routes)
 	defer ts.Close()
 
 	for _, e := range theTests {
-		_, err := ts.Client().Get(ts.URL + e.url)
+		resp, err := ts.Client().Get(ts.URL + e.url)
 		if err != nil {
 			t.Errorf("for %s, error rendering", e.name)
 		}
+
+		if resp.StatusCode != e.expectedStatusCode {
+			t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
+		}
 	}
 }
-
 
 // loginTests is the data for the Login handler tests
 var loginTests = []struct {

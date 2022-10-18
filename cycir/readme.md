@@ -3,7 +3,7 @@
 # cycir
 
 ## Build
-
+ 
 On Windows:
 
 ~~~
@@ -15,6 +15,12 @@ Or for a particular platform:
 ~~~
 env GOOS=linux GOARCH=amd64 go build -o cycir cmd/web/*.go
 ~~~
+
+## Test
+
+go test -coverprofile=coverage.out && go tool cover -html=coverage.out
+
+go test -cover
 
 ## Requirements
 

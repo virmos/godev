@@ -24,11 +24,19 @@ type PostgresRepository struct {
 	DB *sql.DB
 }
 
+type TestRepository struct {
+	DB *sql.DB
+}
+
 func NewPostgresRepository(pool *sql.DB) *PostgresRepository {
 	DB = pool
 	return &PostgresRepository{
 		DB: pool,
 	}
+}
+
+func NewTestRepository() *TestRepository {
+	return &TestRepository{ }
 }
 
 // User model

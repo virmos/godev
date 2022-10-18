@@ -11,6 +11,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/justinas/nosurf"
+
 	"github.com/alexedwards/scs/v2"
 )
 var testApp *application
@@ -38,14 +41,99 @@ func TestMain(m *testing.M) {
 		version:  version,
 		Session:  testSession,
 		Cache: testRedisCache,
+		repo: models.NewTestRepository(),
 	}
 	// redis
 	testRedisCache = testApp.createClientRedisCache()
 
 	NewHelpers(testApp)
-	SetViews("./cmd/web/views")
+	SetViews("./views")
 
 	os.Exit(m.Run())
+}
+func getRoutes() http.Handler {
+	mux := chi.NewRouter()
+	// default middleware
+	mux.Use(getSessionLoad)
+	mux.Use(getNoSurf)
+
+	// login
+	mux.Get("/", testApp.LoginScreen)
+	mux.Post("/", testApp.Login)
+
+	mux.Get("/user/logout", testApp.Logout)
+
+
+	// redis cache
+	mux.Post("/admin/save-in-cache", testApp.SaveInCache)
+	mux.Post("/admin/get-from-cache", testApp.GetFromCache)
+	mux.Post("/admin/delete-from-cache", testApp.DeleteFromCache)
+	mux.Post("/admin/empty-cache", testApp.EmptyCache)
+
+	// overview
+	mux.Get("/admin/overview", testApp.AdminDashboard)
+
+	// events
+	mux.Get("/admin/events", testApp.Events)
+
+	// schedule
+	mux.Get("/admin/schedule", testApp.ListEntries)
+
+	// settings
+	mux.Get("/admin/settings", testApp.Settings)
+
+	// service status pages (all hosts)
+	mux.Get("/admin/all-healthy", testApp.AllHealthyServices)
+	mux.Get("/admin/all-warning", testApp.AllWarningServices)
+	mux.Get("/admin/all-problems", testApp.AllProblemServices)
+	mux.Get("/admin/all-pending", testApp.AllPendingServices)
+
+	// users
+	mux.Get("/admin/users", testApp.AllUsers)
+	mux.Get("/admin/user/{id}", testApp.OneUser)
+
+	// hosts
+	mux.Get("/admin/host/all", testApp.AllHosts)
+	mux.Get("/admin/host/{id}", testApp.Host)
+
+	fileServer := http.FileServer(http.Dir("./static"))
+	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
+
+	return mux
+}
+
+func getSessionLoad(next http.Handler) http.Handler {
+	return testSession.LoadAndSave(next)
+}
+
+func getNoSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+
+	csrfHandler.ExemptPath("/pusher/auth")
+	csrfHandler.ExemptPath("/pusher/hook")
+
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   cfg.InProduction,
+		SameSite: http.SameSiteStrictMode,
+		Domain:   cfg.Domain,
+	})
+
+	return csrfHandler
+}
+
+func getSession() (*http.Request, error) {
+	r, err := http.NewRequest("GET", "/some-url", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := r.Context()
+	ctx, _ = testSession.Load(ctx, r.Header.Get("X-Session"))
+	r = r.WithContext(ctx)
+
+	return r, nil
 }
 
 type myHandler struct{}

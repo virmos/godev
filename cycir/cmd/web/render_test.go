@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"testing"
 )
 
@@ -36,17 +35,3 @@ func TestRenderTemplate(t *testing.T) {
 		t.Error("error writing template to browser")
 	}
 }
-
-func getSession() (*http.Request, error) {
-	r, err := http.NewRequest("GET", "/some-url", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx := r.Context()
-	ctx, _ = testSession.Load(ctx, r.Header.Get("X-Session"))
-	r = r.WithContext(ctx)
-
-	return r, nil
-}
-

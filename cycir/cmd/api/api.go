@@ -97,7 +97,7 @@ func run() error {
 	flag.StringVar(&cfg.frontend, "frontend", "http://localhost:4000", "url to front end")
 
 	dbHost := flag.String("dbhost", "localhost", "database host")
-	dbPort := flag.String("dbport", "8888", "database port")
+	dbPort := flag.String("dbport", "5432", "database port")
 	dbUser := flag.String("dbuser", "postgres", "database user")
 	dbPass := flag.String("dbpass", "qwerqwer", "database password")
 	databaseName := flag.String("db", "temp", "database name")
