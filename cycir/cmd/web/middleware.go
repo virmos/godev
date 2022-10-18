@@ -65,6 +65,7 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !IsAuthenticated(r) {
 			cookie, err := r.Cookie(fmt.Sprintf("_%s_gowatcher_remember", preferenceMap["identifier"]))
+
 			if err != nil {
 				next.ServeHTTP(w, r)
 			} else {
@@ -79,7 +80,7 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 
 					if validHash {
 						// valid remember me token, so log the user in
-						_ = session.RenewToken(r.Context())
+						_ = app.Session.RenewToken(r.Context())
 						user, _ := app.repo.GetUserById(id)
 
 						// renew backend token
@@ -88,18 +89,18 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 						app.Session.Put(r.Context(), "token", string(token.PlainText))
 						
 						hashedPassword := user.Password
-						session.Put(r.Context(), "userID", id)
-						session.Put(r.Context(), "userName", user.FirstName)
-						session.Put(r.Context(), "userFirstName", user.FirstName)
-						session.Put(r.Context(), "userLastName", user.LastName)
-						session.Put(r.Context(), "hashedPassword", string(hashedPassword))
-						session.Put(r.Context(), "user", user)
+						app.Session.Put(r.Context(), "userID", id)
+						app.Session.Put(r.Context(), "userName", user.FirstName)
+						app.Session.Put(r.Context(), "userFirstName", user.FirstName)
+						app.Session.Put(r.Context(), "userLastName", user.LastName)
+						app.Session.Put(r.Context(), "hashedPassword", string(hashedPassword))
+						app.Session.Put(r.Context(), "user", user)
 						next.ServeHTTP(w, r)
 					} else {
 						// invalid token, so delete the cookie
-						deleteRememberCookie(w, r)
-						session.Clear(r.Context())
-						session.Put(r.Context(), "error", "You've been logged out from another device!")
+						app.deleteRememberCookie(w, r)
+						app.Session.Clear(r.Context())
+						app.Session.Put(r.Context(), "error", "You've been logged out from another device!")
 						next.ServeHTTP(w, r)
 					}
 				} else {
@@ -122,9 +123,9 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 					id, _ := strconv.Atoi(uid)
 					validHash := app.repo.CheckForToken(id, hash)
 					if !validHash {
-						deleteRememberCookie(w, r)
-						session.Clear(r.Context())
-						session.Put(r.Context(), "error", "You've been logged out from another device!")
+						app.deleteRememberCookie(w, r)
+						app.Session.Clear(r.Context())
+						app.Session.Put(r.Context(), "error", "You've been logged out from another device!")
 						next.ServeHTTP(w, r)
 					} else {
 						next.ServeHTTP(w, r)
@@ -138,8 +139,8 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 }
 
 // deleteRememberCookie deletes the remember me cookie, and logs the user out
-func deleteRememberCookie(w http.ResponseWriter, r *http.Request) {
-	_ = session.RenewToken(r.Context())
+func (app *application) deleteRememberCookie(w http.ResponseWriter, r *http.Request) {
+	_ = app.Session.RenewToken(r.Context())
 	// delete the cookie
 	newCookie := http.Cookie{
 		Name:     fmt.Sprintf("_%s_gowatcher_remember", preferenceMap["identifier"]),
@@ -155,7 +156,7 @@ func deleteRememberCookie(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &newCookie)
 
 	// log them out
-	session.Remove(r.Context(), "userID")
-	_ = session.Destroy(r.Context())
-	_ = session.RenewToken(r.Context())
+	app.Session.Remove(r.Context(), "userID")
+	_ = app.Session.Destroy(r.Context())
+	_ = app.Session.RenewToken(r.Context())
 }

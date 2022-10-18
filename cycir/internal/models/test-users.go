@@ -42,7 +42,10 @@ func (repo *TestRepository) DeleteToken(token string) error {
 
 // CheckForToken checks for a valid remember me token
 func (repo *TestRepository) CheckForToken(id int, token string) bool {
-	return true
+	if token == "xyz" {
+		return true
+	}
+	return false
 }
 
 // Insert method to add a new record to the users table.

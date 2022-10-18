@@ -47,7 +47,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		_, err = hasher.Write([]byte(randomString))
 		if err != nil {
 			log.Println(err)
-			ClientError(w, r, http.StatusBadRequest)
+			ServerError(w, r, nil)
 		}
 
 		sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
@@ -55,7 +55,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		err = app.repo.InsertRememberMeToken(user.ID, sha)
 		if err != nil {
 			log.Println(err)
-			ClientError(w, r, http.StatusBadRequest)
+			ServerError(w, r, nil)
 		}
 
 		// write a cookie
@@ -78,7 +78,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	u, err := app.repo.GetUserById(user.ID)
 	if err != nil {
 		log.Println(err)
-		ClientError(w, r, http.StatusBadRequest)
+		ServerError(w, r, nil)
 		return
 	}
 
@@ -117,6 +117,7 @@ func (app *application) Logout(w http.ResponseWriter, r *http.Request) {
 			err = app.repo.DeleteToken(hash)
 			if err != nil {
 				log.Println(err)
+				ServerError(w, r, nil)
 			}
 		}
 	}
