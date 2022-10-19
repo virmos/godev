@@ -199,42 +199,51 @@ func run() error {
 		cron.DelayIfStillRunning(cron.DefaultLogger),
 		cron.Recover(cron.DefaultLogger),
 	))
-	if !cfg.InTest {
-		app := &application{
-			config:    cfg,
-			infoLog:   infoLog,
-			errorLog:  errorLog,
-			version:   version,
-			repo:      repo,
-			MailQueue: mailQueue,
-			esrepo:    esrepo,
-			PreferenceMap: preferenceMap,
-			WsClient: wsClient,
-			MonitorMap: monitorMap,
-			FunctionMap: functionMap,
-			Scheduler: scheduler,
-		}
-	
-		go app.StartMonitoring()
-		NewScheduler(app)
-	
-		if app.PreferenceMap["monitoring_live"] == "1" {
-			app.Scheduler.Start()
-		}
-	
-		err = app.serve()
-		if err != nil {
-			log.Fatal(err)
-			return err
-		}
-	
-		// err = esrepo.CreateIndex(app.config.esIndex)
-		// if err != nil {
-		// 	errorLog.Fatal(err)
-		// }
-	
-		// reports, _ := app.esrepo.GetAllReports("cycir")
-		// log.Println(reports)
+	app := &application{
+		config:    cfg,
+		infoLog:   infoLog,
+		errorLog:  errorLog,
+		version:   version,
+		repo:      repo,
+		MailQueue: mailQueue,
+		esrepo:    esrepo,
+		PreferenceMap: preferenceMap,
+		WsClient: wsClient,
+		MonitorMap: monitorMap,
+		FunctionMap: functionMap,
+		Scheduler: scheduler,
 	}
+
+	go app.StartMonitoring()
+	NewScheduler(app)
+
+	if app.PreferenceMap["monitoring_live"] == "1" {
+		app.Scheduler.Start()
+	}
+
+	err = esrepo.CreateIndex(app.config.esIndex)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
+	reports, _ := app.esrepo.GetYesterdayReport(app.config.esIndex)
+	uptimeReports, _ := app.esrepo.GetYesterdayUptimeReport(app.config.esIndex)
+	log.Println(reports)
+	log.Println(uptimeReports)
+
+	startDate, _ := time.Parse("2006-01-02", "2022-10-15")
+	endDate, _ := time.Parse("2006-01-02", "2022-10-28")
+	reports, _ = app.esrepo.GetRangeReport(app.config.esIndex, "Google", startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
+	uptimeReports, _ = app.esrepo.GetRangeUptimeReport(app.config.esIndex, "Google", startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
+
+	log.Println(reports)
+	log.Println(uptimeReports)
+
+	err = app.serve()
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
 	return nil
 }

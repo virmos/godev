@@ -28,9 +28,11 @@ var theTests = []struct {
 	{"all problems", "/admin/all-problems", "GET"},
 	{"all pendings", "/admin/all-pending", "GET"},
 	{"all users", "/admin/users", "GET"},
-	{"one user", "/admin/user/{id}", "GET"},
+	{"one user", "/admin/user/0", "GET"},
+	{"one user", "/admin/user/1", "GET"},
 	{"all hosts", "/admin/host/all", "GET"},
-	{"one host", "/admin/host/{id}", "GET"},
+	{"one host", "/admin/host/0", "GET"},
+	{"one host", "/admin/host/1", "GET"},
 }
 
 // TestHandlers tests all routes that don't require extra tests (gets)
