@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -30,9 +28,9 @@ var theTests = []struct {
 	{"all problems", "/admin/all-problems", "GET"},
 	{"all pendings", "/admin/all-pending", "GET"},
 	{"all users", "/admin/users", "GET"},
-	{"one user", "/admin/users/{id}", "GET"},
-	{"all hosts", "/admin/hosts", "GET"},
-	{"one host", "/admin/hosts/{id}", "GET"},
+	{"one user", "/admin/user/{id}", "GET"},
+	{"all hosts", "/admin/host/all", "GET"},
+	{"one host", "/admin/host/{id}", "GET"},
 }
 
 // TestHandlers tests all routes that don't require extra tests (gets)
@@ -110,7 +108,7 @@ func TestGetLogin(t *testing.T) {
 	}
 }
 
-// loginTests is the data for the Login handler tests
+// loginPostTests is the data for the Login Post handler tests
 var loginPostTests = []struct {
 	name                string
 	email               string
@@ -193,15 +191,6 @@ func TestPostLogin(t *testing.T) {
 	}
 }
 
-// gets the context
-func getCtx(req *http.Request) context.Context {
-	ctx, err := testApp.Session.Load(req.Context(), req.Header.Get("X-Session"))
-	if err != nil {
-		log.Println(err)
-	}
-	return ctx
-}
-
 // logoutTests is the data for the Logout handler tests
 var logoutTests = []struct {
 	name               string
@@ -264,6 +253,214 @@ func TestLogout(t *testing.T) {
 			if actualLoc.String() != e.expectedLocation {
 				t.Errorf("failed %s: expected location %s, but got location %s", e.name, e.expectedLocation, actualLoc.String())
 			}
+		}
+
+		// checking for expected values in HTML
+		if e.expectedHTML != "" {
+			// read the response body into a string
+			html := rr.Body.String()
+			if !strings.Contains(html, e.expectedHTML) {
+				t.Errorf("failed %s: expected to find %s but did not", e.name, e.expectedHTML)
+			}
+		}
+	}
+}
+
+// saveInCacheTests is the data for the Login handler tests
+var saveInCacheTests = []struct {
+	name               string
+	key                string
+	value              string
+	expectedStatusCode int
+	expectedHTML       string
+}{
+	{
+		"save in cache",
+		"key",
+		"value",
+		http.StatusOK,
+		"",
+	},
+}
+
+func TestSaveInCache(t *testing.T) {
+	// range through all tests
+	for _, e := range saveInCacheTests {
+		postedData := url.Values{}
+		postedData.Add("key", e.key)
+		postedData.Add("value", e.value)
+
+		// create request
+		req, _ := http.NewRequest("POST", "/save-in-cache", strings.NewReader(postedData.Encode()))
+		ctx := getCtx(req)
+		req = req.WithContext(ctx)
+
+		// set the header
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+
+		// call the handler
+		handler := http.HandlerFunc(testApp.SaveInCache)
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != e.expectedStatusCode {
+			t.Errorf("failed %s: expected code %d, but got %d", e.name, e.expectedStatusCode, rr.Code)
+		}
+
+		// checking for expected values in HTML
+		if e.expectedHTML != "" {
+			// read the response body into a string
+			html := rr.Body.String()
+			if !strings.Contains(html, e.expectedHTML) {
+				t.Errorf("failed %s: expected to find %s but did not", e.name, e.expectedHTML)
+			}
+		}
+	}
+}
+
+// getFromCacheTests is the data for the Login handler tests
+var getFromCacheTests = []struct {
+	name               string
+	key                string
+	value              string
+	expectedStatusCode int
+	expectedHTML       string
+}{
+	{
+		"save in cache",
+		"key",
+		"value",
+		http.StatusOK,
+		"",
+	},
+}
+
+func TestGetFromCache(t *testing.T) {
+	// range through all tests
+	for _, e := range getFromCacheTests {
+		postedData := url.Values{}
+		postedData.Add("key", e.key)
+		postedData.Add("value", e.value)
+
+		// create request
+		req, _ := http.NewRequest("POST", "/get-from-cache", strings.NewReader(postedData.Encode()))
+		ctx := getCtx(req)
+		req = req.WithContext(ctx)
+
+		// set the header
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+
+		// call the handler
+		handler := http.HandlerFunc(testApp.GetFromCache)
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != e.expectedStatusCode {
+			t.Errorf("failed %s: expected code %d, but got %d", e.name, e.expectedStatusCode, rr.Code)
+		}
+
+		// checking for expected values in HTML
+		if e.expectedHTML != "" {
+			// read the response body into a string
+			html := rr.Body.String()
+			if !strings.Contains(html, e.expectedHTML) {
+				t.Errorf("failed %s: expected to find %s but did not", e.name, e.expectedHTML)
+			}
+		}
+	}
+}
+
+// deleteFromCacheTests is the data for the Login handler tests
+var deleteFromCacheTests = []struct {
+	name               string
+	key                string
+	value              string
+	expectedStatusCode int
+	expectedHTML       string
+}{
+	{
+		"save in cache",
+		"key",
+		"value",
+		http.StatusOK,
+		"",
+	},
+}
+
+func TestDeleteFromCache(t *testing.T) {
+	// range through all tests
+	for _, e := range deleteFromCacheTests {
+		postedData := url.Values{}
+		postedData.Add("key", e.key)
+		postedData.Add("value", e.value)
+
+		// create request
+		req, _ := http.NewRequest("POST", "/delete-from-cache", strings.NewReader(postedData.Encode()))
+		ctx := getCtx(req)
+		req = req.WithContext(ctx)
+
+		// set the header
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+
+		// call the handler
+		handler := http.HandlerFunc(testApp.DeleteFromCache)
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != e.expectedStatusCode {
+			t.Errorf("failed %s: expected code %d, but got %d", e.name, e.expectedStatusCode, rr.Code)
+		}
+
+		// checking for expected values in HTML
+		if e.expectedHTML != "" {
+			// read the response body into a string
+			html := rr.Body.String()
+			if !strings.Contains(html, e.expectedHTML) {
+				t.Errorf("failed %s: expected to find %s but did not", e.name, e.expectedHTML)
+			}
+		}
+	}
+}
+
+// emptyCacheTests is the data for the Login handler tests
+var emptyCacheTests = []struct {
+	name               string
+	key                string
+	value              string
+	expectedStatusCode int
+	expectedHTML       string
+}{
+	{
+		"save in cache",
+		"key",
+		"value",
+		http.StatusOK,
+		"",
+	},
+}
+
+func TestEmptyCache(t *testing.T) {
+	// range through all tests
+	for _, e := range emptyCacheTests {
+		postedData := url.Values{}
+		postedData.Add("key", e.key)
+		postedData.Add("value", e.value)
+
+		// create request
+		req, _ := http.NewRequest("POST", "/empty-cache", strings.NewReader(postedData.Encode()))
+		ctx := getCtx(req)
+		req = req.WithContext(ctx)
+
+		// set the header
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rr := httptest.NewRecorder()
+
+		// call the handler
+		handler := http.HandlerFunc(testApp.EmptyCache)
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != e.expectedStatusCode {
+			t.Errorf("failed %s: expected code %d, but got %d", e.name, e.expectedStatusCode, rr.Code)
 		}
 
 		// checking for expected values in HTML

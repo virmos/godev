@@ -36,7 +36,7 @@ func (c *RedisCache) Has(str string) (bool, error) {
 	return ok, nil
 }
 
-func encode(item Entry) ([]byte, error) {
+func Encode(item Entry) ([]byte, error) {
 	b := bytes.Buffer{}
 	e := gob.NewEncoder(&b)
 	err := e.Encode(item)
@@ -46,7 +46,7 @@ func encode(item Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func decode(str string) (Entry, error) {
+func Decode(str string) (Entry, error) {
 	item := Entry{}
 	b := bytes.Buffer{}
 	b.Write([]byte(str))
@@ -68,7 +68,7 @@ func (c *RedisCache) Get(str string) (interface{}, error) {
 		return nil, err
 	}
 
-	decoded, err := decode(string(cacheEntry))
+	decoded, err := Decode(string(cacheEntry))
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (c *RedisCache) Set(str string, value interface{}, expires ...int) error {
 
 	entry := Entry{}
 	entry[key] = value
-	encoded, err := encode(entry)
+	encoded, err := Encode(entry)
 	if err != nil {
 		return err
 	}

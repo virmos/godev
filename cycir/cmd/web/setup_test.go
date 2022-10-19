@@ -5,21 +5,23 @@ import (
 	"cycir/internal/models"
 	"encoding/gob"
 	"fmt"
+	"github.com/alexedwards/scs/v2"
+	"github.com/alicebob/miniredis/v2"
+	"github.com/go-chi/chi/v5"
+	"github.com/gomodule/redigo/redis"
+	"github.com/justinas/nosurf"
 	"log"
 	"net/http"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/justinas/nosurf"
-
-	"github.com/alexedwards/scs/v2"
+	"context"
 )
+
 var testApp *application
 var testSession *scs.SessionManager
-var testRedisCache *cache.RedisCache
-	
+var testRedisCache cache.RedisCache
+
 func TestMain(m *testing.M) {
 	gob.Register(models.User{})
 	_ = os.Setenv("TZ", "America/Halifax")
@@ -34,17 +36,37 @@ func TestMain(m *testing.M) {
 	testSession.Cookie.Name = fmt.Sprintf("gbsession_id_%s", cfg.Identifier)
 	testSession.Cookie.SameSite = http.SameSiteLaxMode
 	testSession.Cookie.Secure = cfg.InProduction
+	cfg.InTest = true
 
 	testApp = &application{
+		config:   cfg,
 		infoLog:  infoLog,
 		errorLog: errorLog,
 		version:  version,
 		Session:  testSession,
-		Cache: testRedisCache,
-		repo: models.NewTestRepository(),
+		repo:     models.NewTestRepository(),
 	}
 	// redis
-	testRedisCache = testApp.createClientRedisCache()
+	s, err := miniredis.Run()
+	if err != nil {
+		panic(err)
+	}
+	defer s.Close()
+
+	pool := redis.Pool{
+		MaxIdle:     50,
+		MaxActive:   1000,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp", s.Addr())
+		},
+	}
+
+	testRedisCache.Conn = &pool
+	testRedisCache.Prefix = "test-cycir"
+	testApp.Cache = &testRedisCache
+
+	defer testRedisCache.Conn.Close()
 
 	NewHelpers(testApp)
 	SetViews("./views")
@@ -62,7 +84,6 @@ func getRoutes() http.Handler {
 	mux.Post("/", testApp.Login)
 
 	mux.Get("/user/logout", testApp.Logout)
-
 
 	// redis cache
 	mux.Post("/admin/save-in-cache", testApp.SaveInCache)
@@ -156,4 +177,13 @@ func (tw *myWriter) WriteHeader(i int) {
 func (tw *myWriter) Write(b []byte) (int, error) {
 	length := len(b)
 	return length, nil
+}
+
+// gets the context
+func getCtx(req *http.Request) context.Context {
+	ctx, err := testApp.Session.Load(req.Context(), req.Header.Get("X-Session"))
+	if err != nil {
+		log.Println(err)
+	}
+	return ctx
 }

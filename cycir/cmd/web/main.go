@@ -47,6 +47,7 @@ type config struct {
 	Identifier   string
 	Domain       string
 	InProduction bool
+	InTest			 bool
 }
 
 type application struct {
@@ -78,6 +79,7 @@ func (app *application) serve() error {
 
 func main() {
 	err := run()
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -170,24 +172,27 @@ func run() error {
 	log.Println("Host", fmt.Sprintf("%s:%s", cfg.pusherHost, cfg.pusherPort))
 	log.Println("Secure", cfg.pusherSecure)
 
-	app := &application{
-		config:   cfg,
-		infoLog:  infoLog,
-		errorLog: errorLog,
-		version:  version,
-		repo:     repo,
-		Session:  session,
-		PreferenceMap: preferenceMap,
-	}
-	NewHelpers(app)
-	// redis
-	redisCache := app.createClientRedisCache()
-	app.Cache = redisCache
-
-	err = app.serve()
-	if err != nil {
-		log.Fatal(err)
-		return err
+	if !cfg.InTest {
+		app := &application{
+			config:   cfg,
+			infoLog:  infoLog,
+			errorLog: errorLog,
+			version:  version,
+			repo:     repo,
+			Session:  session,
+			PreferenceMap: preferenceMap,
+		}
+		NewHelpers(app)
+		
+		// redis
+		redisCache := app.createClientRedisCache()
+		app.Cache = redisCache
+	
+		err = app.serve()
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
 	}
 	return nil
 }

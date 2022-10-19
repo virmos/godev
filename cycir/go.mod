@@ -7,6 +7,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/alexedwards/scs/postgresstore v0.0.0-20220528130143-d93ace5be94b
 	github.com/alexedwards/scs/v2 v2.5.0
+	github.com/alicebob/miniredis/v2 v2.23.0
 	github.com/aymerick/douceur v0.2.0
 	github.com/bwmarrin/go-alone v0.0.0-20190806015146-742bb55d1631
 	github.com/elastic/go-elasticsearch/v8 v8.4.0

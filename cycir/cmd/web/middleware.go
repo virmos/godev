@@ -95,6 +95,7 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 						app.Session.Put(r.Context(), "userLastName", user.LastName)
 						app.Session.Put(r.Context(), "hashedPassword", string(hashedPassword))
 						app.Session.Put(r.Context(), "user", user)
+
 						next.ServeHTTP(w, r)
 					} else {
 						// invalid token, so delete the cookie

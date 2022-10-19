@@ -16,7 +16,7 @@ func TestNoSurf(t *testing.T) {
 	case http.Handler:
 		// do nothing
 	default:
-		t.Error(fmt.Sprintf("type is not http.Handler, but is %T", v))
+		t.Errorf(fmt.Sprintf("type is not http.Handler, but is %T", v))
 	}
 }
 
@@ -29,7 +29,7 @@ func TestSessionLoad(t *testing.T) {
 	case http.Handler:
 		// do nothing
 	default:
-		t.Error(fmt.Sprintf("type is not http.Handler, but is %T", v))
+		t.Errorf(fmt.Sprintf("type is not http.Handler, but is %T", v))
 	}
 }
 
@@ -42,7 +42,7 @@ func TestNoPanic(t *testing.T) {
 	case http.Handler:
 		// do nothing
 	default:
-		t.Error(fmt.Sprintf("type is not http.Handler, but is %T", v))
+		t.Errorf(fmt.Sprintf("type is not http.Handler, but is %T", v))
 	}
 }
 
@@ -64,51 +64,51 @@ var checkRememberMeTests = []struct {
 		"1",
 		"abc",
 	},
-	// {
-	// 	"credentials + remember",
-	// 	"remember",
-	// 	"1",
-	// 	"xyz", // valid hash
-	// 	"abc",
-	// 	"1",
-	// 	"abc",
-	// },
-	// {
-	// 	"credentials + remember",
-	// 	"remember",
-	// 	"1",
-	// 	"", // invalid hash
-	// 	"abc",
-	// 	nil,
-	// 	nil,
-	// },
-	// {
-	// 	"invalid credentials + no remember",
-	// 	"",
-	// 	"1",
-	// 	"xyz",
-	// 	"abc",
-	// 	"1",
-	// 	"abc",
-	// },
-	// {
-	// 	"invalid credentials + remember",
-	// 	"remember",
-	// 	"",
-	// 	"xyz", // valid hash
-	// 	"abc",
-	// 	"0",
-	// 	"abc",
-	// },
-	// {
-	// 	"invalid credentials + remember",
-	// 	"remember",
-	// 	"0",
-	// 	"xyz", // invalid hash
-	// 	"abc",
-	// 	nil,
-	// 	nil,
-	// },
+	{
+		"credentials + remember",
+		"remember",
+		"1",
+		"xyz", // valid hash
+		"abc",
+		"1",
+		"abc",
+	},
+	{
+		"credentials + remember",
+		"remember",
+		"1",
+		"", // invalid hash
+		"abc",
+		nil,
+		nil,
+	},
+	{
+		"invalid credentials + no remember",
+		"",
+		"1",
+		"xyz",
+		"abc",
+		"1",
+		"abc",
+	},
+	{
+		"invalid credentials + remember",
+		"remember",
+		"",
+		"xyz", // valid hash
+		"abc",
+		"0",
+		"abc",
+	},
+	{
+		"invalid credentials + remember",
+		"remember",
+		"0",
+		"xyz", // invalid hash
+		"abc",
+		nil,
+		nil,
+	},
 }
 
 func TestCheckRemember(t *testing.T) {
@@ -134,7 +134,7 @@ func TestCheckRemember(t *testing.T) {
 		req = req.WithContext(ctx)
 
 		// set the header
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Content-Type", "text/html")
 
 		var myH myHandler
 
@@ -144,26 +144,8 @@ func TestCheckRemember(t *testing.T) {
 		case http.Handler:
 			rr := httptest.NewRecorder()
 			v.ServeHTTP(rr, req)
-
-			// if rr.Code == http.StatusOK {
-			// 	userID := testSession.Pop(ctx, "userID")
-			// 	token := testSession.Pop(ctx, "token")
-
-			// 	if token != nil {
-			// 		token = "abc"
-			// 	}
-	
-			// 	if userID != e.expectedUserID {
-			// 		t.Errorf("failed %s: expected user id %s, but got %d", e.name, e.expectedUserID, userID)
-			// 	}
-	
-			// 	if token != e.expectedToken {
-			// 		t.Errorf("failed %s: expected token %s, but got %s", e.name, e.expectedToken, token)
-			// 	}
-			// }
-
 		default:
-			t.Error(fmt.Sprintf("type is not http.Handler, but is %T", v))
+			t.Errorf(fmt.Sprintf("type is not http.Handler, but is %T", v))
 		}
 	}
 }

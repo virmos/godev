@@ -47,6 +47,7 @@ type config struct {
 	pusherSecure bool
 	Domain       string
 	InProduction bool
+	InTest			 bool
 }
 
 type application struct {
@@ -198,41 +199,42 @@ func run() error {
 		cron.DelayIfStillRunning(cron.DefaultLogger),
 		cron.Recover(cron.DefaultLogger),
 	))
-
-	app := &application{
-		config:    cfg,
-		infoLog:   infoLog,
-		errorLog:  errorLog,
-		version:   version,
-		repo:      repo,
-		MailQueue: mailQueue,
-		esrepo:    esrepo,
-		PreferenceMap: preferenceMap,
-		WsClient: wsClient,
-		MonitorMap: monitorMap,
-		FunctionMap: functionMap,
-		Scheduler: scheduler,
+	if !cfg.InTest {
+		app := &application{
+			config:    cfg,
+			infoLog:   infoLog,
+			errorLog:  errorLog,
+			version:   version,
+			repo:      repo,
+			MailQueue: mailQueue,
+			esrepo:    esrepo,
+			PreferenceMap: preferenceMap,
+			WsClient: wsClient,
+			MonitorMap: monitorMap,
+			FunctionMap: functionMap,
+			Scheduler: scheduler,
+		}
+	
+		go app.StartMonitoring()
+		NewScheduler(app)
+	
+		if app.PreferenceMap["monitoring_live"] == "1" {
+			app.Scheduler.Start()
+		}
+	
+		err = app.serve()
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
+	
+		// err = esrepo.CreateIndex(app.config.esIndex)
+		// if err != nil {
+		// 	errorLog.Fatal(err)
+		// }
+	
+		// reports, _ := app.esrepo.GetAllReports("cycir")
+		// log.Println(reports)
 	}
-
-	go app.StartMonitoring()
-	NewScheduler(app)
-
-	if app.PreferenceMap["monitoring_live"] == "1" {
-		app.Scheduler.Start()
-	}
-
-	err = app.serve()
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-
-	// err = esrepo.CreateIndex(app.config.esIndex)
-	// if err != nil {
-	// 	errorLog.Fatal(err)
-	// }
-
-	// reports, _ := app.esrepo.GetAllReports("cycir")
-	// log.Println(reports)
 	return nil
 }

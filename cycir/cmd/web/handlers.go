@@ -163,6 +163,8 @@ func ClientError(w http.ResponseWriter, r *http.Request, status int) {
 		show404(w, r)
 	case http.StatusInternalServerError:
 		show500(w, r)
+	case http.StatusBadRequest:
+		show400(w, r)
 	default:
 		http.Error(w, http.StatusText(status), status)
 	}
@@ -173,6 +175,13 @@ func ServerError(w http.ResponseWriter, r *http.Request, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 	_ = log.Output(2, trace)
 	show500(w, r)
+}
+
+func show400(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusBadRequest)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, post-check=0, pre-check=0")
+	http.ServeFile(w, r, "./ui/static/404.html")
 }
 
 func show404(w http.ResponseWriter, r *http.Request) {
