@@ -48,7 +48,7 @@ func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// generate the token
-	token, err := models.GenerateToken(user.ID, 24*time.Hour, models.ScopeAuthentication)
+	token, err := app.repo.GenerateToken(user.ID, 24*time.Hour, models.ScopeAuthentication)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return

@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	_ "errors"
 )
 
 // AllUsers returns all users
@@ -24,10 +25,10 @@ func (repo *TestRepository) GetUserByEmail(email string) (User, error) {
 
 // Authenticate authenticates
 func (repo *TestRepository) Authenticate(email, testPassword string) (int, string, error) {
-	if email == "admin@example.coml" {
+	if email == "admin@example.com" {
 		return 1, "", nil
 	}
-	return 0, "", errors.New("authenticate error")
+	return 0, "", ErrInvalidCredentials
 }
 
 // InsertRememberMeToken inserts a remember me token into remember_tokens for a user
@@ -60,6 +61,9 @@ func (repo *TestRepository) UpdateUser(u User) error {
 
 // DeleteUser sets a user to deleted by populating deleted_at value
 func (repo *TestRepository) DeleteUser(id int) error {
+	if id == 0 {
+		return errors.New("invalid user")
+	}
 	return nil
 }
 

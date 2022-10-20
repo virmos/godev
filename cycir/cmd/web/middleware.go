@@ -84,7 +84,7 @@ func (app *application) CheckRemember(next http.Handler) http.Handler {
 						user, _ := app.repo.GetUserById(id)
 
 						// renew backend token
-						token, _ := models.GenerateToken(id, 24*time.Hour, models.ScopeAuthentication)
+						token, _ := app.repo.GenerateToken(id, 24*time.Hour, models.ScopeAuthentication)
 						_ = app.repo.InsertToken(token, user)
 						app.Session.Put(r.Context(), "token", string(token.PlainText))
 						

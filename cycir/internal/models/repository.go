@@ -1,5 +1,9 @@
 package models
 
+import (
+	"time"
+)
+
 type Repository interface {
 	// users
 	AllUsers() ([]*User, error)
@@ -17,6 +21,7 @@ type Repository interface {
 	// tokens
 	InsertToken(t *Token, u User) error
 	GetUserForToken(token string) (*User, error)
+	GenerateToken(userID int, ttl time.Duration, scope string) (*Token, error)
 
 	// preferences
 	AllPreferences() ([]Preference, error)

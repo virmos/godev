@@ -1,20 +1,15 @@
 package main
 
 import (
-	"cycir/internal/cache"
 	"cycir/internal/models"
 	"encoding/gob"
-	"github.com/alexedwards/scs/v2"
 	"log"
 	"net/http"
 	"os"
 	"testing"
-	"time"
 )
 
 var testApp *application
-var testSession *scs.SessionManager
-var testRedisCache cache.RedisCache
 
 func TestMain(m *testing.M) {
 	gob.Register(models.User{})
@@ -22,14 +17,6 @@ func TestMain(m *testing.M) {
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-
-	// session
-	testSession = scs.New()
-	testSession.Lifetime = 24 * time.Hour
-	testSession.Cookie.Persist = true
-	testSession.Cookie.SameSite = http.SameSiteLaxMode
-	testSession.Cookie.Secure = cfg.InProduction
-	cfg.InTest = true
 
 	testApp = &application{
 		config:   cfg,

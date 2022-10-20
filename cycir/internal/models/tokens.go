@@ -23,7 +23,7 @@ type Token struct {
 }
 
 // GenerateToken generates a token that lasts for ttl, and returns it
-func GenerateToken(userID int, ttl time.Duration, scope string) (*Token, error) {
+func (repo *PostgresRepository) GenerateToken(userID int, ttl time.Duration, scope string) (*Token, error) {
 	token := &Token{
 		UserID: int64(userID),
 		Expiry: time.Now().Add(ttl),
