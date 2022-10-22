@@ -147,15 +147,22 @@ Foreign key is deleted then readded. Potential place for issues?
 ![image](https://user-images.githubusercontent.com/30485720/197345190-17a8e89b-29be-475d-a508-7711851a07b3.png)
 
 ## Uptime Report
-Number of server, num On, Off, uptime average
 
-Input: StartDate, EndDate, Admin mail
+Input: StartDate, EndDate (admin's mail config is in preference_map)
+![image](https://user-images.githubusercontent.com/30485720/197351648-2b76677b-d573-4290-a978-2dfad181da58.png)
 
+Yesterday Uptime Report
++ First line displays uptime report in percentage for 24 hours from 0 - 23
++ Second line displays the number of uptime checks are made to that host(ONLY!!!!! counts schedule check, not when check now is pressed) 
 ![image](https://user-images.githubusercontent.com/30485720/197346322-f269a25d-f42e-4d66-95d8-927d7abe52e0.png)
 
+Uptime Range Report
++ First line displays uptime report in percentage for maximum 31 days(because the array has 31 elements, arr[0] = 10%, means uptime report of day 0 is 10%, day 0 is StartDate), from the StartDate specified - EndDate
++ Second line displays the number of uptime checks are made to that host(ONLY!!!!! counts schedule check, not when check now is pressed) 
 ![image](https://user-images.githubusercontent.com/30485720/197346314-ac5cb367-2dde-4fda-b907-9c8d23ea0837.png)
 
 ## Redis
+Uptime report is saved the first time request is sent. Next time, data is fetched from cache, no need to call the api. However after a schedule check is made, data is cleared from the cache
 ![image](https://user-images.githubusercontent.com/30485720/197346812-9471bac3-6636-4007-9738-66356e09645c.png)
 
 ## Logrotate
