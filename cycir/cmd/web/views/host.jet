@@ -425,7 +425,7 @@ Host
 
             let payload = {
                 host_name : form.host_name.value,
-                canonnical_name : form.canonical_name.value,
+                canonical_name : form.canonical_name.value,
                 url : form.url.value,
                 ip : form.ip.value,
                 ipv6 : form.ipv6.value,
@@ -475,7 +475,7 @@ Host
 
             let payload = {
                 host_name : form.host_name.value,
-                canonnical_name : form.canonical_name.value,
+                canonical_name : form.canonical_name.value,
                 url : form.url.value,
                 ip : form.ip.value,
                 ipv6 : form.ipv6.value,

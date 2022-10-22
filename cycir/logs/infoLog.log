@@ -8,3 +8,89 @@ INFO	2022/10/22 16:34:37 Host localhost:4001
 INFO	2022/10/22 16:34:37 Secure false
 INFO	2022/10/22 16:34:37 Pusher port 4001
 INFO	2022/10/22 16:34:37 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 20:43:34 Initializing mail channel and worker pool....
+INFO	2022/10/22 20:43:34 Starting email dispatcher....
+INFO	2022/10/22 20:43:34 Host localhost:4001
+INFO	2022/10/22 20:43:34 Secure false
+INFO	2022/10/22 20:43:34 Pusher port 4001
+INFO	2022/10/22 20:43:34 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 20:45:05 Initializing session manager....
+INFO	2022/10/22 20:45:05 Host localhost:4001
+INFO	2022/10/22 20:45:05 Secure false
+INFO	2022/10/22 20:45:05 Starting Front end server in development mode on port 4000
+INFO	2022/10/22 20:45:10 Initializing mail channel and worker pool....
+INFO	2022/10/22 20:45:10 Starting email dispatcher....
+INFO	2022/10/22 20:45:10 Host localhost:4001
+INFO	2022/10/22 20:45:10 Secure false
+INFO	2022/10/22 20:45:10 Pusher port 4001
+INFO	2022/10/22 20:45:10 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 21:32:21 Initializing mail channel and worker pool....
+INFO	2022/10/22 21:32:21 Starting email dispatcher....
+INFO	2022/10/22 21:32:21 Host :443
+INFO	2022/10/22 21:32:21 Secure false
+INFO	2022/10/22 21:32:21 Pusher port 443
+INFO	2022/10/22 21:32:21 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 21:32:24 Initializing session manager....
+INFO	2022/10/22 21:32:24 Host :443
+INFO	2022/10/22 21:32:24 Secure false
+INFO	2022/10/22 21:32:24 Starting Front end server in development mode on port 4000
+INFO	2022/10/22 21:47:56 Initializing mail channel and worker pool....
+INFO	2022/10/22 21:47:56 Starting email dispatcher....
+INFO	2022/10/22 21:47:56 Host localhost:4001
+INFO	2022/10/22 21:47:56 Secure false
+INFO	2022/10/22 21:47:56 Pusher port 4001
+INFO	2022/10/22 21:47:56 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 21:53:35 Initializing mail channel and worker pool....
+INFO	2022/10/22 21:53:35 Host localhost:4001
+INFO	2022/10/22 21:53:35 Secure false
+INFO	2022/10/22 21:53:35 Pusher port 4001
+INFO	2022/10/22 21:53:35 Starting email dispatcher....
+INFO	2022/10/22 21:53:35 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 21:56:57 Initializing mail channel and worker pool....
+INFO	2022/10/22 21:56:57 Host localhost:4001
+INFO	2022/10/22 21:56:57 Secure false
+INFO	2022/10/22 21:56:57 Pusher port 4001
+INFO	2022/10/22 21:56:57 Starting email dispatcher....
+INFO	2022/10/22 21:56:58 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 21:58:29 Initializing mail channel and worker pool....
+INFO	2022/10/22 21:58:29 Host :443
+INFO	2022/10/22 21:58:29 Secure false
+INFO	2022/10/22 21:58:29 Pusher port 443
+INFO	2022/10/22 21:58:29 Starting email dispatcher....
+INFO	2022/10/22 21:58:29 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 21:59:41 Initializing mail channel and worker pool....
+INFO	2022/10/22 21:59:41 Host :443
+INFO	2022/10/22 21:59:41 Secure false
+INFO	2022/10/22 21:59:41 Pusher port 443
+INFO	2022/10/22 21:59:41 Starting email dispatcher....
+INFO	2022/10/22 21:59:41 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 22:00:21 Initializing mail channel and worker pool....
+INFO	2022/10/22 22:00:21 Host :443
+INFO	2022/10/22 22:00:21 Secure false
+INFO	2022/10/22 22:00:21 Pusher port 443
+INFO	2022/10/22 22:00:21 Starting email dispatcher....
+INFO	2022/10/22 22:00:21 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 22:00:50 Initializing mail channel and worker pool....
+INFO	2022/10/22 22:00:50 Host :443
+INFO	2022/10/22 22:00:50 Secure false
+INFO	2022/10/22 22:00:50 Pusher port 443
+INFO	2022/10/22 22:00:50 Starting email dispatcher....
+INFO	2022/10/22 22:00:50 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 22:04:32 Initializing mail channel and worker pool....
+INFO	2022/10/22 22:04:32 Host localhost:4001
+INFO	2022/10/22 22:04:32 Secure false
+INFO	2022/10/22 22:04:32 Pusher port 4001
+INFO	2022/10/22 22:04:32 Starting email dispatcher....
+INFO	2022/10/22 22:04:32 Starting Back end server in development mode on port 4002
+INFO	2022/10/22 22:05:59 Initializing session manager....
+INFO	2022/10/22 22:05:59 Host :443
+INFO	2022/10/22 22:05:59 Secure false
+INFO	2022/10/22 22:05:59 Starting Front end server in development mode on port 4000
+INFO	2022/10/22 22:06:02 Initializing session manager....
+INFO	2022/10/22 22:06:02 Host :443
+INFO	2022/10/22 22:06:02 Secure false
+INFO	2022/10/22 22:06:02 Starting Front end server in development mode on port 4000
+INFO	2022/10/22 22:06:58 Initializing session manager....
+INFO	2022/10/22 22:06:58 Host localhost:4001
+INFO	2022/10/22 22:06:58 Secure false
+INFO	2022/10/22 22:06:58 Starting Front end server in development mode on port 4000

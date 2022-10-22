@@ -5,6 +5,7 @@ import (
 	"cycir/internal/channeldata"
 	"fmt"
 	"html/template"
+	"log"
 	"strconv"
 	"time"
 
@@ -145,7 +146,7 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 
 	formattedMessage, err = inliner.Inline(result)
 	if err != nil {
-		app.errorLog.Println(err)
+		log.Println(err)
 		formattedMessage = result
 	}
 
@@ -169,8 +170,8 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 	
 	smtpClient, err := server.Connect()
 	if err != nil {
-		app.errorLog.Println(err)
-		app.errorLog.Println("default mail server port is 1025")
+		log.Println(err)
+		log.Println("default mail server port is 1025")
 	}
 
 	email := mail.NewMSG()
@@ -201,8 +202,8 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 
 	err = email.Send(smtpClient)
 	if err != nil {
-		app.errorLog.Println(err)
+		log.Println(err)
 	} else {
-		app.errorLog.Println("Email Sent")
+		log.Println("Email Sent")
 	}
 }

@@ -63,7 +63,7 @@ func (app *application) StartMonitoring() {
 
 			// create a schedule
 			funcID, err := app.Scheduler.AddFunc("0 5 * * ?", app.ScheduleReport)
-			// funcID, err := app.Scheduler.AddFunc("@every 0h0m1s", app.ScheduleReport)
+			// funcID, err := app.Scheduler.AddFunc("@every 0h0m3s", app.ScheduleReport)
 			if err != nil {
 				app.errorLog.Println(err)
 			}

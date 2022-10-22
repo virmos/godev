@@ -160,11 +160,6 @@ func run() error {
 	infoLog.Println("Initializing mail channel and worker pool....")
 	mailQueue := make(chan channeldata.MailJob, maxWorkerPoolSize)
 
-	// Start the email dispatcher
-	infoLog.Println("Starting email dispatcher....")
-	dispatcher := NewDispatcher(mailQueue, maxJobMaxWorkers)
-	dispatcher.run()
-
 	// Start elasticsearch
 	esCfg := elasticsearch.Config{
 		Addresses: []string{
@@ -234,18 +229,24 @@ func run() error {
 		Scheduler: scheduler,
 	}
 
-	go app.StartMonitoring()
-	NewScheduler(app)
+	// Start the email dispatcher
+	infoLog.Println("Starting email dispatcher....")
+	dispatcher := NewDispatcher(mailQueue, maxJobMaxWorkers)
+	dispatcher.run()
 
+	// start the scheduler
 	if app.PreferenceMap["monitoring_live"] == "1" {
 		app.Scheduler.Start()
 	}
 
+	NewScheduler(app)
+
 	if !cfg.InTest {
-		// err = esrepo.CreateIndex(app.config.esIndex)
-		// if err != nil {
-		// 	errorLog.Println(err)
-		// }
+		go app.StartMonitoring()
+		err = esrepo.CreateIndex(app.config.esIndex)
+		if err != nil {
+			errorLog.Println(err)
+		}
 	
 		err = app.serve()
 		if err != nil {

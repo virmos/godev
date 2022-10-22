@@ -54,9 +54,9 @@
             </span>
             <a class="btn btn-outline-secondary" href="/admin/host/0#host">New Host</a>
         </div>
-        <div class="clearfix"></div>
+        <div class="clearfix mb-4"></div>
 
-        <table class="table table-condensed table-striped">
+        <table class="table table-condensed table-striped" id="hosts-table">
             <thead>
             <tr>
                 <th>Host</th>
@@ -111,6 +111,7 @@
 {{end}}
 
 {{block js()}}
+
 <script>
     let deleteButtons = document.querySelectorAll("[data-host-id]");
     for (let i = 0; i < deleteButtons.length; i++) {
@@ -335,6 +336,8 @@
                                     host_name : currentElement.getAttribute("data-host-name"),
                                     csrf_token: `{{.CSRFToken}}`,
                                 }
+                                console.log("get from cache")
+                                console.log(payload)
 
                                 const requestOptions = {
                                     method: 'post',

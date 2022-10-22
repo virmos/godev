@@ -17,7 +17,7 @@ func SessionLoad(next http.Handler) http.Handler {
 }
 
 // Auth checks for user authentication status by checking for the key 
-// userID in the session
+// userID && token in the session
 func (app *application) Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
 		if app.Session.Exists(r.Context(), "userID") && app.Session.Exists(r.Context(), "token") {
