@@ -58,15 +58,56 @@ Other pages:
 # System Design
 ## ER Diagram
 ![image](https://user-images.githubusercontent.com/30485720/197344473-f1329a42-3062-47db-9362-e7e60ff157b3.png)
-+ 
 
-### 
-Preferences
+Table preferences: holds all app states, for example:
++ preferences[monitoring_live] = "1" means monitoring is on. When monitoring is on, it automatically check hosts' availability @every 3m. 
 
-![image](https://user-images.githubusercontent.com/30485720/197344527-11eb76aa-6848-448c-af59-8fe95b81ce0d.png)
+Table host_services:
++ field service_id references Table services
++ field host_id refences Table hosts
++ field active if set true -> that service is on for that host -> When monitoring is on, automatically check service's availability @every 3m
 
+Table hosts:
++ field active if set false -> Even if monitoring is on, no automatical check will be done
 
+Table services: HTTP, HTTPS, SSL
 
+Table events: Every hosts check, one event is added to the table
+
+Table users: For Login
+
+Table tokens: When logging in, api creates new token and sends back to frontend to store in session. Without token, frontend cannot communicate with the api. Each token has an expiry date
+
+Table rememberme_tokens: If set true, every login without token(in table tokens) but with a rememberme_token, it will automatically extend the duration of the token(in table tokens!)
+
+Table sessions: Not needed, since [scs]("github.com/alexedwards/scs/v2") will be used to store session
+
+## Code
+The App will be separated in to cycir/cmd/api(backend) and cycir/cmd/web(frontend)
++ Backend will handle post requests
++ Frontend will handle get requests
++ Both create a new database connection by importing cycir/internal/driver
+
+Setup files are in
++ Backend: cycir/cmd/api/api.go
++ Frontend: cycir/cmd/web/main.go
+
+Requests are redirected to routes -> handlers
+
+### Files structure
+Frontend:
++ all-services-status-pages.go: counts healthy/problems/pending services to render at dashboard
++ authentication-handlers.go: for Frontend login/logout
++ cache-handlers.go: stores uptime report data in redis cache (cycir/internal/cache)
++ render.go: add default data(PreferenceMap, IsAuthenticated) and render page
+
+Backend:
++ file-handlers-api.go: import, export excel
++ handlers-api.go: handles post requests, send range uptime reports, which gets a range of dates, displays report in format of an array len == 31 (days) (this will be explained further in Send Uptime Report part)
++ start-monitoring.go: add automatically check host_services function && automatically send yesterday uptime report function to [cron]("github.com/robfig/cron/v3")
++ perform-report.go: creates yesterday uptime report function, which displays yesterday's uptime report in format of an array len == 24 (hours)
++ schedule-check.go: creates automatically check host_services function that sends get requets to host'url
++ pusher.go: probably not needed, but pushed is used by api to notify frontend for the changes without frontend having to reload
 
 # Run
 ## Server Management
@@ -173,4 +214,4 @@ cycir requires:
 - Postgres 11 or later (db is set up as a repository, so other databases are possible)
 - An account with [Pusher](https://pusher.com/), or a Pusher alternative 
 (like [ipê](https://github.com/dimiro1/ipe))
-- Soda CLI [Soda](https://gobuffalo.io/documentation/database/soda/)
+- [Soda CLI](https://gobuffalo.io/documentation/database/soda/)
