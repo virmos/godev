@@ -196,7 +196,7 @@ go test -coverprofile=coverage.out && go tool cover -html=coverage.out
 Handlers
 ![image](https://user-images.githubusercontent.com/30485720/197347461-ccc9ae33-807f-4a44-9ee5-6e87634e4001.png)
 
-Majority of Not covered are these functions, All route handlers are covered
+Majority of code not being covered are these functions. All route handler functions are covered
 ![image](https://user-images.githubusercontent.com/30485720/197347626-882d7751-557e-4010-ab6f-58d13fb8b353.png)
 
 Same for Render, code coverage is 58.3% but it actually covers all neccessary functions like add data and render page
@@ -212,6 +212,7 @@ go test -coverprofile=coverage.out && go tool cover -html=coverage.out
 ![image](https://user-images.githubusercontent.com/30485720/197347727-7a7dfb16-6a97-4048-a85b-68437ff25ac6.png)
 
 Handlers
+
 ![image](https://user-images.githubusercontent.com/30485720/197347756-55232ccd-c333-4864-8b1a-2c0bae39d4e9.png)
 
 
