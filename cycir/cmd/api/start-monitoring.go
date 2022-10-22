@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 )
@@ -32,13 +31,13 @@ func (app *application) StartMonitoring() {
 		data["message"] = "Monitoring is starting..."
 		err := app.WsClient.Trigger("public-channel", "app-starting", data)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 		}
 
 		// get all of the services that we want to monitor
 		servicesToMonitor, err := app.repo.GetServicesToMonitor()
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 		}
 
 		// range through the services
@@ -57,7 +56,7 @@ func (app *application) StartMonitoring() {
 			j.HostServiceID = x.ID
 			scheduleID, err := app.Scheduler.AddJob(sch, j)
 			if err != nil {
-				log.Println(err)
+				app.errorLog.Println(err)
 			}
 			// save the id of the job so we can start/stop it
 			app.MonitorMap[x.ID] = scheduleID
@@ -66,7 +65,7 @@ func (app *application) StartMonitoring() {
 			funcID, err := app.Scheduler.AddFunc("0 5 * * ?", app.ScheduleReport)
 			// funcID, err := app.Scheduler.AddFunc("@every 0h0m1s", app.ScheduleReport)
 			if err != nil {
-				log.Println(err)
+				app.errorLog.Println(err)
 			}
 			// save the id of the function so we can start/stop it
 			app.FunctionMap[x.ID] = funcID
@@ -92,12 +91,12 @@ func (app *application) StartMonitoring() {
 
 			err = app.WsClient.Trigger("public-channel", "next-run-event", payload)
 			if err != nil {
-				log.Println(err)
+				app.errorLog.Println(err)
 			}
 
 			err = app.WsClient.Trigger("public-channel", "schedule-changed-event", payload)
 			if err != nil {
-				log.Println(err)
+				app.errorLog.Println(err)
 			}
 
 		}

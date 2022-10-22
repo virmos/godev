@@ -6,7 +6,7 @@ import (
 
 // InsertHost inserts a host into the database
 func (repo *TestRepository) InsertHost(h Host) (int, error) {
-	return -1, nil
+	return 1, nil
 }
 
 // BulkInsertHost inserts hosts into the database

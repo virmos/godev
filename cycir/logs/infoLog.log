@@ -1,0 +1,10 @@
+INFO	2022/10/22 16:34:32 Initializing session manager....
+INFO	2022/10/22 16:34:32 Host localhost:4001
+INFO	2022/10/22 16:34:32 Secure false
+INFO	2022/10/22 16:34:32 Starting Front end server in development mode on port 4000
+INFO	2022/10/22 16:34:37 Initializing mail channel and worker pool....
+INFO	2022/10/22 16:34:37 Starting email dispatcher....
+INFO	2022/10/22 16:34:37 Host localhost:4001
+INFO	2022/10/22 16:34:37 Secure false
+INFO	2022/10/22 16:34:37 Pusher port 4001
+INFO	2022/10/22 16:34:37 Starting Back end server in development mode on port 4002

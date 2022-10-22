@@ -1,10 +1,5 @@
 package models
 
-import (
-	"errors"
-	_ "errors"
-)
-
 // AllUsers returns all users
 func (repo *TestRepository) AllUsers() ([]*User, error) {
 	var u []*User
@@ -61,9 +56,6 @@ func (repo *TestRepository) UpdateUser(u User) error {
 
 // DeleteUser sets a user to deleted by populating deleted_at value
 func (repo *TestRepository) DeleteUser(id int) error {
-	if id == 0 {
-		return errors.New("invalid user")
-	}
 	return nil
 }
 

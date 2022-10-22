@@ -6,7 +6,6 @@ import (
 	"cycir/internal/models"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -28,13 +27,13 @@ const (
 func (app *application) ScheduledCheck(hostServiceID int) {
 	hs, err := app.repo.GetHostServiceByID(hostServiceID)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 
 	h, err := app.repo.GetHostByID(hs.HostID)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 
@@ -47,7 +46,7 @@ func (app *application) ScheduledCheck(hostServiceID int) {
 	// add report to elasticsearch
 	err = app.esrepo.InsertHostStatusReport(app.config.esIndex, hs.HostName, strconv.Itoa(statusCode), time.Now().Format("2006-01-02T15:04:05Z07:00"))
 	if (err != nil) {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 	app.pushReportChangedEvent()
@@ -60,13 +59,13 @@ func (app *application) updateHostServiceStatusCount(h models.Host, hs models.Ho
 	hs.LastCheck = time.Now()
 	err := app.repo.UpdateHostService(hs)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 
 	pending, healthy, warning, problem, err := app.repo.GetAllServiceStatusCounts()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 
@@ -81,7 +80,7 @@ func (app *application) updateHostServiceStatusCount(h models.Host, hs models.Ho
 func (app *application) broadcastMessage(channel, messageType string, data map[string]string) {
 	err := app.WsClient.Trigger(channel, messageType, data)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	}
 }
 
@@ -94,14 +93,14 @@ func (app *application) TestCheck(w http.ResponseWriter, r *http.Request) {
 	// get host service
 	hs, err := app.repo.GetHostServiceByID(hostServiceID)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		okay = false
 	}
 
 	// get host
 	h, err := app.repo.GetHostByID(hs.HostID)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		okay = false
 	}
 
@@ -121,7 +120,7 @@ func (app *application) TestCheck(w http.ResponseWriter, r *http.Request) {
 	}
 	err = app.repo.InsertEvent(event)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	}
 
 	// broadcast service status changed event
@@ -137,7 +136,7 @@ func (app *application) TestCheck(w http.ResponseWriter, r *http.Request) {
 
 	err = app.repo.UpdateHostService(hs)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		okay = false
 	}
 
@@ -210,7 +209,7 @@ func (app *application) testServiceForHost(h models.Host, hs models.HostService)
 		}
 		err := app.repo.InsertEvent(event)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 		}
 
 		// send email if appropriate
@@ -251,7 +250,7 @@ func (app *application) testServiceForHost(h models.Host, hs models.HostService)
 
 		// 	err := sms.SendTextTwilio(to, smsMessage, app)
 		// 	if err != nil {
-		// 		log.Println("Error sending sms in peform-checks.go", err)
+		// 		app.errorLog.Println("Error sending sms in peform-checks.go", err)
 		// 	}
 		// }
 	}
@@ -352,13 +351,13 @@ func testHTTPSForHost(url string) (string, string, int) {
 
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Println("HTTPS error 1")
+		app.errorLog.Println("HTTPS error 1")
 		return fmt.Sprintf("%s - %s", url, "error connecting"), "problem", resp.StatusCode
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Println("HTTPS error 2", resp.StatusCode)
+		app.errorLog.Println("HTTPS error 2", resp.StatusCode)
 		return fmt.Sprintf("%s - %s", url, resp.Status), "problem", resp.StatusCode
 	}
 
@@ -438,7 +437,7 @@ func (app *application) addToMonitorMap(hs models.HostService) {
 		j.HostServiceID = hs.ID
 		scheduleID, err := app.Scheduler.AddJob(fmt.Sprintf("@every %d%s", hs.ScheduleNumber, hs.ScheduleUnit), j)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 			return
 		}
 

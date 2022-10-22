@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"encoding/json"
 )
@@ -15,7 +14,7 @@ type serviceJSON struct {
 func (app *application) SaveInCache(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	}
 
 	key := r.Form.Get("key")
@@ -45,7 +44,7 @@ func (app *application) SaveInCache(w http.ResponseWriter, r *http.Request) {
 func (app *application) GetFromCache(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	}
 
 	key := r.Form.Get("key")
@@ -78,7 +77,7 @@ func (app *application) GetFromCache(w http.ResponseWriter, r *http.Request) {
 func (app *application) DeleteFromCache(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	}
 
 	key := r.Form.Get("key")
@@ -104,7 +103,7 @@ func (app *application) DeleteFromCache(w http.ResponseWriter, r *http.Request) 
 func (app *application) EmptyCache(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	}
 
 	_ = r.Form.Get("csrf_token")

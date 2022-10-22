@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"log"
 	"github.com/CloudyKit/jet/v6"
 	"runtime/debug"
 	"github.com/go-chi/chi/v5"
@@ -19,7 +18,7 @@ import (
 func (app *application) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 	pending, healthy, warning, problem, err := app.repo.GetAllServiceStatusCounts()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 
@@ -31,7 +30,7 @@ func (app *application) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 
 	allHosts, err := app.repo.AllHosts()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 	vars.Set("hosts", allHosts)
@@ -46,7 +45,7 @@ func (app *application) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 func (app *application) Events(w http.ResponseWriter, r *http.Request) {
 	events, err := app.repo.GetAllEvents()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 
@@ -72,7 +71,7 @@ func (app *application) AllHosts(w http.ResponseWriter, r *http.Request) {
 	// get all hosts from database
 	hosts, err := app.repo.AllHosts()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 
@@ -96,7 +95,7 @@ func (app *application) Host(w http.ResponseWriter, r *http.Request) {
 		// get the host from the database
 		host, err := app.repo.GetHostByID(id)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 			return
 		}
 		h = host
@@ -133,7 +132,7 @@ func (app *application) AllUsers(w http.ResponseWriter, r *http.Request) {
 func (app *application) OneUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	}
 
 	vars := make(jet.VarMap)
@@ -173,7 +172,7 @@ func ClientError(w http.ResponseWriter, r *http.Request, status int) {
 // ServerError will display error page for internal server error
 func ServerError(w http.ResponseWriter, r *http.Request, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	_ = log.Output(2, trace)
+	_ = app.errorLog.Output(2, trace)
 	show500(w, r)
 }
 

@@ -5,7 +5,6 @@ import (
 	"cycir/internal/channeldata"
 	"fmt"
 	"html/template"
-	"log"
 	"strconv"
 	"time"
 
@@ -13,6 +12,16 @@ import (
 	mail "github.com/xhit/go-simple-mail/v2"
 	"jaytaylor.com/html2text"
 )
+
+var paths = []string{
+	"./cmd/web/views/mail.tmpl",
+}
+
+func NewMailTestPath() {
+	paths = []string{
+		"../web/views/mail.tmpl",
+	}
+}
 
 // NewWorker takes a numeric id and a channel w/ worker pool.
 func NewWorker(id int, workerPool chan chan channeldata.MailJob) Worker {
@@ -117,9 +126,7 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 		FloatMap:      mailMessage.FloatMap,
 		RowSets:       mailMessage.RowSets,
 	}
-	paths := []string{
-		"./cmd/web/views/mail.tmpl",
-	}
+	
 
 	t := template.Must(template.New("mail.tmpl").ParseFiles(paths...))
 	var tpl bytes.Buffer
@@ -138,7 +145,7 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 
 	formattedMessage, err = inliner.Inline(result)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		formattedMessage = result
 	}
 
@@ -162,8 +169,8 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 	
 	smtpClient, err := server.Connect()
 	if err != nil {
-		log.Println(err)
-		log.Println("default mail server port is 1025")
+		app.errorLog.Println(err)
+		app.errorLog.Println("default mail server port is 1025")
 	}
 
 	email := mail.NewMSG()
@@ -194,8 +201,8 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 
 	err = email.Send(smtpClient)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	} else {
-		log.Println("Email Sent")
+		app.errorLog.Println("Email Sent")
 	}
 }

@@ -34,6 +34,16 @@
 <div class="row">
     <div class="col">
 
+        <div class="float-left">
+            <span>
+                <form type="hidden" enctype="multipart/form-data" action="" id="form-download-excel" method="post">
+                    <label for="download-excel" class="btn btn-outline-secondary">Download Hosts</label>
+                    <input class="form-control d-none" id="download-excel" type='button'>
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                </form>
+            </span>
+        </div>
+
         <div class="float-right">
             <span>
                 <form type="hidden" enctype="multipart/form-data" action="" id="form-upload-excel" method="post">
@@ -162,6 +172,53 @@
         .then(data => {
             if (data.error === false) {
                 successAlert(data.message);
+            } else {
+                errorAlert(data.message);
+            }
+        })
+
+    })
+
+    document.getElementById("download-excel").addEventListener("click", function(e) {
+        let form = document.getElementById("form-download-excel");
+        let formData = new FormData(form);
+        formData.append("excel-name", "Hosts")
+
+        const requestOptions = {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer {{.Token}}`,
+            },
+            body: formData,
+        }
+        // send request to the api to get data & send mail
+        fetch("{{.PreferenceMap["API"]}}/api/admin/download-excel", requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            if (data.error === false) {
+                successAlert(data.message);
+                var csv = "id, host_name, canonical_name, url, ip ipv6, location, os, active\n";  
+                
+                data.host_data.forEach(function(row) {  
+                    csv += row.join(',');  
+                    csv += "\n";  
+                }); 
+
+                var csvFile;  
+                var downloadLink;  
+                
+                //define the file type to text/csv  
+                csvFile = new Blob([csv], {type: 'text/csv'});  
+                downloadLink = document.createElement("a");  
+                downloadLink.download = "Hosts.xlsx";  
+                downloadLink.href = window.URL.createObjectURL(csvFile);  
+                downloadLink.style.display = "none";  
+            
+                document.body.appendChild(downloadLink);  
+                downloadLink.click();  
+
             } else {
                 errorAlert(data.message);
             }

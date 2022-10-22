@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/CloudyKit/jet/v6"
-	"log"
 	"net/http"
 )
 
@@ -11,7 +10,7 @@ func (app *application) AllHealthyServices(w http.ResponseWriter, r *http.Reques
 	// get all host services (with host info) for status pending
 	services, err := app.repo.GetServicesByStatus("healthy")
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 	vars := make(jet.VarMap)
@@ -27,7 +26,7 @@ func (app *application) AllWarningServices(w http.ResponseWriter, r *http.Reques
 	// get all host services (with host info) for status pending
 	services, err := app.repo.GetServicesByStatus("warning")
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 	vars := make(jet.VarMap)
@@ -43,7 +42,7 @@ func (app *application) AllProblemServices(w http.ResponseWriter, r *http.Reques
 	// get all host services (with host info) for status pending
 	services, err := app.repo.GetServicesByStatus("problem")
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 	vars := make(jet.VarMap)
@@ -59,7 +58,7 @@ func (app *application) AllPendingServices(w http.ResponseWriter, r *http.Reques
 	// get all host services (with host info) for status pending
 	services, err := app.repo.GetServicesByStatus("pending")
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 	vars := make(jet.VarMap)

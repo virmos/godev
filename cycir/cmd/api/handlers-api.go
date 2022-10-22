@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -123,6 +122,7 @@ func (app *application) CheckAuthentication(w http.ResponseWriter, r *http.Reque
 // DeleteUser deletes a user, and all associated tokens, from the database
 func (app *application) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
+
 	userID, _ := strconv.Atoi(id)
 
 	err := app.repo.DeleteUser(userID)
@@ -182,7 +182,7 @@ func (app *application) PostSettings(w http.ResponseWriter, r *http.Request) {
 
 	err = app.repo.InsertOrUpdateSitePreferences(prefMap)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		return
 	}
 
@@ -200,7 +200,7 @@ func (app *application) PostSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	resp.Error = false
 
-	if r.Form.Get("action") == "1" {
+	if setting.Action == "1" {
 		resp.Redirect = true
 		resp.Route = "/admin/overview"
 		resp.RedirectStatus = http.StatusSeeOther
@@ -231,7 +231,7 @@ func (app *application) PostHost(w http.ResponseWriter, r *http.Request) {
 		// get the host from the database
 		host, err := app.repo.GetHostByID(id)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 			return
 		}
 		h = host
@@ -249,13 +249,13 @@ func (app *application) PostHost(w http.ResponseWriter, r *http.Request) {
 	if id > 0 {
 		err := app.repo.UpdateHost(h)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 			return
 		}
 	} else {
 		newID, err := app.repo.InsertHost(h)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 			return
 		}
 		h.ID = newID
@@ -270,7 +270,7 @@ func (app *application) PostHost(w http.ResponseWriter, r *http.Request) {
 	}
 	resp.Error = false
 
-	if r.Form.Get("action") == "1" {
+	if newHost.Action == "1" {
 		resp.Redirect = true
 		resp.Route = "/admin/host/all"
 		resp.RedirectStatus = http.StatusSeeOther
@@ -311,7 +311,7 @@ func (app *application) DeleteHost(w http.ResponseWriter, r *http.Request) {
 func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	}
 
 	var newUser models.User
@@ -332,7 +332,7 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 
 		err := app.repo.UpdateUser(u)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 			return
 		}
 
@@ -340,7 +340,7 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 			// changing password
 			err := app.repo.UpdatePassword(id, string(newUser.Password))
 			if err != nil {
-				log.Println(err)
+				app.errorLog.Println(err)
 				return
 			}
 		}
@@ -354,7 +354,7 @@ func (app *application) PostOneUser(w http.ResponseWriter, r *http.Request) {
 
 		_, err := app.repo.InsertUser(u)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 			return
 		}
 	}
@@ -397,13 +397,13 @@ func (app *application) SendRangeUptimeReport(w http.ResponseWriter, r *http.Req
 		app.badRequest(w, r, err)
 		return
 	}
+
 	endDate, err := time.Parse("2006-01-02", payload.EndDate)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
 	}
 	numDays := int(endDate.Sub(startDate).Hours()/24) + 1
-
 	var endReportedDate string
 	if numDays < 31 {
 		endReportedDate = startDate.AddDate(0, 0, numDays).Format("2006-01-02")
@@ -566,7 +566,7 @@ func (app *application) ToggleServiceForHost(w http.ResponseWriter, r *http.Requ
 
 	err = app.repo.UpdateHostServiceStatus(hostID, serviceID, active)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 	}
 
 	// broadcast
@@ -682,7 +682,7 @@ func (app *application) ToggleMonitoring(w http.ResponseWriter, r *http.Request)
 		data["message"] = "Monitoring is off!"
 		err := app.WsClient.Trigger("public-channel", "app-stopping", data)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 		}
 	}
 

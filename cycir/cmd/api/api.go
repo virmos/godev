@@ -16,6 +16,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/pusher/pusher-http-go"
 	"github.com/robfig/cron/v3"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 const version = "1.0.0"
@@ -84,7 +85,7 @@ func (app *application) serve() error {
 func main() {
 	err := run()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
 
@@ -127,21 +128,40 @@ func run() error {
 
 	flag.Parse()
 
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	e, err := os.OpenFile("./foo.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 
+	if err != nil {
+			fmt.Printf("error opening file: %v", err)
+			os.Exit(1)
+	}
+	infoLog := log.New(e, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(e, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	infoLog.SetOutput(&lumberjack.Logger{
+    Filename:   "./logs/infoLog.log",
+    MaxSize:    1,  // megabytes after which new file is created
+    MaxBackups: 3,  // number of backups
+    MaxAge:     28, //days
+	})
+
+	errorLog.SetOutput(&lumberjack.Logger{
+		Filename:   "./logs/errorLog.log",
+		MaxSize:    1,  // megabytes after which new file is created
+		MaxBackups: 3,  // number of backups
+		MaxAge:     28, //days
+	})
+	
 	db, err := driver.ConnectPostgres(cfg.db.dsn)
 	if err != nil {
-		errorLog.Fatal(err)
+		log.Println(err)
 	}
 	defer db.SQL.Close()
 
 	// start mail channel
-	log.Println("Initializing mail channel and worker pool....")
+	infoLog.Println("Initializing mail channel and worker pool....")
 	mailQueue := make(chan channeldata.MailJob, maxWorkerPoolSize)
 
 	// Start the email dispatcher
-	log.Println("Starting email dispatcher....")
+	infoLog.Println("Starting email dispatcher....")
 	dispatcher := NewDispatcher(mailQueue, maxJobMaxWorkers)
 	dispatcher.run()
 
@@ -155,7 +175,7 @@ func run() error {
 	}
 	es, err := elasticsearch.NewClient(esCfg)
 	if err != nil {
-		errorLog.Fatal(err)
+		log.Println(err)
 	}
 	esrepo := elastics.NewElasticRepository(es)
 
@@ -164,7 +184,7 @@ func run() error {
 	preferenceMap = make(map[string]string)
 	preferences, err := repo.AllPreferences()
 	if err != nil {
-		log.Fatal("Cannot read preferences:", err)
+		errorLog.Println("Cannot read preferences:", err)
 		return err
 	}
 
@@ -186,9 +206,9 @@ func run() error {
 		Host:   fmt.Sprintf("%s:%s", cfg.pusherHost, cfg.pusherPort),
 	}
 
-	log.Println("Host", fmt.Sprintf("%s:%s", cfg.pusherHost, cfg.pusherPort))
-	log.Println("Secure", cfg.pusherSecure)
-	log.Println("Pusher port", cfg.pusherPort)
+	infoLog.Println("Host", fmt.Sprintf("%s:%s", cfg.pusherHost, cfg.pusherPort))
+	infoLog.Println("Secure", cfg.pusherSecure)
+	infoLog.Println("Pusher port", cfg.pusherPort)
 
 	// monitoring
 	monitorMap := make(map[int]cron.EntryID)
@@ -221,28 +241,17 @@ func run() error {
 		app.Scheduler.Start()
 	}
 
-	err = esrepo.CreateIndex(app.config.esIndex)
-	if err != nil {
-		errorLog.Fatal(err)
-	}
-
-	reports, _ := app.esrepo.GetYesterdayReport(app.config.esIndex)
-	uptimeReports, _ := app.esrepo.GetYesterdayUptimeReport(app.config.esIndex)
-	log.Println(reports)
-	log.Println(uptimeReports)
-
-	startDate, _ := time.Parse("2006-01-02", "2022-10-15")
-	endDate, _ := time.Parse("2006-01-02", "2022-10-28")
-	reports, _ = app.esrepo.GetRangeReport(app.config.esIndex, "Google", startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
-	uptimeReports, _ = app.esrepo.GetRangeUptimeReport(app.config.esIndex, "Google", startDate.Format("2006-01-02T15:04:05Z07:00"), endDate.Format("2006-01-02T15:04:05Z07:00"))
-
-	log.Println(reports)
-	log.Println(uptimeReports)
-
-	err = app.serve()
-	if err != nil {
-		log.Fatal(err)
-		return err
+	if !cfg.InTest {
+		// err = esrepo.CreateIndex(app.config.esIndex)
+		// if err != nil {
+		// 	errorLog.Println(err)
+		// }
+	
+		err = app.serve()
+		if err != nil {
+			errorLog.Println(err)
+			return err
+		}
 	}
 
 	return nil

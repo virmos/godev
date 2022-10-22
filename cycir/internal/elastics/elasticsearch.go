@@ -16,6 +16,15 @@ func NewElasticRepository(client *elasticsearch.Client) *ElasticRepository {
 	}
 }
 
+type TestElasticRepository struct {
+	
+}
+
+func NewTestElasticRepository() *TestElasticRepository {
+	return &TestElasticRepository{
+	}
+}
+
 // helper function
 func DateFromUTCString(s string) (time.Time, error) {
 	layout := "2006-01-02T15:04:05.000Z"

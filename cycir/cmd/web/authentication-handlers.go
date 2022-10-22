@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	_ "cycir/internal/models"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -29,14 +28,14 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	_ = app.Session.RenewToken(r.Context())
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		ClientError(w, r, http.StatusBadRequest)
 		return
 	}
 
 	user, err := app.repo.GetUserByEmail(r.Form.Get("email"))
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		ClientError(w, r, http.StatusBadRequest)
 	}
 
@@ -46,7 +45,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 
 		_, err = hasher.Write([]byte(randomString))
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 			ClientError(w, r, http.StatusInternalServerError)
 		}
 
@@ -54,7 +53,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 
 		err = app.repo.InsertRememberMeToken(user.ID, sha)
 		if err != nil {
-			log.Println(err)
+			app.errorLog.Println(err)
 			ClientError(w, r, http.StatusInternalServerError)
 		}
 
@@ -77,7 +76,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	// we authenticated. Get the user.
 	u, err := app.repo.GetUserById(user.ID)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		ClientError(w, r, http.StatusInternalServerError)
 		return
 	}
@@ -116,7 +115,7 @@ func (app *application) Logout(w http.ResponseWriter, r *http.Request) {
 			hash := split[1]
 			err = app.repo.DeleteToken(hash)
 			if err != nil {
-				log.Println(err)
+				app.errorLog.Println(err)
 				ClientError(w, r, http.StatusInternalServerError)
 			}
 		}

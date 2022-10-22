@@ -16,6 +16,7 @@ import (
 	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/gomodule/redigo/redis"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 const version = "1.0.0"
@@ -130,9 +131,27 @@ func run() error {
 
 	flag.Parse()
 
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	e, err := os.OpenFile("./foo.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 
+	if err != nil {
+			fmt.Printf("error opening file: %v", err)
+			os.Exit(1)
+	}
+	infoLog := log.New(e, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(e, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	infoLog.SetOutput(&lumberjack.Logger{
+    Filename:   "./logs/infoLog.log",
+    MaxSize:    1,  // megabytes after which new file is created
+    MaxBackups: 3,  // number of backups
+    MaxAge:     28, //days
+	})
+
+	errorLog.SetOutput(&lumberjack.Logger{
+		Filename:   "./logs/errorLog.log",
+		MaxSize:    1,  // megabytes after which new file is created
+		MaxBackups: 3,  // number of backups
+		MaxAge:     28, //days
+	})
 	// database
 	db, err := driver.ConnectPostgres(cfg.db.dsn)
 	if err != nil {
@@ -141,7 +160,7 @@ func run() error {
 	defer db.SQL.Close()
 
 	// session
-	log.Printf("Initializing session manager....")
+	infoLog.Printf("Initializing session manager....")
 
 	session = scs.New()
 	session.Store = postgresstore.New(db.SQL)
@@ -156,7 +175,7 @@ func run() error {
 	repo := models.NewPostgresRepository(db.SQL)
 	preferences, err := repo.AllPreferences()
 	if err != nil {
-		log.Fatal("Cannot read preferences:", err)
+		errorLog.Println("Cannot read preferences:", err)
 	}
 
 	for _, pref := range preferences {
@@ -169,8 +188,8 @@ func run() error {
 	preferenceMap["API"] = cfg.backend
 	preferenceMap["version"] = version
 
-	log.Println("Host", fmt.Sprintf("%s:%s", cfg.pusherHost, cfg.pusherPort))
-	log.Println("Secure", cfg.pusherSecure)
+	infoLog.Println("Host", fmt.Sprintf("%s:%s", cfg.pusherHost, cfg.pusherPort))
+	infoLog.Println("Secure", cfg.pusherSecure)
 
 	if !cfg.InTest {
 		app := &application{
@@ -190,7 +209,7 @@ func run() error {
 	
 		err = app.serve()
 		if err != nil {
-			log.Fatal(err)
+			errorLog.Fatal(err)
 			return err
 		}
 	}
