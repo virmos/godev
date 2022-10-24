@@ -513,6 +513,8 @@ func (m *Repository) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 // AdminAllReservations shows all reservations inu admin tool
 func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request) {
 	reservations, err := m.DB.AllReservations()
+	log.Println(reservations)
+	log.Println(err)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
