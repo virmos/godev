@@ -6,11 +6,11 @@ import (
 	"cycir/internal/elastics"
 	"cycir/internal/models"
 	"encoding/gob"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
@@ -93,49 +93,35 @@ func run() error {
 	gob.Register(models.User{})
 	_ = os.Setenv("TZ", "America/Halifax")
 
-	flag.IntVar(&cfg.port, "port", 4002, "Server port to listen on")
-	flag.StringVar(&cfg.env, "env", "development", "Application environment {development|production|maintenance}")
-	flag.StringVar(&cfg.db.dsn, "dsn", "host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC connect_timeout=5", "DSN")
-	flag.StringVar(&cfg.frontend, "frontend", "http://localhost:4000", "url to front end")
+	cfg.Domain = os.Getenv("DOMAIN")
+	cfg.port, _ = strconv.Atoi(os.Getenv("PORT"))
+	cfg.env = os.Getenv("ENV")
+	cfg.frontend = os.Getenv("FRONTEND_URL")
 
-	dbHost := flag.String("dbhost", "localhost", "database host")
-	dbPort := flag.String("dbport", "5432", "database port")
-	dbUser := flag.String("dbuser", "postgres", "database user")
-	dbPass := flag.String("dbpass", "qwerqwer", "database password")
-	databaseName := flag.String("db", "temp", "database name")
-	dbSsl := flag.String("dbssl", "disable", "database ssl setting")
-	cfg.db.dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC connect_timeout=5",
-		*dbHost,
-		*dbPort,
-		*dbUser,
-		*dbPass,
-		*databaseName,
-		*dbSsl)
-
-	flag.StringVar(&cfg.pusherHost, "pusherHost", "", "pusher host")
-	flag.StringVar(&cfg.pusherPort, "pusherPort", "443", "pusher port")
-	flag.StringVar(&cfg.pusherApp, "pusherApp", "9", "pusher app id")
-	flag.StringVar(&cfg.pusherKey, "pusherKey", "", "pusher key")
-	flag.StringVar(&cfg.pusherSecret, "pusherSecret", "", "pusher secret")
-	flag.BoolVar(&cfg.pusherSecure, "pusherSecure", false, "pusher server uses SSL (true or false)")
-	flag.StringVar(&cfg.Domain, "domain", "localhost", "domain name (e.g. example.com)")
-	flag.BoolVar(&cfg.InProduction, "production", false, "application is in production")
-
-	flag.StringVar(&cfg.esAddress, "esAddress", "http://localhost:9200", "elasticsearch address")
-	flag.StringVar(&cfg.esUsername, "esUsername", "elastic", "elasticsearch username")
-	flag.StringVar(&cfg.esPassword, "esPassword", "EWAq+EaS8dyQV_82TSQd", "elasticsearch password")
-	flag.StringVar(&cfg.esIndex, "esIndex", "my-index-000001", "elasticsearch index")
-
-	flag.Parse()
-
-	e, err := os.OpenFile("./foo.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-
-	if err != nil {
-			fmt.Printf("error opening file: %v", err)
-			os.Exit(1)
+	cfg.db.dsn = os.Getenv("DB_DSN")
+	cfg.pusherHost = os.Getenv("PUSHER_HOST")
+	cfg.pusherPort = os.Getenv("PUSHER_PORT")
+	cfg.pusherApp = os.Getenv("PUSHER_APP")
+	cfg.pusherKey = os.Getenv("PUSHER_KEY")
+	cfg.pusherSecret = os.Getenv("PUSHER_SECRET")
+	if (os.Getenv("PUSHER_SECURE") == "disable") {
+		cfg.pusherSecure = false
+	} else {
+		cfg.pusherSecure = true
 	}
-	infoLog := log.New(e, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(e, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	if (os.Getenv("IN_PRODUCTION") == "disable") {
+		cfg.InProduction = false
+	} else {
+		cfg.InProduction = true
+	}
+	cfg.Domain = os.Getenv("DOMAIN")
+	cfg.esAddress = os.Getenv("ES_ADDRESS")
+	cfg.esUsername = os.Getenv("ES_USERNAME")
+	cfg.esPassword = os.Getenv("ES_PASSWORD")
+	cfg.esIndex = os.Getenv("ES_INDEX")
+
+	infoLog := log.New(nil, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(nil, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	infoLog.SetOutput(&lumberjack.Logger{
     Filename:   "./logs/infoLog.log",
     MaxSize:    1,  // megabytes after which new file is created

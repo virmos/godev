@@ -47,7 +47,7 @@ func (app *application) StartMonitoring() {
 			if x.ScheduleUnit == "d" {
 				sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber*24, "h")
 			} else {
-				sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber, x.ScheduleUnit)
+				sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber, x.ScheduleUnit) // @every 3m, scheduled check
 				// sch = fmt.Sprintf("@every %d%s", 3, "s")
 			}
 
@@ -62,7 +62,7 @@ func (app *application) StartMonitoring() {
 			app.MonitorMap[x.ID] = scheduleID
 
 			// create a schedule
-			funcID, err := app.Scheduler.AddFunc("0 5 * * ?", app.ScheduleReport)
+			funcID, err := app.Scheduler.AddFunc("0 5 * * ?", app.ScheduleReport) // 5 am, send yesterday uptime report
 			// funcID, err := app.Scheduler.AddFunc("@every 0h0m3s", app.ScheduleReport)
 			if err != nil {
 				app.errorLog.Println(err)
