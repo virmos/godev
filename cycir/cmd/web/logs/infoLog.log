@@ -1,3 +1,28 @@
-INFO	2022/10/22 22:24:09 Initializing session manager....
-INFO	2022/10/22 22:24:09 Host :443
-INFO	2022/10/22 22:24:09 Secure false
+INFO	2022/11/05 21:22:04 Initializing session manager....
+INFO	2022/11/05 21:22:04 Host :
+INFO	2022/11/05 21:22:04 Secure true
+INFO	2022/11/05 21:22:04 Starting Front end server in  mode on port 0
+INFO	2022/11/05 21:22:58 Initializing session manager....
+INFO	2022/11/05 21:22:58 Host :
+INFO	2022/11/05 21:22:58 Secure true
+INFO	2022/11/05 21:22:58 Starting Front end server in  mode on port 8083
+INFO	2022/11/05 21:25:58 Initializing session manager....
+INFO	2022/11/05 21:25:58 Host :
+INFO	2022/11/05 21:25:58 Secure true
+INFO	2022/11/05 21:25:58 Starting Front end server in  mode on port 8083
+INFO	2022/11/05 21:28:00 Initializing session manager....
+INFO	2022/11/05 21:28:00 Host :443
+INFO	2022/11/05 21:28:00 Secure false
+INFO	2022/11/05 21:28:00 Starting Front end server in development mode on port 4000
+INFO	2022/11/05 21:30:46 Initializing session manager....
+INFO	2022/11/05 21:30:46 Host :443
+INFO	2022/11/05 21:30:46 Secure false
+INFO	2022/11/05 21:30:46 Starting Front end server in development mode on port 4000
+INFO	2022/11/05 21:32:26 Initializing session manager....
+INFO	2022/11/05 21:32:26 Host :443
+INFO	2022/11/05 21:32:26 Secure false
+INFO	2022/11/05 21:32:26 Starting Front end server in development mode on port 4000
+INFO	2022/11/05 21:33:04 Initializing session manager....
+INFO	2022/11/05 21:33:04 Host :443
+INFO	2022/11/05 21:33:04 Secure false
+INFO	2022/11/05 21:33:04 Starting Front end server in development mode on port 4000

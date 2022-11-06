@@ -94,3 +94,15 @@ INFO	2022/10/22 22:06:58 Initializing session manager....
 INFO	2022/10/22 22:06:58 Host localhost:4001
 INFO	2022/10/22 22:06:58 Secure false
 INFO	2022/10/22 22:06:58 Starting Front end server in development mode on port 4000
+INFO	2022/11/05 21:29:26 Initializing session manager....
+INFO	2022/11/05 21:29:26 Host localhost:4001
+INFO	2022/11/05 21:29:26 Secure false
+INFO	2022/11/05 21:29:26 Starting Front end server in development mode on port 4000
+INFO	2022/11/05 21:33:54 Initializing session manager....
+INFO	2022/11/05 21:33:54 Host :443
+INFO	2022/11/05 21:33:54 Secure false
+INFO	2022/11/05 21:33:54 Starting Front end server in development mode on port 4000
+INFO	2022/11/05 21:45:11 Initializing session manager....
+INFO	2022/11/05 21:45:11 Host :443
+INFO	2022/11/05 21:45:11 Secure false
+INFO	2022/11/05 21:45:11 Starting Front end server in development mode on port 4000

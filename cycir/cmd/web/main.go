@@ -5,12 +5,12 @@ import (
 	"cycir/internal/driver"
 	"cycir/internal/models"
 	"encoding/gob"
-	"flag"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/alexedwards/scs/postgresstore"
@@ -36,6 +36,7 @@ type config struct {
 	redis struct {
 		prefix   string
 		host     string
+		port     string
 		password string
 	}
 	backend      string
@@ -48,7 +49,7 @@ type config struct {
 	Identifier   string
 	Domain       string
 	InProduction bool
-	InTest			 bool
+	InTest       bool
 }
 
 type application struct {
@@ -80,7 +81,6 @@ func (app *application) serve() error {
 
 func main() {
 	err := run()
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,60 +90,40 @@ func run() error {
 	gob.Register(models.User{})
 	_ = os.Setenv("TZ", "America/Halifax")
 
-	dbHost := flag.String("dbhost", "localhost", "database host")
-	dbPort := flag.String("dbport", "5432", "database port")
-	dbUser := flag.String("dbuser", "postgres", "database user")
-	dbPass := flag.String("dbpass", "qwerqwer", "database password")
-	databaseName := flag.String("db", "temp", "database name")
-	dbSsl := flag.String("dbssl", "disable", "database ssl setting")
+	cfg.Domain = os.Getenv("DOMAIN")
+	cfg.Identifier = os.Getenv("IDENTIFIER")
+	cfg.port, _ = strconv.Atoi(os.Getenv("PORT"))
+	cfg.env = os.Getenv("ENV")
+	cfg.backend = os.Getenv("BACKEND_URL")
 
-	if *dbUser == "" || *dbHost == "" || *dbPort == "" || *databaseName == "" {
-		fmt.Println("Missing database required flags.")
-		os.Exit(1)
+	cfg.db.dsn = os.Getenv("DB_DSN")
+	cfg.pusherHost = os.Getenv("PUSHER_HOST")
+	cfg.pusherPort = os.Getenv("PUSHER_PORT")
+	cfg.pusherApp = os.Getenv("PUSHER_APP")
+	cfg.pusherKey = os.Getenv("PUSHER_KEY")
+	cfg.pusherSecret = os.Getenv("PUSHER_SECRET")
+	if os.Getenv("PUSHER_SECURE") == "disable" {
+		cfg.pusherSecure = false
+	} else {
+		cfg.pusherSecure = true
 	}
-
-	cfg.db.dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC connect_timeout=5",
-		*dbHost,
-		*dbPort,
-		*dbUser,
-		*dbPass,
-		*databaseName,
-		*dbSsl)
-
-	flag.StringVar(&cfg.redis.prefix, "redisPrefix", "cycir", "redis prefix")
-	flag.StringVar(&cfg.redis.host, "redisHost", "localhost:6379", "redis host")
-	flag.StringVar(&cfg.redis.password, "redisPass", "", "redis password")
-
-	flag.StringVar(&cfg.pusherHost, "pusherHost", "", "pusher host")
-	flag.StringVar(&cfg.pusherPort, "pusherPort", "443", "pusher port")
-	flag.StringVar(&cfg.pusherApp, "pusherApp", "9", "pusher app id")
-	flag.StringVar(&cfg.pusherKey, "pusherKey", "", "pusher key")
-	flag.StringVar(&cfg.pusherSecret, "pusherSecret", "", "pusher secret")
-	flag.BoolVar(&cfg.pusherSecure, "pusherSecure", false, "pusher server uses SSL (true or false)")
-
-	flag.StringVar(&cfg.Identifier, "identifier", "cycir", "unique identifier")
-	flag.StringVar(&cfg.Domain, "domain", "localhost", "domain name (e.g. example.com)")
-	flag.BoolVar(&cfg.InProduction, "production", false, "application is in production")
-
-	flag.IntVar(&cfg.port, "port", 4000, "Server port to listen on")
-	flag.StringVar(&cfg.env, "env", "development", "Application environment {development|production|maintenance}")
-	flag.StringVar(&cfg.backend, "backend", "http://localhost:4002", "url to back end")
-
-	flag.Parse()
-
-	e, err := os.OpenFile("./foo.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-
-	if err != nil {
-			fmt.Printf("error opening file: %v", err)
-			os.Exit(1)
+	if os.Getenv("IN_PRODUCTION") == "disable" {
+		cfg.InProduction = false
+	} else {
+		cfg.InProduction = true
 	}
-	infoLog := log.New(e, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(e, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	cfg.Domain = os.Getenv("DOMAIN")
+	cfg.redis.host = os.Getenv("REDIS_HOST")
+	cfg.redis.port = os.Getenv("REDIS_PORT")
+	cfg.redis.prefix = os.Getenv("REDIS_PREFIX")
+
+	infoLog := log.New(nil, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(nil, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	infoLog.SetOutput(&lumberjack.Logger{
-    Filename:   "./logs/infoLog.log",
-    MaxSize:    1,  // megabytes after which new file is created
-    MaxBackups: 3,  // number of backups
-    MaxAge:     28, //days
+		Filename:   "./logs/infoLog.log",
+		MaxSize:    1,  // megabytes after which new file is created
+		MaxBackups: 3,  // number of backups
+		MaxAge:     28, //days
 	})
 
 	errorLog.SetOutput(&lumberjack.Logger{
@@ -193,20 +173,20 @@ func run() error {
 
 	if !cfg.InTest {
 		app := &application{
-			config:   cfg,
-			infoLog:  infoLog,
-			errorLog: errorLog,
-			version:  version,
-			repo:     repo,
-			Session:  session,
+			config:        cfg,
+			infoLog:       infoLog,
+			errorLog:      errorLog,
+			version:       version,
+			repo:          repo,
+			Session:       session,
 			PreferenceMap: preferenceMap,
 		}
 		NewHelpers(app)
-		
+
 		// redis
 		redisCache := app.createClientRedisCache()
 		app.Cache = redisCache
-	
+
 		err = app.serve()
 		if err != nil {
 			errorLog.Fatal(err)
@@ -231,7 +211,7 @@ func (app *application) createRedisPool() *redis.Pool {
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			return redis.Dial("tcp",
-				app.config.redis.host,
+				fmt.Sprintf("%s:%s", app.config.redis.host, app.config.redis.port),
 				redis.DialPassword(app.config.redis.password))
 		},
 
