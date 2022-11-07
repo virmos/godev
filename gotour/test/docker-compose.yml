@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  frontend:
+    build:
+      context: ./../cmd/web
+      dockerfile: ./frontend-service.dockerfile
+    restart: always
+    ports:
+      - "8081:80"
+    deploy:
+      mode: replicated
+    environment:
+      DB_DSN: "host=localhost port=5432 user=postgres password=qwerqwer dbname=cycir sslmode=disable timezone=UTC connect_timeout=5"
+      REDIS_HOST: "localhost:6379"
+      REDIS_PREFIX: "cycir"
+      PUSHER_HOST: "localhost"
+      PUSHER_PORT: "4001"
+      PUSHER_SECRET: "178d525bdf162c739803"
+      PUSHER_KEY: "278d525bdf162c739803"
+      PUSHER_SECURE: "disable"
+      PUSHER_APP: "1"
+      IN_PRODUCTION: "disable"
+      DOMAIN: "localhost"

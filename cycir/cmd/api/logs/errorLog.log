@@ -1,1 +1,0 @@
-ERROR	2022/10/22 22:17:48 start-monitoring.go:34: Post "http://:443/apps/9/events?auth_key=&auth_signature=6c62fa87eab52245fb3bb7db249a97ed2eb74b10331255f888098398d6e51d21&auth_timestamp=1666451866&auth_version=1.0&body_md5=3f6555ebd1c26fc42612f1cbfa1e4f0b": dial tcp :443: connectex: No connection could be made because the target machine actively refused it.

@@ -1,0 +1,132 @@
+version: '3'
+
+services:
+  #  start Redis, and ensure that data is stored to a mounted volume
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - "6379:6379"
+    restart: always
+    volumes:
+      - ../db-data/redis/:/data
+
+  #  start Postgres, and ensure that data is stored to a mounted volume
+  postgres:
+    image: 'postgres:14.0'
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerqwer
+      POSTGRES_DB: cycir
+    volumes:
+      - ./db-data/postgres/:/var/lib/postgresql/data/
+
+  #  start mailhog
+  mailhog:
+    image: 'mailhog/mailhog:latest'
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  # start ipe websocket
+  ipe:
+    image: 'virmos/ipe:1.0.0'
+    restart: always
+    ports:
+      - "4001:4001"
+    deploy:
+      mode: replicated
+
+  # start migrations
+  migrate:
+    image: 'virmos/project_migrate:1.0.0'
+    deploy:
+      mode: replicated
+      replicas: 1
+    build:
+      context: .
+      dockerfile: ./migrate-service.dockerfile
+    volumes:
+      - ./migrations/:/migrations
+
+  elasticsearch:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.5.0'
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    ports:
+      - 9200:9200
+
+  backend:
+    build:
+      context: ./../cmd/api
+      dockerfile: ./backend-service.dockerfile
+    image: virmos/project_backend:1.0.1
+    restart: always
+    ports:
+      - "8081:8081"
+    deploy:
+      mode: replicated
+    environment:
+      DOMAIN: "localhost"
+      IDENTIFIER: "cycir"
+      ENV: "development"
+      PORT: "8081"
+      FRONTEND_URL: "http://frontend"
+      DB_DSN: "host=postgres port=5432 user=postgres password=qwerqwer dbname=cycir sslmode=disable timezone=UTC connect_timeout=5"
+      PUSHER_HOST: ipe
+      PUSHER_PORT: "4001"
+      PUSHER_SECRET: "178d525bdf162c739803"
+      PUSHER_KEY: "278d525bdf162c739803"
+      PUSHER_SECURE: "disable"
+      PUSHER_APP: "1"
+      ES_ADDRESS: "http://elasticsearch:9200"
+      ES_USERNAME: "elastic"
+      ES_PASSWORD: "E08_6Tmn3QyzhI4XLxyR"
+      ES_INDEX: "cycir"
+      IN_PRODUCTION: "disable"
+
+  frontend:
+    build:
+      context: ./../cmd/web
+      dockerfile: ./frontend-service.dockerfile
+    image: virmos/project_frontend:1.0.0
+    restart: always
+    ports:
+      - "8080:8080"
+    deploy:
+      mode: replicated
+    environment:
+      DOMAIN: "localhost"
+      IDENTIFIER: "cycir"
+      ENV: "development"
+      PORT: "8080"
+      BACKEND_URL: "http://backend"
+      DB_DSN: "host=postgres port=5432 user=postgres password=qwerqwer dbname=cycir sslmode=disable timezone=UTC connect_timeout=5"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PREFIX: "cycir"
+      PUSHER_HOST: ipe
+      PUSHER_PORT: "4001"
+      PUSHER_SECRET: "178d525bdf162c739803"
+      PUSHER_KEY: "278d525bdf162c739803"
+      PUSHER_SECURE: "disable"
+      PUSHER_APP: "1"
+      IN_PRODUCTION: "disable"
+  
+  # start caddy webserver to access frontend
+  caddy: 
+    image: virmos/project_caddy:1.0.0
+    deploy: 
+      mode: replicated
+      replicas: 1
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy_data:/data
+      - ./caddy_config:/config
+
+volumes:
+  db-data:

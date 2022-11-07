@@ -22,6 +22,7 @@ services:
     volumes:
       - ./db-data/postgres/:/var/lib/postgresql/data/
 
+
   #  start mailhog
   mailhog:
     image: 'mailhog/mailhog:latest'
@@ -29,67 +30,109 @@ services:
       - "1025:1025"
       - "8025:8025"
 
-  # ipe websocket
+  # start ipe websocket
   ipe:
-    image: 'tsawler/ipe:latest'
-    build:
-      context: ./../ipe
-      dockerfile: ./ipe.dockerfile
+    image: 'virmos/ipe:1.0.0'
     restart: always
     ports:
       - "4001:4001"
     deploy:
       mode: replicated
 
-  # backend-service:
-  #   build:
-  #     context: ./../cmd/api
-  #     dockerfile: ./backend-service.dockerfile
-  #   restart: always
-  #   ports:
-  #     - "8080:80"
-  #   deploy:
-  #     mode: replicated
-  #     replicas: 1
-  #   environment:
-  #     DB_DSN: "host=localhost port=5432 user=postgres password=qwerqwer dbname=cycir sslmode=disable timezone=UTC connect_timeout=5"
-  #     ES_ADDRESS: "http://localhost:9200"
-  #     ES_USERNAME: "elastic"
-  #     ES_PASSWORD: "E08_6Tmn3QyzhI4XLxyR"
-  #     ES_INDEX: "cycir"
-  #     PUSHER_HOST: "localhost"
-  #     PUSHER_PORT: "4001"
-  #     PUSHER_SECRET: "123abc"
-  #     PUSHER_KEY: "abc123"
-  #     PUSHER_SECURE: "disable"
-  #     PUSHER_APP: "1"
-  #     IN_PRODUCTION: "disable"
-  #     DOMAIN: "localhost"
+  # start migrations
+  migrate:
+    build:
+      context: .
+      dockerfile: ./migrate-service.dockerfile
+    image: virmos/project_migrate:1.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations/:/migrations
+  
+  elasticsearch:
+    # container_name: es-container
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.5.0'
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    ports:
+      - 9200:9200
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+  backend:
+    build:
+      context: ./../cmd/api
+      dockerfile: ./backend-service.dockerfile
+    image: virmos/project_backend:1.0.0
+    restart: always
+    ports:
+      - "8081:8081"
+    deploy:
+      mode: replicated
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      DOMAIN: "localhost"
+      IDENTIFIER: "cycir"
+      ENV: "development"
+      PORT: "8081"
+      FRONTEND_URL: "http://frontend"
+      DB_DSN: "host=postgres port=5432 user=postgres password=qwerqwer dbname=cycir sslmode=disable timezone=UTC connect_timeout=5"
+      PUSHER_HOST: ipe
+      PUSHER_PORT: "4001"
+      PUSHER_SECRET: "178d525bdf162c739803"
+      PUSHER_KEY: "278d525bdf162c739803"
+      PUSHER_SECURE: "disable"
+      PUSHER_APP: "1"
+      ES_ADDRESS: "http://elasticsearch:9200"
+      ES_USERNAME: "elastic"
+      ES_PASSWORD: "E08_6Tmn3QyzhI4XLxyR"
+      ES_INDEX: "cycir"
+      IN_PRODUCTION: "disable"
 
   frontend:
     build:
       context: ./../cmd/web
       dockerfile: ./frontend-service.dockerfile
+    image: virmos/project_frontend:1.0.0
     restart: always
     ports:
-      - "8081:80"
+      - "8080:8080"
     deploy:
       mode: replicated
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
-      DB_DSN: "host=localhost port=5432 user=postgres password=qwerqwer dbname=cycir sslmode=disable timezone=UTC connect_timeout=5"
-      REDIS_HOST: "localhost:6379"
+      DOMAIN: "localhost"
+      IDENTIFIER: "cycir"
+      ENV: "development"
+      PORT: "8080"
+      BACKEND_URL: "http://backend"
+      DB_DSN: "host=postgres port=5432 user=postgres password=qwerqwer dbname=cycir sslmode=disable timezone=UTC connect_timeout=5"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
       REDIS_PREFIX: "cycir"
-      PUSHER_HOST: "localhost"
+      PUSHER_HOST: ipe
       PUSHER_PORT: "4001"
       PUSHER_SECRET: "178d525bdf162c739803"
       PUSHER_KEY: "278d525bdf162c739803"
       PUSHER_SECURE: "disable"
       PUSHER_APP: "1"
       IN_PRODUCTION: "disable"
-      DOMAIN: "localhost"
   
+  # start caddy webserver to access frontend
   caddy: 
-    image: virmos/micro-caddy:1.0.0
+    image: virmos/project_caddy:1.0.0
     deploy: 
       mode: replicated
       replicas: 1
@@ -99,3 +142,5 @@ services:
     volumes:
       - ./caddy_data:/data
       - ./caddy_config:/config
+volumes:
+  db-data:

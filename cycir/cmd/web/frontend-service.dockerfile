@@ -1,7 +1,9 @@
 FROM alpine:latest
 
-RUN mkdir /app
+WORKDIR /app
 
-COPY frontApp /app
+COPY static ./static
+COPY views ./cmd/web/views
+COPY frontApp ./
 
 CMD [ "/app/frontApp"]

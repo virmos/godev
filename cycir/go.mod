@@ -10,9 +10,15 @@ require (
 	github.com/alicebob/miniredis/v2 v2.23.0
 	github.com/aymerick/douceur v0.2.0
 	github.com/bwmarrin/go-alone v0.0.0-20190806015146-742bb55d1631
+	github.com/cockroachdb/cockroach-go v2.0.1+incompatible // indirect
 	github.com/elastic/go-elasticsearch/v8 v8.4.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
+	github.com/gobuffalo/fizz v1.14.4 // indirect
+	github.com/gobuffalo/nulls v0.4.2 // indirect
+	github.com/gobuffalo/pop v4.13.1+incompatible // indirect
+	github.com/gobuffalo/validate v2.0.4+incompatible // indirect
+	github.com/golang-migrate/migrate/v4 v4.15.2 // indirect
 	github.com/gomodule/redigo v1.8.9
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jackc/pgconn v1.13.0
@@ -30,7 +36,6 @@ require (
 	github.com/xhit/go-simple-mail/v2 v2.11.0
 	github.com/xuri/excelize/v2 v2.6.1
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
-	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect

@@ -12,7 +12,11 @@ import (
 	"github.com/aymerick/douceur/inliner"
 	mail "github.com/xhit/go-simple-mail/v2"
 	"jaytaylor.com/html2text"
+	_ "embed"
 )
+
+//go:embed templates/mail.tmpl
+var MailEmbedded string
 
 var paths = []string{
 	"./cmd/web/views/mail.tmpl",
@@ -129,7 +133,8 @@ func (w Worker) processMailQueueJob(mailMessage channeldata.MailData) {
 	}
 	
 
-	t := template.Must(template.New("mail.tmpl").ParseFiles(paths...))
+	// t := template.Must(template.New("mail.tmpl").ParseFiles(paths...))
+	t := template.Must(template.New("mail.tmpl").Parse(MailEmbedded)) // dockerized version
 	var tpl bytes.Buffer
 	if err := t.Execute(&tpl, data); err != nil {
 		fmt.Print(err)
