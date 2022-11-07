@@ -8,7 +8,7 @@ services:
       - "6379:6379"
     restart: always
     volumes:
-      - ../db-data/redis/:/data
+      - ./db-data/redis/:/data
 
   #  start Postgres, and ensure that data is stored to a mounted volume
   postgres:
