@@ -19,9 +19,13 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: qwerqwer
       POSTGRES_DB: cycir
+    healthcheck:
+      test: pg_isready -U postgres -d cycir
+      interval: 10s
+      timeout: 3s
+      retries: 5
     volumes:
       - ./db-data/postgres/:/var/lib/postgresql/data/
-
 
   #  start mailhog
   mailhog:
