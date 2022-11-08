@@ -13,37 +13,6 @@ Change the following:
 + dbuser, dbpass, db(database name): for Postgres
 + esPassword, esIndex: for Elasticsearch
 
-Some commands:
-docker build -f caddy.dockerfile -t virmos/micro-caddy:1.0.0 .
-
-docker exec -t -i project-frontend-1 /bin/sh
-
-docker tag project_frontend virmos/project_frontend:1.0.0
-
-// see docker container network
-docker inspect container_name -f "{{json .NetworkSettings.Networks }}"
-
-// docker swarm 
-docker swarm init
-docker swarm join-token worker
-docker swarm join-token manager
-docker stack deploy -c swarm.yml myapp
-
-// scale services
-docker service ls
-docker service scale myapp_listener-service=3 
-docker service rm myapp_listener-service
-
-// update services
-docker build -f logger-service.dockerfile -t virmos/logger-service:1.0.1 .
-docker push virmos/logger-service:1.0.1
-docker service update --image virmos/logger-service:1.0.1 myapp_logger-service
-
-// stop docker swarm
-docker stack rm myapp
-docker swarm leave --force
-
-
 Runs
 soda migrate
 
