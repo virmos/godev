@@ -1,4 +1,4 @@
-import { 
+import {
   Component, OnInit, OnDestroy, Input, OnChanges, Output,
   EventEmitter
 } from '@angular/core';
@@ -31,7 +31,7 @@ export class EditComponent implements OnInit, OnDestroy, OnChanges {
   })
 
   constructor(
-    private modal: ModalService, 
+    private modal: ModalService,
     private clipService: ClipService
   ) { }
 
@@ -50,7 +50,7 @@ export class EditComponent implements OnInit, OnDestroy, OnChanges {
 
     this.inSubmission = false
     this.showAlert = false
-    this.clipID.setValue(this.activeClip.docID)
+    this.clipID.setValue(this.activeClip.docID as string)
     this.title.setValue(this.activeClip.title)
   }
 
@@ -66,8 +66,8 @@ export class EditComponent implements OnInit, OnDestroy, OnChanges {
 
     try {
       await this.clipService.updateClip(
-        this.clipID.value, this.title.value
-      ) 
+        this.clipID.value as string, this.title.value as string
+      )
     }
     catch(e) {
       this.inSubmission = false
@@ -76,7 +76,7 @@ export class EditComponent implements OnInit, OnDestroy, OnChanges {
       return
     }
 
-    this.activeClip.title = this.title.value
+    this.activeClip.title = this.title.value as string
     this.update.emit(this.activeClip)
 
     this.inSubmission = false

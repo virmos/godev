@@ -9,6 +9,7 @@ import { ClipService } from 'src/app/services/clip.service';
 import { Router } from '@angular/router';
 import { FfmpegService } from 'src/app/services/ffmpeg.service';
 import { combineLatest, forkJoin } from 'rxjs';
+import IClip from 'src/app/models/clip.model';
 
 @Component({
   selector: 'app-upload',
@@ -45,7 +46,7 @@ export class UploadComponent implements OnDestroy {
     private clipsService: ClipService,
     private router: Router,
     public ffmpegService: FfmpegService
-  ) { 
+  ) {
     auth.user.subscribe(user => this.user = user)
     this.ffmpegService.init()
   }
@@ -88,7 +89,7 @@ export class UploadComponent implements OnDestroy {
     this.inSubmission = true
     this.showPercentage = true
 
-    const clipFileName = uuid() 
+    const clipFileName = uuid()
     const clipPath = `clips/${clipFileName}.mp4`
 
     const screenshotBlob = await this.ffmpegService.blobFromURL(
@@ -142,7 +143,7 @@ export class UploadComponent implements OnDestroy {
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         }
 
-        const clipDocRef = await this.clipsService.createClip(clip)
+        const clipDocRef = await this.clipsService.createClip(clip as IClip)
 
         console.log(clip)
 
