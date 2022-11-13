@@ -1,4 +1,10 @@
 # Instructions
+## Login account
+
+account: admin@example.com
+
+password: password
+
 ## Host modification
 Add backend entry in hosts file, for windows, at C:\Windows\System32\drivers\etc
 
@@ -29,4 +35,5 @@ docker stack rm cycir
 docker swarm leave --force
 ~~~
 > **For docker swarm, after deploying, remove project_migrate-service (this is used for migrations)**
+> **default postgres port is on 5432, change it if your local postgres already resides at port 5432**
  
