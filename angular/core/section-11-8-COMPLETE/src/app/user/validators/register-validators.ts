@@ -11,12 +11,12 @@ export class RegisterValidators {
         return { controlNotFound: false }
       }
 
-      const error = control.value === matchingControl.value ? 
+      const error = control.value === matchingControl.value ?
         null :
-        { noMatch: true } 
+        { noMatch: true }
 
       matchingControl.setErrors(error)
-
+      
       return error
     }
   }

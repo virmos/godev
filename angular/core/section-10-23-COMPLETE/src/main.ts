@@ -11,7 +11,7 @@ if (environment.production) {
 }
 
 firebase.initializeApp(environment.firebase)
-
+    
 let appInit = false
 
 firebase.auth().onAuthStateChanged(() => {

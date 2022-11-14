@@ -21,7 +21,7 @@ export class ManageComponent implements OnInit {
     private route: ActivatedRoute,
     private clipService: ClipService,
     private modal: ModalService
-  ) { 
+  ) {
     this.sort$ = new BehaviorSubject(this.videoOrder)
   }
 

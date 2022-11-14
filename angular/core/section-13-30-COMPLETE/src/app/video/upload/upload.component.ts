@@ -42,7 +42,7 @@ export class UploadComponent implements OnDestroy {
     private auth: AngularFireAuth,
     private clipsService: ClipService,
     private router: Router
-  ) { 
+  ) {
     auth.user.subscribe(user => this.user = user)
   }
 
@@ -76,7 +76,7 @@ export class UploadComponent implements OnDestroy {
     this.inSubmission = true
     this.showPercentage = true
 
-    const clipFileName = uuid() 
+    const clipFileName = uuid()
     const clipPath = `clips/${clipFileName}.mp4`
 
     this.task = this.storage.upload(clipPath, this.file)
