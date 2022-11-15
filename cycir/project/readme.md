@@ -39,5 +39,6 @@ docker swarm leave --force
  
 ## Potential bugs
 > **After logout, please press F5 before login in again, for some reasons, bootstrap form doesn't submit form data**
+
 > **If in any cases, the app breaks, please open devtools, removes all caches and start again (this could happen because of the reason mentioned above, very sorry about that)**
 
