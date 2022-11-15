@@ -12,7 +12,7 @@ Add backend entry in hosts file, for windows, at C:\Windows\System32\drivers\etc
 
 ## App Settings
 ### Overview -> Settings
-Set SMTP server as mailhog (instead of localhost)
+SMTP server: mailhog (instead of localhost)
 
 SMTP port: 1025
 
