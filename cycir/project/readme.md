@@ -37,3 +37,7 @@ docker swarm leave --force
 > **For docker swarm, after deploying, remove project_migrate-service (this is used for migrations)**
 > **default postgres port is on 5432, change it if your local postgres already resides at port 5432**
  
+## Potential bugs
+> **After logout, please press F5 before login in again, for some reasons, bootstrap form doesn't submit form data**
+> **If in any cases, the app breaks, please open devtools, removes all caches and start again (this could happen because of the reason mentioned above, very sorry about that)**
+
