@@ -5,10 +5,16 @@ account: admin@example.com
 
 password: password
 
-## Host modification
+## Local Settings
 Add backend entry in hosts file, for windows, at C:\Windows\System32\drivers\etc
 
 ![2022-11-08_10-35-25](https://user-images.githubusercontent.com/30485720/200469402-0d1e55f9-4734-4f0f-a992-bdb7296ece3d.png)
+
+## App Settings
+### Overview -> Settings
+Set SMTP server as mailhog (instead of localhost)
+
+SMTP port: 1025
 
 
 ## Installation
