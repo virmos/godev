@@ -124,6 +124,9 @@ export default function ProductEditScreen() {
   const uploadFileHandler = async (e, forImages) => {
     const file = e.target.files[0];
     const bodyFormData = new FormData();
+    if (file === undefined) {
+      return
+    }
     bodyFormData.append('file', file);
     try {
       dispatch({ type: 'UPLOAD_REQUEST' });
