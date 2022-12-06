@@ -53,7 +53,7 @@ export const useAdmin = ({redirectTo}) => {
 
       router.push(redirectTo)
     }
-  }, [account])
+  }, [account, redirectTo, requireInstall, router])
 
   return { account }
 }
