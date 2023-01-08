@@ -1,0 +1,6 @@
+{
+    "files.exclude": {
+        "goproj": true,
+        "gotour": true,
+    },
+}
