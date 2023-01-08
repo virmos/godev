@@ -2,17 +2,18 @@ package handlers
 
 import (
 	"context"
+	"log"
+	"net/http"
+	"os"
+	"testing"
+	"time"
+
 	"github.com/CloudyKit/jet/v6"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/tsawler/celeritas"
 	"github.com/tsawler/celeritas/mailer"
 	"github.com/tsawler/celeritas/render"
-	"log"
-	"net/http"
-	"os"
-	"testing"
-	"time"
 )
 
 var cel celeritas.Celeritas
@@ -43,7 +44,7 @@ func TestMain(m *testing.M) {
 	}
 
 	cel = celeritas.Celeritas{
-		AppName:       "myapp",
+		AppName:       "go-ecom",
 		Debug:         true,
 		Version:       "1.0.0",
 		ErrorLog:      errorLog,

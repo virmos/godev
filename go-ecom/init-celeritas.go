@@ -1,10 +1,10 @@
 package main
 
 import (
+	"go-ecom/data"
+	"go-ecom/handlers"
+	"go-ecom/middleware"
 	"log"
-	"myapp/data"
-	"myapp/handlers"
-	"myapp/middleware"
 	"os"
 
 	"github.com/tsawler/celeritas"
@@ -23,7 +23,7 @@ func initApplication() *application {
 		log.Fatal(err)
 	}
 
-	cel.AppName = "myapp"
+	cel.AppName = "go-ecom"
 
 	myMiddleware := &middleware.Middleware{
 		App: cel,

@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"github.com/tsawler/celeritas"
-	"myapp/data"
+	"go-ecom/data"
 	"net/http"
+
+	"github.com/tsawler/celeritas"
 )
 
 // Handlers is the type for handlers, and gives access to Celeritas and models

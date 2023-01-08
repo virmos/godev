@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"myapp/data"
+	"go-ecom/data"
 
 	"github.com/tsawler/celeritas"
 )

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"myapp/data"
-	"myapp/handlers"
-	"myapp/middleware"
+	"go-ecom/data"
+	"go-ecom/handlers"
+	"go-ecom/middleware"
 	"os"
 	"os/signal"
 	"sync"

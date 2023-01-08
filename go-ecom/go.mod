@@ -1,4 +1,4 @@
-module myapp
+module go-ecom
 
 go 1.17
 
