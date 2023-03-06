@@ -6,16 +6,11 @@ import React, { useEffect, useReducer } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { getError } from '@utils/error';
+import { useAdminProduct } from '@components/hooks';
+import { updateAdminProduct } from '@components/api';
 
 function reducer(state, action) {
     switch (action.type) {
-        case 'FETCH_REQUEST':
-            return { ...state, loading: true, error: '' };
-        case 'FETCH_SUCCESS':
-            return { ...state, loading: false, error: '' };
-        case 'FETCH_FAIL':
-            return { ...state, loading: false, error: action.payload };
-
         case 'UPDATE_REQUEST':
             return { ...state, loadingUpdate: true, errorUpdate: '' };
         case 'UPDATE_SUCCESS':
@@ -41,40 +36,20 @@ function reducer(state, action) {
 export default function AdminProductEditScreen() {
     const { query } = useRouter();
     const productId = query.id;
-    const [{ loading, error, loadingUpdate, loadingUpload }, dispatch] =
-        useReducer(reducer, {
-            loading: true,
-            error: '',
-        });
-
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        setValue,
-    } = useForm();
+    const [{ loadingUpdate, loadingUpload }, dispatch] = useReducer(reducer, { });
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+    const { data: product } = useAdminProduct(productId);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                dispatch({ type: 'FETCH_REQUEST' });
-                const { data } = await axios.get(`/api/admin/products/${productId}`);
-                dispatch({ type: 'FETCH_SUCCESS' });
-                setValue('name', data.name);
-                setValue('slug', data.slug);
-                setValue('price', data.price);
-                setValue('image', data.image);
-                setValue('category', data.category);
-                setValue('brand', data.brand);
-                setValue('countInStock', data.countInStock);
-                setValue('description', data.description);
-            } catch (err) {
-                dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
-            }
-        };
-
-        fetchData();
-    }, [productId, setValue]);
+        setValue('name', product.data?.name);
+        setValue('slug', product.data?.slug);
+        setValue('price', product.data?.price);
+        setValue('image', product.data?.image);
+        setValue('category', product.data?.category);
+        setValue('brand', product.data?.brand);
+        setValue('countInStock', product.data?.countInStock);
+        setValue('description', product.data?.description);
+    }, [setValue, product.data]);
 
     const router = useRouter();
 
@@ -114,7 +89,7 @@ export default function AdminProductEditScreen() {
     }) => {
         try {
             dispatch({ type: 'UPDATE_REQUEST' });
-            await axios.put(`/api/admin/products/${productId}`, {
+            await updateAdminProduct(productId, {
                 name,
                 slug,
                 price,
@@ -155,10 +130,10 @@ export default function AdminProductEditScreen() {
                     </ul>
                 </div>
                 <div className="md:col-span-3">
-                    {loading ? (
+                    {product.loading ? (
                         <div>Loading...</div>
-                    ) : error ? (
-                        <div className="alert-error">{error}</div>
+                    ) : product.error ? (
+                        <div className="alert-error">{product.error}</div>
                     ) : (
                         <form
                             className="mx-auto max-w-screen-md"

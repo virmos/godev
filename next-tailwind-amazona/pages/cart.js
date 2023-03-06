@@ -3,11 +3,11 @@ import Link from 'next/link';
 import React from 'react';
 import { XCircleIcon } from '@heroicons/react/outline';
 import { BaseLayout } from '@components/ui/layout';
-import { useStore } from '@components/providers/store';
+import { useStore } from '@components/providers';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import { getProduct } from '@components/api';
 
 function CartScreen() {
     const router = useRouter();
@@ -20,7 +20,7 @@ function CartScreen() {
     };
     const updateCartHandler = async (item, qty) => {
         const quantity = Number(qty);
-        const { data } = await axios.get(`/api/products/${item._id}`);
+        const { data } = await getProduct(item._id)
         if (data.countInStock < quantity) {
             return toast.error('Sorry. Product is out of stock');
         }
@@ -28,7 +28,7 @@ function CartScreen() {
         // toast.success('Product updated in the cart');
     };
     return (
-        <>
+        <BaseLayout>
             <h1 className="mb-4 text-xl">Shopping Cart</h1>
             {cartItems.length === 0 ? (
                 <div>
@@ -108,10 +108,10 @@ function CartScreen() {
                     </div>
                 </div>
             )}
-        </>
+        </BaseLayout>
     );
 }
 
-CartScreen.Layout = BaseLayout
+// CartScreen.Layout = BaseLayout
 
 export default dynamic(() => Promise.resolve(CartScreen), { ssr: false });

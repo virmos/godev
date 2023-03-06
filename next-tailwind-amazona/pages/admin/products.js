@@ -1,19 +1,15 @@
 import { BaseLayout } from '@components/ui/layout';
-import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer } from 'react';
 import { toast } from 'react-toastify';
 import { getError } from '@utils/error';
+import { createAdminProducts, deleteAdminProduct } from '@components/api';
+import { useAdminProducts } from '@components/hooks';
+import { ProductModal } from '@components/ui/order';
 
 function reducer(state, action) {
     switch (action.type) {
-        case 'FETCH_REQUEST':
-            return { ...state, loading: true, error: '' };
-        case 'FETCH_SUCCESS':
-            return { ...state, loading: false, products: action.payload, error: '' };
-        case 'FETCH_FAIL':
-            return { ...state, loading: false, error: action.payload };
         case 'CREATE_REQUEST':
             return { ...state, loadingCreate: true };
         case 'CREATE_SUCCESS':
@@ -33,22 +29,20 @@ function reducer(state, action) {
             state;
     }
 }
-export default function AdminProdcutsScreen() {
+export default function AdminProductsScreen() {
     const router = useRouter();
 
     const [
-        { loading, error, products, loadingCreate, successDelete, loadingDelete },
+        { loadingCreate, successDelete, loadingDelete },
         dispatch,
-    ] = useReducer(reducer, {
-        loading: true,
-        products: [],
-        error: '',
-    });
+    ] = useReducer(reducer, { });
+    const {data: products} = useAdminProducts()
+    const [trigger, setTrigger] = React.useState(false)
 
-    const createHandler = async () => {
+    const createHandler = async (product) => {
         try {
             dispatch({ type: 'CREATE_REQUEST' });
-            const { data } = await axios.post(`/api/admin/products`);
+            const { data } = await createAdminProducts(product);
             dispatch({ type: 'CREATE_SUCCESS' });
             toast.success('Product created successfully');
             router.push(`/admin/product/${data.product._id}`);
@@ -57,21 +51,10 @@ export default function AdminProdcutsScreen() {
             toast.error(getError(err));
         }
     };
+    
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                dispatch({ type: 'FETCH_REQUEST' });
-                const { data } = await axios.get(`/api/admin/products`);
-                dispatch({ type: 'FETCH_SUCCESS', payload: data });
-            } catch (err) {
-                dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
-            }
-        };
-
         if (successDelete) {
             dispatch({ type: 'DELETE_RESET' });
-        } else {
-            fetchData();
         }
     }, [successDelete]);
 
@@ -81,7 +64,12 @@ export default function AdminProdcutsScreen() {
         }
         try {
             dispatch({ type: 'DELETE_REQUEST' });
-            await axios.delete(`/api/admin/products/${productId}`);
+            const mutatedProducts = products.data.filter(
+                (product) => product._id !== productId
+            );
+            products.mutate(mutatedProducts)
+
+            await deleteAdminProduct(productId);
             dispatch({ type: 'DELETE_SUCCESS' });
             toast.success('Product deleted successfully');
         } catch (err) {
@@ -89,6 +77,11 @@ export default function AdminProdcutsScreen() {
             toast.error(getError(err));
         }
     };
+
+    const cleanupModal = useCallback(() => {
+        setTrigger(false);
+    }, [])
+
     return (
         <>
             <div className="grid md:grid-cols-4 md:gap-5">
@@ -116,16 +109,18 @@ export default function AdminProdcutsScreen() {
                         {loadingDelete && <div>Deleting item...</div>}
                         <button
                             disabled={loadingCreate}
-                            onClick={createHandler}
+                            onClick={() => {
+                                setTrigger(true);
+                            }}
                             className="primary-button"
                         >
                             {loadingCreate ? 'Loading' : 'Create'}
                         </button>
                     </div>
-                    {loading ? (
+                    {!products.hasInitialResponse ? (
                         <div>Loading...</div>
-                    ) : error ? (
-                        <div className="alert-error">{error}</div>
+                    ) : products.error ? (
+                        <div className="alert-error">{products.error}</div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="min-w-full">
@@ -141,7 +136,7 @@ export default function AdminProdcutsScreen() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {products.map((product) => (
+                                    {products.data.map((product) => (
                                         <tr key={product._id} className="border-b">
                                             <td className=" p-5 ">{product._id.substring(20, 24)}</td>
                                             <td className=" p-5 ">{product.name}</td>
@@ -172,9 +167,19 @@ export default function AdminProdcutsScreen() {
                     )}
                 </div>
             </div>
+            { trigger &&
+            <ProductModal
+                trigger={trigger}
+                onSubmit={(formData) => {
+                    createHandler(formData)
+                    cleanupModal()
+                }}
+                onClose={cleanupModal}
+            />
+        }
         </>
     );
 }
 
-AdminProdcutsScreen.auth = { adminOnly: true };
-AdminProdcutsScreen.Layout = BaseLayout
+AdminProductsScreen.auth = { adminOnly: true };
+AdminProductsScreen.Layout = BaseLayout

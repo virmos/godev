@@ -3,8 +3,8 @@ import { signIn, useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { getError } from '@utils/error';
-import axios from 'axios';
 import { BaseLayout } from '@components/ui/layout';
+import { updateUserProfile } from '@components/api';
 
 export default function ProfileScreen() {
     const { data: session } = useSession();
@@ -24,20 +24,20 @@ export default function ProfileScreen() {
 
     const submitHandler = async ({ name, email, password }) => {
         try {
-            await axios.put('/api/auth/update', {
+            await updateUserProfile({
                 name,
                 email,
                 password,
             });
-            const result = await signIn('credentials', {
+
+            await signIn('credentials', {
                 redirect: false,
                 email,
                 password,
             });
+            
             toast.success('Profile updated successfully');
-            if (result.error) {
-                toast.error(result.error);
-            }
+
         } catch (err) {
             toast.error(getError(err));
         }
@@ -93,6 +93,7 @@ export default function ProfileScreen() {
                         type="password"
                         id="password"
                         {...register('password', {
+                            required: 'Please enter password',
                             minLength: { value: 6, message: 'password is more than 5 chars' },
                         })}
                     />
@@ -108,6 +109,7 @@ export default function ProfileScreen() {
                         type="password"
                         id="confirmPassword"
                         {...register('confirmPassword', {
+                            required: 'Please confirm password',
                             validate: (value) => value === getValues('password'),
                             minLength: {
                                 value: 6,

@@ -1,14 +1,14 @@
-import axios from 'axios';
 import { toast } from 'react-toastify';
-import { BaseLayout } from '@components/ui/layout';
+import { MainLayout } from '@components/ui/layout';
 import ProductItem from '@components/ui/product/item/ProductItem';
 import Product from '@models/Product';
 import db from '@utils/db';
-import { useStore } from '@components/providers/store';
+import { useStore } from '@components/providers';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import Link from 'next/link';
-        
+import { getProduct } from '@components/api';
+
 export default function Home({ products, featuredProducts }) {
     const { state, dispatch } = useStore();
     const { cart } = state;
@@ -16,7 +16,7 @@ export default function Home({ products, featuredProducts }) {
     const addToCartHandler = async (product) => {
         const existItem = cart.cartItems.find((x) => x.slug === product.slug);
         const quantity = existItem ? existItem.quantity + 1 : 1;
-        const { data } = await axios.get(`/api/products/${product._id}`);
+        const { data } = await getProduct(product._id);
 
         if (data.countInStock < quantity) {
             return toast.error('Sorry. Product is out of stock');
@@ -39,8 +39,8 @@ export default function Home({ products, featuredProducts }) {
                     </div>
                 ))}
             </Carousel>
-            <h2 className="h2 my-4">Latest Products</h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            <h2 className="h2 ml-5 my-4 font-bold">Latest Products</h2>
+            <div className="mx-4 grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
                 {products.map((product) => (
                     <ProductItem
                         product={product}
@@ -65,4 +65,4 @@ export async function getServerSideProps() {
     };
 }
 
-Home.Layout = BaseLayout
+Home.Layout = MainLayout

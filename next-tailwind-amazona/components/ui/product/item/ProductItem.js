@@ -4,13 +4,13 @@ import React from 'react';
 
 export default function ProductItem({ product, addToCartHandler }) {
     return (
-        <div className="card">
+        <div className="card group item">
             <Link href={`/product/${product.slug}`}>
                 <a>
                     <img
                         src={product.image}
                         alt={product.name}
-                        className="rounded shadow object-cover h-64 w-full"
+                        className="rounded shadow object-cover h-64 w-full duration-200 md:block group-hover:scale-110"
                     />
                 </a>
             </Link>
@@ -30,6 +30,8 @@ export default function ProductItem({ product, addToCartHandler }) {
                     Add to cart
                 </button>
             </div>
+            {/* <!-- Item Gradient --> */}
+            {/* <div className="item-gradient"></div> */}
         </div>
     );
 }

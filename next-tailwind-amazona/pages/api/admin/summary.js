@@ -1,8 +1,8 @@
 import { getSession } from 'next-auth/react';
-import Order from '../../../models/order/Order';
-import Product from '../../../models/product/Product';
-import User from '../../../models/User';
-import db from '../../../utils/db';
+import Order from '@models/Order';
+import Product from '@models/Product';
+import User from '@models/User';
+import db from '@utils/db';
 
 const handler = async (req, res) => {
     const session = await getSession({ req });

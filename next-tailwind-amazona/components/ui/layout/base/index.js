@@ -6,10 +6,11 @@ import React, { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { Menu } from '@headlessui/react';
 import 'react-toastify/dist/ReactToastify.css';
-import { useStore } from '@components/providers/store';
+import { useStore } from '@components/providers';
 import DropdownLink from '@components/ui/product/dropdown/DropdownLink';
 import { useRouter } from 'next/router';
 import { SearchIcon } from '@heroicons/react/outline';
+import { Footer } from '@components/ui/common';
 
 export default function BaseLayout({ title, children }) {
     const { status, data: session } = useSession();
@@ -41,12 +42,15 @@ export default function BaseLayout({ title, children }) {
                 <title>{title ? title + ' - Amazona' : 'Amazona'}</title>
                 <meta name="description" content="Ecommerce Website" />
                 <link rel="icon" href="/favicon.ico" />
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
+                <link href="https://fonts.googleapis.com/css2?family=Alata&family=Josefin+Sans:wght@300&display=swap" rel="stylesheet"/>
             </Head>
 
             <ToastContainer position="bottom-center" limit={1} />
 
             <div className="flex min-h-screen flex-col justify-between ">
-                <header>
+                <header className="bg-white sticky top-0 z-50">
                     <nav className="flex h-12 items-center px-4 justify-between shadow-md">
                         <Link href="/">
                             <a className="text-lg font-bold">amazona</a>
@@ -86,7 +90,7 @@ export default function BaseLayout({ title, children }) {
                             ) : session?.user ? (
                                 <Menu as="div" className="relative inline-block">
                                     <Menu.Button className="text-blue-600">
-                                        {session.user.name}
+                                        Hi {session.user.name}!
                                     </Menu.Button>
                                     <Menu.Items className="absolute right-0 w-56 origin-top-right bg-white    shadow-lg ">
                                         <Menu.Item>
@@ -131,7 +135,9 @@ export default function BaseLayout({ title, children }) {
                         </div>
                     </nav>
                 </header>
+                
                 <main className="container m-auto mt-4 px-4">{children}</main>
+                <Footer/>
             </div>
         </>
     );

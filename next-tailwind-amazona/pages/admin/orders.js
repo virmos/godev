@@ -1,41 +1,10 @@
 import { BaseLayout } from '@components/ui/layout';
-import axios from 'axios';
 import Link from 'next/link';
-import React, { useEffect, useReducer } from 'react';
-import { getError } from '@utils/error';
-
-function reducer(state, action) {
-    switch (action.type) {
-        case 'FETCH_REQUEST':
-            return { ...state, loading: true, error: '' };
-        case 'FETCH_SUCCESS':
-            return { ...state, loading: false, orders: action.payload, error: '' };
-        case 'FETCH_FAIL':
-            return { ...state, loading: false, error: action.payload };
-        default:
-            state;
-    }
-}
+import React from 'react';
+import { useAdminOrders } from '@components/hooks';
 
 export default function AdminOrderScreen() {
-    const [{ loading, error, orders }, dispatch] = useReducer(reducer, {
-        loading: true,
-        orders: [],
-        error: '',
-    });
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                dispatch({ type: 'FETCH_REQUEST' });
-                const { data } = await axios.get(`/api/admin/orders`);
-                dispatch({ type: 'FETCH_SUCCESS', payload: data });
-            } catch (err) {
-                dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
-            }
-        };
-        fetchData();
-    }, []);
+    const { data: orders } = useAdminOrders();
 
     return (
         <>
@@ -61,10 +30,10 @@ export default function AdminOrderScreen() {
                 <div className="overflow-x-auto md:col-span-3">
                     <h1 className="mb-4 text-xl">Admin Orders</h1>
 
-                    {loading ? (
+                    {!orders.hasInitialResponse ? (
                         <div>Loading...</div>
-                    ) : error ? (
-                        <div className="alert-error">{error}</div>
+                    ) : orders.error ? (
+                        <div className="alert-error">{orders.error}</div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="min-w-full">
@@ -80,7 +49,7 @@ export default function AdminOrderScreen() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {orders.map((order) => (
+                                    {orders.data.map((order) => (
                                         <tr key={order._id} className="border-b">
                                             <td className="p-5">{order._id.substring(20, 24)}</td>
                                             <td className="p-5">

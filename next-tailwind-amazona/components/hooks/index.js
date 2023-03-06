@@ -1,4 +1,4 @@
-import { useHooks } from "@components/providers/store/Store";
+import { useHooks } from "@components/providers/store";
 
 const _isEmpty = (data) => {
     return (
@@ -18,20 +18,6 @@ const enhanceHook = (swrRes) => {
         ...swrRes,
         isEmpty,
         hasInitialResponse,
-    };
-};
-
-export const useDeliverMutate = async (...args) => {
-    const swrRes = enhanceHook(useHooks((hooks) => hooks.useDeliverMutate)(...args));
-    return {
-        data: swrRes,
-    };
-};
-
-export const usePayMutate = async (...args) => {
-    const swrRes = enhanceHook(useHooks((hooks) => hooks.usePayMutate)(...args));
-    return {
-        data: swrRes,
     };
 };
 
@@ -56,13 +42,6 @@ export const useSummary = (...args) => {
     };
 };
 
-export const useOrder = (...args) => {
-    const swrRes = enhanceHook(useHooks((hooks) => hooks.useOrder)(...args));
-    return {
-        data: swrRes,
-    };
-};
-
 export const useOrders = () => {
     const swrRes = enhanceHook(useHooks((hooks) => hooks.useOrders)());
     return {
@@ -70,22 +49,16 @@ export const useOrders = () => {
     };
 };
 
-export const useProduct = (...args) => {
-    const swrRes = enhanceHook(useHooks((hooks) => hooks.useProduct)(...args));
+export const useOrder = (...args) => {
+    const swrRes = enhanceHook(useHooks((hooks) => hooks.useOrder)(...args));
     return {
         data: swrRes,
     };
 };
+
 
 export const useProducts = () => {
     const swrRes = enhanceHook(useHooks((hooks) => hooks.useProducts)());
-    return {
-        data: swrRes,
-    };
-};
-
-export const useAdminOrder = (...args) => {
-    const swrRes = enhanceHook(useHooks((hooks) => hooks.useAdminOrder)(...args));
     return {
         data: swrRes,
     };
@@ -98,13 +71,6 @@ export const useAdminOrders = () => {
     };
 };
 
-export const useAdminProduct = (...args) => {
-    const swrRes = enhanceHook(useHooks((hooks) => hooks.useAdminProduct)(...args));
-    return {
-        data: swrRes,
-    };
-};
-
 export const useAdminProducts = () => {
     const swrRes = enhanceHook(useHooks((hooks) => hooks.useAdminProducts)());
     return {
@@ -112,8 +78,8 @@ export const useAdminProducts = () => {
     };
 };
 
-export const useAdminUser = (...args) => {
-    const swrRes = enhanceHook(useHooks((hooks) => hooks.useAdminUser)(...args));
+export const useAdminProduct = (...args) => {
+    const swrRes = enhanceHook(useHooks((hooks) => hooks.useAdminProduct)(...args));
     return {
         data: swrRes,
     };

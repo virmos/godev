@@ -1,12 +1,12 @@
-import axios from 'axios';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
-import Layout from '../components/Layout';
 import { useStore } from '../components/providers/store';
 import { XCircleIcon } from '@heroicons/react/outline';
 import ProductItem from '../components/ui/product/item/ProductItem';
-import Product from '../models/product/Product';
-import db from '../utils/db';
+import Product from '@models/product';
+import db from '@utils/db';
+import { getProduct } from '@components/api';
+import { BaseLayout } from '@components/ui/layout';
 
 const PAGE_SIZE = 2;
 
@@ -92,7 +92,7 @@ export default function Search(props) {
     const addToCartHandler = async (product) => {
         const existItem = state.cart.cartItems.find((x) => x._id === product._id);
         const quantity = existItem ? existItem.quantity + 1 : 1;
-        const { data } = await axios.get(`/api/products/${product._id}`);
+        const { data } = await getProduct(product._id);
         if (data.countInStock < quantity) {
             toast.error('Sorry. Product is out of stock');
             return;
@@ -101,7 +101,7 @@ export default function Search(props) {
         router.push('/cart');
     };
     return (
-        <Layout title="search">
+        <>
             <div className="grid md:grid-cols-4 md:gap-5">
                 <div>
                     <div className="my-3">
@@ -216,7 +216,7 @@ export default function Search(props) {
                     </div>
                 </div>
             </div>
-        </Layout>
+        </>
     );
 }
 
@@ -312,3 +312,4 @@ export async function getServerSideProps({ query }) {
         },
     };
 }
+Search.Layout = BaseLayout

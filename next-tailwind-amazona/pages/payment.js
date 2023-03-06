@@ -3,9 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import CheckoutWizard from '@components/ui/order/checkout/CheckoutWizard';
-import Layout from '@components/Layout';
 import { BaseLayout } from '@components/ui/layout';
-import { useStore } from '@components/providers/store';
+import { useStore } from '@components/providers';
 
 export default function PaymentScreen() {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
@@ -40,7 +39,7 @@ export default function PaymentScreen() {
     }, [paymentMethod, router, shippingAddress.address]);
 
     return (
-        <Layout title="Payment Method">
+        <>
             <CheckoutWizard activeStep={2} />
             <form className="mx-auto max-w-screen-md" onSubmit={submitHandler}>
                 <h1 className="mb-4 text-xl">Payment Method</h1>
@@ -71,7 +70,7 @@ export default function PaymentScreen() {
                     <button className="primary-button">Next</button>
                 </div>
             </form>
-        </Layout>
+        </>
     );
 }
 

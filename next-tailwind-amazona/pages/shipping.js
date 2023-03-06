@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Cookies from 'js-cookie';
 import CheckoutWizard from '@components/ui/order/checkout/CheckoutWizard';
-import Layout from '@components/Layout';
 import { useStore } from '@components/providers/store';
 import { useRouter } from 'next/router';
 import { BaseLayout } from '@components/ui/layout';
@@ -51,7 +50,7 @@ export default function ShippingScreen() {
     };
 
     return (
-        <Layout title="Shipping Address">
+        <>
             <CheckoutWizard activeStep={1} />
             <form
                 className="mx-auto max-w-screen-md"
@@ -129,7 +128,7 @@ export default function ShippingScreen() {
                     <button className="primary-button">Next</button>
                 </div>
             </form>
-        </Layout>
+        </>
     );
 }
 

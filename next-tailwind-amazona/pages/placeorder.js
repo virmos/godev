@@ -1,15 +1,14 @@
-import axios from 'axios';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import Cookies from 'js-cookie';
-import React, { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import CheckoutWizard from '@components/ui/order/checkout/CheckoutWizard';
-import Layout from '@components/Layout';
-import { getError } from '@utils/error';
-import { useStore } from '@components/providers/store';
-import { BaseLayout } from '@components/ui/layout';
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import Cookies from "js-cookie";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import CheckoutWizard from "@components/ui/order/checkout/CheckoutWizard";
+import { getError } from "@utils/error";
+import { useStore } from "@components/providers";
+import { BaseLayout } from "@components/ui/layout";
+import { createOrder } from "@components/api";
 
 export default function PlaceOrderScreen() {
     const { state, dispatch } = useStore();
@@ -29,7 +28,7 @@ export default function PlaceOrderScreen() {
     const router = useRouter();
     useEffect(() => {
         if (!paymentMethod) {
-            router.push('/payment');
+            router.push("/payment");
         }
     }, [paymentMethod, router]);
 
@@ -38,7 +37,7 @@ export default function PlaceOrderScreen() {
     const placeOrderHandler = async () => {
         try {
             setLoading(true);
-            const { data } = await axios.post('/api/orders', {
+            const { data } = await createOrder({
                 orderItems: cartItems,
                 shippingAddress,
                 paymentMethod,
@@ -48,9 +47,9 @@ export default function PlaceOrderScreen() {
                 totalPrice,
             });
             setLoading(false);
-            dispatch({ type: 'CART_CLEAR_ITEMS' });
+            dispatch({ type: "CART_CLEAR_ITEMS" });
             Cookies.set(
-                'cart',
+                "cart",
                 JSON.stringify({
                     ...cart,
                     cartItems: [],
@@ -64,7 +63,7 @@ export default function PlaceOrderScreen() {
     };
 
     return (
-        <Layout title="Place Order">
+        <>
             <CheckoutWizard activeStep={3} />
             <h1 className="mb-4 text-xl">Place Order</h1>
             {cartItems.length === 0 ? (
@@ -77,8 +76,10 @@ export default function PlaceOrderScreen() {
                         <div className="card    p-5">
                             <h2 className="mb-2 text-lg">Shipping Address</h2>
                             <div>
-                                {shippingAddress.fullName}, {shippingAddress.address},{' '}
-                                {shippingAddress.city}, {shippingAddress.postalCode},{' '}
+                                {shippingAddress.fullName},{" "}
+                                {shippingAddress.address},{" "}
+                                {shippingAddress.city},{" "}
+                                {shippingAddress.postalCode},{" "}
                                 {shippingAddress.country}
                             </div>
                             <div>
@@ -98,16 +99,24 @@ export default function PlaceOrderScreen() {
                                 <thead className="border-b">
                                     <tr>
                                         <th className="px-5 text-left">Item</th>
-                                        <th className="        p-5 text-right">Quantity</th>
-                                        <th className="    p-5 text-right">Price</th>
-                                        <th className="p-5 text-right">Subtotal</th>
+                                        <th className="p-5 text-right">
+                                            Quantity
+                                        </th>
+                                        <th className="p-5 text-right">
+                                            Price
+                                        </th>
+                                        <th className="p-5 text-right">
+                                            Subtotal
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {cartItems.map((item) => (
                                         <tr key={item._id} className="border-b">
                                             <td>
-                                                <Link href={`/product/${item.slug}`}>
+                                                <Link
+                                                    href={`/product/${item.slug}`}
+                                                >
                                                     <a className="flex items-center">
                                                         <Image
                                                             src={item.image}
@@ -120,8 +129,12 @@ export default function PlaceOrderScreen() {
                                                     </a>
                                                 </Link>
                                             </td>
-                                            <td className=" p-5 text-right">{item.quantity}</td>
-                                            <td className="p-5 text-right">${item.price}</td>
+                                            <td className="p-5 text-right">
+                                                {item.quantity}
+                                            </td>
+                                            <td className="p-5 text-right">
+                                                ${item.price}
+                                            </td>
                                             <td className="p-5 text-right">
                                                 ${item.quantity * item.price}
                                             </td>
@@ -135,7 +148,7 @@ export default function PlaceOrderScreen() {
                         </div>
                     </div>
                     <div>
-                        <div className="card    p-5">
+                        <div className="card  p-5">
                             <h2 className="mb-2 text-lg">Order Summary</h2>
                             <ul>
                                 <li>
@@ -168,7 +181,7 @@ export default function PlaceOrderScreen() {
                                         onClick={placeOrderHandler}
                                         className="primary-button w-full"
                                     >
-                                        {loading ? 'Loading...' : 'Place Order'}
+                                        {loading ? "Loading..." : "Place Order"}
                                     </button>
                                 </li>
                             </ul>
@@ -176,7 +189,7 @@ export default function PlaceOrderScreen() {
                     </div>
                 </div>
             )}
-        </Layout>
+        </>
     );
 }
 

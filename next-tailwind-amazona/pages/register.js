@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { getError } from '@utils/error';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { BaseLayout } from '@components/ui/layout';
+import { createNewProfile } from '@components/api';
 
 export default function LoginScreen() {
     const { data: session } = useSession();
@@ -28,7 +28,7 @@ export default function LoginScreen() {
     } = useForm();
     const submitHandler = async ({ name, email, password }) => {
         try {
-            await axios.post('/api/auth/signup', {
+            await createNewProfile({
                 name,
                 email,
                 password,

@@ -1,6 +1,6 @@
 import { getSession } from 'next-auth/react';
-import Product from '../../../../models/product/Product';
-import db from '../../../../utils/db';
+import Product from '@models/Product';
+import db from '@utils/db';
 
 const handler = async (req, res) => {
     const session = await getSession({ req });
@@ -19,10 +19,10 @@ const handler = async (req, res) => {
 const postHandler = async (req, res) => {
     await db.connect();
     const newProduct = new Product({
-        name: 'sample name',
-        slug: 'sample-name-' + Math.random(),
+        name: req.body.name,
+        slug: req.body.slug,
         image: '/images/shirt1.jpg',
-        price: 0,
+        price: req.body.price,
         category: 'sample category',
         brand: 'sample brand',
         countInStock: 0,

@@ -1,5 +1,5 @@
-import User from '../../../../models/User';
-import db from '../../../../utils/db';
+import User from '@models/User';
+import db from '@utils/db';
 import { getSession } from 'next-auth/react';
 
 const handler = async (req, res) => {
