@@ -2,6 +2,7 @@ import Link from 'next/link';
 import React from 'react';
 import { BaseLayout } from '@components/ui/layout';
 import { useOrderHistory } from '@components/hooks';
+import { Button, Loader, Message } from '@components/ui/common';
 
 function OrderHistoryScreen() {
     const { data: orders } = useOrderHistory();
@@ -10,9 +11,9 @@ function OrderHistoryScreen() {
         <>
             <h1 className="mb-4 text-xl">Order History</h1>
             {!orders.hasInitialResponse ? (
-                <div>Loading...</div>
+                <Loader/>
             ) : orders.error ? (
-                <div className="alert-error">{orders.error}</div>
+                <Message type="danger">{orders.error}</Message>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="min-w-full">
@@ -44,7 +45,13 @@ function OrderHistoryScreen() {
                                     </td>
                                     <td className=" p-5 ">
                                         <Link href={`/order/${order._id}`} passHref>
-                                            <a>Details</a>
+                                            <Button
+                                            size="sm"
+                                            variant="purple"
+                                            className="ml-2"
+                                            >
+                                            Details
+                                            </Button>
                                         </Link>
                                     </td>
                                 </tr>

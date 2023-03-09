@@ -1,13 +1,12 @@
 import { signOut, useSession } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
-import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { Menu } from '@headlessui/react';
 import 'react-toastify/dist/ReactToastify.css';
 import { useStore } from '@components/providers';
-import DropdownLink from '@components/ui/product/dropdown/DropdownLink';
+import DropdownLink from '@components/ui/product/dropdown';
 import { useRouter } from 'next/router';
 import { SearchIcon } from '@heroicons/react/outline';
 import { Footer } from '@components/ui/common';
@@ -23,7 +22,6 @@ export default function BaseLayout({ title, children }) {
     }, [cart.cartItems]);
 
     const logoutClickHandler = () => {
-        Cookies.remove('cart');
         dispatch({ type: 'CART_RESET' });
         signOut({ callbackUrl: '/login' });
     };
@@ -39,7 +37,7 @@ export default function BaseLayout({ title, children }) {
     return (
         <>
             <Head>
-                <title>{title ? title + ' - Amazona' : 'Amazona'}</title>
+                <title>{title ? title + ' - Shopee' : 'Shopee'}</title>
                 <meta name="description" content="Ecommerce Website" />
                 <link rel="icon" href="/favicon.ico" />
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -53,7 +51,7 @@ export default function BaseLayout({ title, children }) {
                 <header className="bg-white sticky top-0 z-50">
                     <nav className="flex h-12 items-center px-4 justify-between shadow-md">
                         <Link href="/">
-                            <a className="text-lg font-bold">amazona</a>
+                            <a className="text-lg font-bold">Shopee</a>
                         </Link>
                         <form
                             onSubmit={submitHandler}
@@ -89,7 +87,7 @@ export default function BaseLayout({ title, children }) {
                                 'Loading'
                             ) : session?.user ? (
                                 <Menu as="div" className="relative inline-block">
-                                    <Menu.Button className="text-blue-600">
+                                    <Menu.Button className="text-purple-800">
                                         Hi {session.user.name}!
                                     </Menu.Button>
                                     <Menu.Items className="absolute right-0 w-56 origin-top-right bg-white    shadow-lg ">

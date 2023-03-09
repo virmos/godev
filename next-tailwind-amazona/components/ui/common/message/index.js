@@ -23,7 +23,7 @@ export default function Message({children, type = "success", size = "md"}) {
     const messageSizeClass = SIZES[size]
 
     return (
-        <div className={`bg-${messageType}-100 rounded-xl mb-3`}>
+        <div className={`bg-${messageType}-200 rounded-xl mb-3`}>
             <div className="max-w-7xl mx-auto py-2 px-1">
                 <div className="flex items-center justify-between flex-wrap">
                     <div className="w-0 flex-1 flex items-center">

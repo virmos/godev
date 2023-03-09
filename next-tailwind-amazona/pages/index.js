@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
 import { MainLayout } from '@components/ui/layout';
-import ProductItem from '@components/ui/product/item/ProductItem';
+import ProductItem from '@components/ui/product/item';
 import Product from '@models/Product';
 import db from '@utils/db';
 import { useStore } from '@components/providers';

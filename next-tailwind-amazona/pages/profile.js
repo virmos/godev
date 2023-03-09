@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { getError } from '@utils/error';
 import { BaseLayout } from '@components/ui/layout';
 import { updateUserProfile } from '@components/api';
+import { Button } from '@components/ui/common';
 
 export default function ProfileScreen() {
     const { data: session } = useSession();
@@ -128,7 +129,7 @@ export default function ProfileScreen() {
                         )}
                 </div>
                 <div className="mb-4">
-                    <button className="primary-button">Update Profile</button>
+                    <Button variants="red">Update Profile</Button>
                 </div>
             </form>
         </>

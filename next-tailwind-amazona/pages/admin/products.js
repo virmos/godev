@@ -1,28 +1,29 @@
-import { BaseLayout } from '@components/ui/layout';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useReducer } from 'react';
-import { toast } from 'react-toastify';
-import { getError } from '@utils/error';
-import { createAdminProducts, deleteAdminProduct } from '@components/api';
-import { useAdminProducts } from '@components/hooks';
-import { ProductModal } from '@components/ui/order';
+import { BaseLayout } from "@components/ui/layout";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import React, { useCallback, useEffect, useReducer } from "react";
+import { toast } from "react-toastify";
+import { getError } from "@utils/error";
+import { createAdminProducts, deleteAdminProduct } from "@components/api";
+import { useAdminProducts } from "@components/hooks";
+import { ProductModal } from "@components/ui/order";
+import { Button, Loader } from "@components/ui/common";
 
 function reducer(state, action) {
     switch (action.type) {
-        case 'CREATE_REQUEST':
+        case "CREATE_REQUEST":
             return { ...state, loadingCreate: true };
-        case 'CREATE_SUCCESS':
+        case "CREATE_SUCCESS":
             return { ...state, loadingCreate: false };
-        case 'CREATE_FAIL':
+        case "CREATE_FAIL":
             return { ...state, loadingCreate: false };
-        case 'DELETE_REQUEST':
+        case "DELETE_REQUEST":
             return { ...state, loadingDelete: true };
-        case 'DELETE_SUCCESS':
+        case "DELETE_SUCCESS":
             return { ...state, loadingDelete: false, successDelete: true };
-        case 'DELETE_FAIL':
+        case "DELETE_FAIL":
             return { ...state, loadingDelete: false };
-        case 'DELETE_RESET':
+        case "DELETE_RESET":
             return { ...state, loadingDelete: false, successDelete: false };
 
         default:
@@ -32,55 +33,53 @@ function reducer(state, action) {
 export default function AdminProductsScreen() {
     const router = useRouter();
 
-    const [
-        { loadingCreate, successDelete, loadingDelete },
-        dispatch,
-    ] = useReducer(reducer, { });
-    const {data: products} = useAdminProducts()
-    const [trigger, setTrigger] = React.useState(false)
+    const [{ loadingCreate, successDelete, loadingDelete }, dispatch] =
+        useReducer(reducer, {});
+    const { data: products } = useAdminProducts();
+    const [trigger, setTrigger] = React.useState(false);
 
     const createHandler = async (product) => {
         try {
-            dispatch({ type: 'CREATE_REQUEST' });
+            dispatch({ type: "CREATE_REQUEST" });
             const { data } = await createAdminProducts(product);
-            dispatch({ type: 'CREATE_SUCCESS' });
-            toast.success('Product created successfully');
+            dispatch({ type: "CREATE_SUCCESS" });
+            toast.success("Product created successfully");
             router.push(`/admin/product/${data.product._id}`);
         } catch (err) {
-            dispatch({ type: 'CREATE_FAIL' });
+            dispatch({ type: "CREATE_FAIL" });
             toast.error(getError(err));
         }
     };
-    
+
     useEffect(() => {
         if (successDelete) {
-            dispatch({ type: 'DELETE_RESET' });
+            dispatch({ type: "DELETE_RESET" });
         }
     }, [successDelete]);
 
     const deleteHandler = async (productId) => {
-        if (!window.confirm('Are you sure?')) {
+        if (!window.confirm("Are you sure?")) {
             return;
         }
         try {
-            dispatch({ type: 'DELETE_REQUEST' });
+            dispatch({ type: "DELETE_REQUEST" });
             const mutatedProducts = products.data.filter(
                 (product) => product._id !== productId
             );
-            products.mutate(mutatedProducts)
+            products.mutate(mutatedProducts);
 
             await deleteAdminProduct(productId);
-            dispatch({ type: 'DELETE_SUCCESS' });
-            toast.success('Product deleted successfully');
+            dispatch({ type: "DELETE_SUCCESS" });
+            toast.success("Product deleted successfully");
         } catch (err) {
-            dispatch({ type: 'DELETE_FAIL' });
+            dispatch({ type: "DELETE_FAIL" });
             toast.error(getError(err));
         }
     };
 
     const cleanupModal = useCallback(() => {
         setTrigger(false);
-    }, [])
+    }, []);
 
     return (
         <>
@@ -114,11 +113,11 @@ export default function AdminProductsScreen() {
                             }}
                             className="primary-button"
                         >
-                            {loadingCreate ? 'Loading' : 'Create'}
+                            {loadingCreate ? "Loading" : "Create"}
                         </button>
                     </div>
                     {!products.hasInitialResponse ? (
-                        <div>Loading...</div>
+                        <Loader />
                     ) : products.error ? (
                         <div className="alert-error">{products.error}</div>
                     ) : (
@@ -129,35 +128,67 @@ export default function AdminProductsScreen() {
                                         <th className="px-5 text-left">ID</th>
                                         <th className="p-5 text-left">NAME</th>
                                         <th className="p-5 text-left">PRICE</th>
-                                        <th className="p-5 text-left">CATEGORY</th>
+                                        <th className="p-5 text-left">
+                                            CATEGORY
+                                        </th>
                                         <th className="p-5 text-left">COUNT</th>
-                                        <th className="p-5 text-left">RATING</th>
-                                        <th className="p-5 text-left">ACTIONS</th>
+                                        <th className="p-5 text-left">
+                                            RATING
+                                        </th>
+                                        <th className="p-5 text-left">
+                                            ACTIONS
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {products.data.map((product) => (
-                                        <tr key={product._id} className="border-b">
-                                            <td className=" p-5 ">{product._id.substring(20, 24)}</td>
-                                            <td className=" p-5 ">{product.name}</td>
-                                            <td className=" p-5 ">${product.price}</td>
-                                            <td className=" p-5 ">{product.category}</td>
-                                            <td className=" p-5 ">{product.countInStock}</td>
-                                            <td className=" p-5 ">{product.rating}</td>
+                                        <tr
+                                            key={product._id}
+                                            className="border-b"
+                                        >
                                             <td className=" p-5 ">
-                                                <Link href={`/admin/product/${product._id}`}>
-                                                    <a type="button" className="default-button">
-                                                        Edit
+                                                {product._id.substring(20, 24)}
+                                            </td>
+                                            <td className=" p-5 ">
+                                                {product.name}
+                                            </td>
+                                            <td className=" p-5 ">
+                                                ${product.price}
+                                            </td>
+                                            <td className=" p-5 ">
+                                                {product.category}
+                                            </td>
+                                            <td className=" p-5 ">
+                                                {product.countInStock}
+                                            </td>
+                                            <td className=" p-5 ">
+                                                {product.rating}
+                                            </td>
+                                            <td className=" p-5 ">
+                                                <Link
+                                                    href={`/admin/product/${product._id}`}
+                                                >
+                                                    <a>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="white"
+                                                        >
+                                                            Edit
+                                                        </Button>
                                                     </a>
                                                 </Link>
                                                 &nbsp;
-                                                <button
-                                                    onClick={() => deleteHandler(product._id)}
-                                                    className="default-button"
-                                                    type="button"
+                                                <Button
+                                                    onClick={() =>
+                                                        deleteHandler(
+                                                            product._id
+                                                        )
+                                                    }
+                                                    size="sm"
+                                                    variant="white"
                                                 >
                                                     Delete
-                                                </button>
+                                                </Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -167,19 +198,19 @@ export default function AdminProductsScreen() {
                     )}
                 </div>
             </div>
-            { trigger &&
-            <ProductModal
-                trigger={trigger}
-                onSubmit={(formData) => {
-                    createHandler(formData)
-                    cleanupModal()
-                }}
-                onClose={cleanupModal}
-            />
-        }
+            {trigger && (
+                <ProductModal
+                    trigger={trigger}
+                    onSubmit={(formData) => {
+                        createHandler(formData);
+                        cleanupModal();
+                    }}
+                    onClose={cleanupModal}
+                />
+            )}
         </>
     );
 }
 
 AdminProductsScreen.auth = { adminOnly: true };
-AdminProductsScreen.Layout = BaseLayout
+AdminProductsScreen.Layout = BaseLayout;

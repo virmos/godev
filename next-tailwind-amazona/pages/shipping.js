@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import Cookies from 'js-cookie';
 import CheckoutWizard from '@components/ui/order/checkout/CheckoutWizard';
 import { useStore } from '@components/providers/store';
 import { useRouter } from 'next/router';
 import { BaseLayout } from '@components/ui/layout';
+import { Button } from '@components/ui/common';
 
 export default function ShippingScreen() {
     const {
@@ -32,20 +32,6 @@ export default function ShippingScreen() {
             type: 'SAVE_SHIPPING_ADDRESS',
             payload: { fullName, address, city, postalCode, country },
         });
-        Cookies.set(
-            'cart',
-            JSON.stringify({
-                ...cart,
-                shippingAddress: {
-                    fullName,
-                    address,
-                    city,
-                    postalCode,
-                    country,
-                },
-            })
-        );
-
         router.push('/payment');
     };
 
@@ -125,7 +111,9 @@ export default function ShippingScreen() {
                     )}
                 </div>
                 <div className="mb-4 flex justify-between">
-                    <button className="primary-button">Next</button>
+                    <Button
+                        variant='yellow'
+                    >Next</Button>
                 </div>
             </form>
         </>

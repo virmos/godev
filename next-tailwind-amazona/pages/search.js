@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import { useStore } from '../components/providers/store';
 import { XCircleIcon } from '@heroicons/react/outline';
-import ProductItem from '../components/ui/product/item/ProductItem';
+import ProductItem from '../components/ui/product/item';
 import Product from '@models/product';
 import db from '@utils/db';
 import { getProduct } from '@components/api';

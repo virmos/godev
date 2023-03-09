@@ -8,7 +8,8 @@ import db from '@utils/db';
 import { useStore } from '@components/providers';
 import { BaseLayout } from '@components/ui/layout';
 import { getProduct } from '@components/api';
-import { Curriculum } from '@components/ui/course';
+import { FrontPage } from '@components/ui/product';
+import { Button } from '@components/ui/common';
 
 export default function ProductScreen(props) {
     const { product } = props;
@@ -36,7 +37,13 @@ export default function ProductScreen(props) {
             <div className="relative bg-white overflow-hidden">
                 <div className="flex justify-end">
                     <div className="py-2">
-                        <Link href="/">Back to products</Link>
+                        <Link href="/">
+                            <a>
+                                <Button size="sm" variant="white">
+                                    Back to products
+                                </Button>
+                            </a>
+                        </Link>
                     </div>
                 </div>
                 <div className="max-w-7xl mx-auto flex flex-col sm:flex-row">
@@ -93,7 +100,7 @@ export default function ProductScreen(props) {
                     </div>
                 </div>
             </div>
-            <Curriculum points={[
+            <FrontPage points={[
                 {key: 'Name', value: product.name},
                 {key: 'Category', value: product.category},
                 {key: 'Brand', value: product.brand},

@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import Cookies from 'js-cookie';
 import CheckoutWizard from '@components/ui/order/checkout/CheckoutWizard';
 import { BaseLayout } from '@components/ui/layout';
 import { useStore } from '@components/providers';
+import { Button } from '@components/ui/common';
 
 export default function PaymentScreen() {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
@@ -21,13 +21,6 @@ export default function PaymentScreen() {
             return toast.error('Payment method is required');
         }
         dispatch({ type: 'SAVE_PAYMENT_METHOD', payload: selectedPaymentMethod });
-        Cookies.set(
-            'cart',
-            JSON.stringify({
-                ...cart,
-                paymentMethod: selectedPaymentMethod,
-            })
-        );
 
         router.push('/placeorder');
     };
@@ -67,7 +60,9 @@ export default function PaymentScreen() {
                     >
                         Back
                     </button>
-                    <button className="primary-button">Next</button>
+                    <Button
+                        variant='yellow'
+                    >Next</Button>
                 </div>
             </form>
         </>

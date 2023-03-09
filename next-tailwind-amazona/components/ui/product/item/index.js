@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { Button } from '@components/ui/common';
 import Link from 'next/link';
 import React from 'react';
 
@@ -22,13 +23,12 @@ export default function ProductItem({ product, addToCartHandler }) {
                 </Link>
                 <p className="mb-2">{product.brand}</p>
                 <p>${product.price}</p>
-                <button
-                    className="primary-button"
-                    type="button"
+                <Button
                     onClick={() => addToCartHandler(product)}
+                    variant="purple"
                 >
                     Add to cart
-                </button>
+                </Button>
             </div>
             {/* <!-- Item Gradient --> */}
             {/* <div className="item-gradient"></div> */}

@@ -2,6 +2,7 @@ import { BaseLayout } from '@components/ui/layout';
 import Link from 'next/link';
 import React from 'react';
 import { useAdminOrders } from '@components/hooks';
+import { Button, Loader } from '@components/ui/common';
 
 export default function AdminOrderScreen() {
     const { data: orders } = useAdminOrders();
@@ -31,7 +32,7 @@ export default function AdminOrderScreen() {
                     <h1 className="mb-4 text-xl">Admin Orders</h1>
 
                     {!orders.hasInitialResponse ? (
-                        <div>Loading...</div>
+                        <Loader/>
                     ) : orders.error ? (
                         <div className="alert-error">{orders.error}</div>
                     ) : (
@@ -71,7 +72,7 @@ export default function AdminOrderScreen() {
                                             </td>
                                             <td className="p-5">
                                                 <Link href={`/order/${order._id}`} passHref>
-                                                    <a>Details</a>
+                                                    <Button size="sm" variant="white">Details</Button>
                                                 </Link>
                                             </td>
                                         </tr>

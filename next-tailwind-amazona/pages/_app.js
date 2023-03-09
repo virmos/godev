@@ -3,7 +3,7 @@ import { SessionProvider, useSession } from 'next-auth/react';
 import { StoreProvider } from '@components/providers';
 import { useRouter } from 'next/router';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
-import { Message } from '@components/ui/common';
+import { Loader } from '@components/ui/common';
 
 const Noop = ({children}) => <>{children}</>
 
@@ -41,9 +41,7 @@ function Auth({ children, adminOnly }) {
         },
     });
     if (status === 'loading') {
-        return <Message type="warning">
-                            Is Loading...
-                        </Message>
+        return <Loader/>
     }
     if (adminOnly && !session.user.isAdmin) {
         router.push('/unauthorized?message=admin login required');

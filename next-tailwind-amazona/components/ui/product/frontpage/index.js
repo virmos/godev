@@ -1,5 +1,5 @@
 
-export default function Curriculum({points}) {
+export default function FrontPage({points}) {
     return (
         <section className="max-w-5xl mx-auto mt-10">
             <div className="flex flex-col">
