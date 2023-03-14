@@ -1,0 +1,60 @@
+{{extends "./layouts/base.jet"}}
+
+{{block browserTitle()}}
+Form
+{{end}}
+
+{{block css()}} {{end}}
+
+{{block pageContent()}}
+<h2 class="mt-5 text-center">Form Validation</h2>
+
+<hr>
+
+<form method="post" action="/form"
+      class="d-block needs-validation"
+      autocomplete="off" novalidate>
+
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+    <div class="mb-3">
+        <label for="name" class="form-label">First Name</label>
+        <input type="text" id="name" name="name"
+               required="" autocomplete="last_name-new"
+               value="{{user.FirstName}}"
+               class='form-control {{isset(validator.Errors["name"]) ? "is-invalid" : ""}}'>
+        <div class="invalid-feedback">
+            {{isset(validator.Errors["name"]) ? validator.Errors["name"] : ""}}
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" id="email" name="email"
+               required="" autocomplete="email-new"
+               value="{{user.Email}}"
+               class='form-control {{isset(validator.Errors["email"]) ? "is-invalid" : ""}}'>
+        <div class="invalid-feedback">
+            {{isset(validator.Errors["email"]) ? validator.Errors["email"] : ""}}
+        </div>
+    </div>
+
+    <hr>
+
+    <input type="submit" class="btn btn-primary" value="Submit form">
+
+</form>
+
+<div class="text-center">
+    <a class="btn btn-outline-secondary" href="/">Back...</a>
+</div>
+
+
+<p>&nbsp;</p>
+{{end}}
+
+{{ block js()}}
+<script>
+
+</script>
+{{end}}

@@ -1,0 +1,6 @@
+.idea
+coverage.out
+# dist/*.exe
+**/db-data/**
+**/vendor/**
+# dist/*
