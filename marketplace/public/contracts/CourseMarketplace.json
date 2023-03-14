@@ -1,158 +1,158 @@
 {
-  "contractName": "CourseMarketplace",
-  "abi": [
-    {
-      "inputs": [],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "inputs": [],
-      "name": "CourseHasOwner",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "CourseIsNotCreated",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "InvalidState",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "OnlyOwner",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "SenderIsNotCourseOwner",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "isStopped",
-      "outputs": [
+    "contractName": "CourseMarketplace",
+    "abi": [
         {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function",
-      "constant": true
-    },
-    {
-      "stateMutability": "payable",
-      "type": "receive",
-      "payable": true
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "withdraw",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "emergencyWithdraw",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "selfDestruct",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "stopContract",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "resumeContract",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes16",
-          "name": "courseId",
-          "type": "bytes16"
+            "inputs": [],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
         },
         {
-          "internalType": "bytes32",
-          "name": "proof",
-          "type": "bytes32"
-        }
-      ],
-      "name": "purchaseCourse",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function",
-      "payable": true
-    },
-    {
-      "inputs": [
+            "inputs": [],
+            "name": "CourseHasOwner",
+            "type": "error"
+        },
         {
-          "internalType": "bytes32",
-          "name": "courseHash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "repurchaseCourse",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function",
-      "payable": true
-    },
-    {
-      "inputs": [
+            "inputs": [],
+            "name": "CourseIsNotCreated",
+            "type": "error"
+        },
         {
-          "internalType": "bytes32",
-          "name": "courseHash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "activateCourse",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
+            "inputs": [],
+            "name": "InvalidState",
+            "type": "error"
+        },
         {
-          "internalType": "bytes32",
-          "name": "courseHash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "deactivateCourse",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
+            "inputs": [],
+            "name": "OnlyOwner",
+            "type": "error"
+        },
         {
+            "inputs": [],
+            "name": "SenderIsNotCourseOwner",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "isStopped",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function",
+            "constant": true
+        },
+        {
+            "stateMutability": "payable",
+            "type": "receive",
+            "payable": true
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                }
+            ],
+            "name": "withdraw",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "emergencyWithdraw",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "selfDestruct",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "stopContract",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "resumeContract",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "bytes16",
+                    "name": "courseId",
+                    "type": "bytes16"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "proof",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "purchaseCourse",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function",
+            "payable": true
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "courseHash",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "repurchaseCourse",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function",
+            "payable": true
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "courseHash",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "activateCourse",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "courseHash",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "deactivateCourse",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+          {
           "internalType": "address",
           "name": "newOwner",
           "type": "address"

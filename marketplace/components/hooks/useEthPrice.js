@@ -4,20 +4,20 @@ const URL = "https://api.coingecko.com/api/v3/coins/ethereum?localization=false&
 export const COURSE_PRICE = 15
 
 const fetcher = async url => {
-  const res = await fetch(url)
-  const json = await res.json()
+    const res = await fetch(url)
+    const json = await res.json()
 
-  return json.market_data.current_price.usd ?? null
+    return json.market_data.current_price.usd ?? null
 }
 
 export const useEthPrice = () => {
-  const { data, ...rest } = useSWR(
-    URL,
-    fetcher,
-    { refreshInterval: 10000 }
-  )
+    const { data, ...rest } = useSWR(
+        URL,
+        fetcher,
+        { refreshInterval: 10000 }
+    )
 
-  const perItem = (data && (COURSE_PRICE / Number(data)).toFixed(6)) ?? null
-  return { eth: { data, perItem, ...rest}}
+    const perItem = (data && (COURSE_PRICE / Number(data)).toFixed(6)) ?? null
+    return { eth: { data, perItem, ...rest}}
 }
 
