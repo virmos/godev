@@ -10,6 +10,7 @@ drop table if exists users cascade;
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
+    _id character varying(255) NOT NULL,
     name character varying(255) NOT NULL,
     is_admin boolean DEFAULT FALSE,
     email character varying(255) NOT NULL UNIQUE,

@@ -43,11 +43,11 @@ function AdminUsersScreen() {
         }
         try {
             dispatch({ type: "DELETE_REQUEST" });
-            const mutatedUser = users.data?.users.filter((user) => {
-                user.id !== userId;
+            const mutatedUser = users.data?.filter((user) => {
+                user._id !== userId;
             });
-            users.mutate(mutatedUser);
             await deleteAdminUser(userId);
+            users.mutate(mutatedUser);
             dispatch({ type: "DELETE_SUCCESS" });
             toast.success("User deleted successfully");
         } catch (err) {
@@ -99,10 +99,10 @@ function AdminUsersScreen() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {users.data.users?.map((user) => (
-                                        <tr key={user.id} className="border-b">
+                                    {users.data?.map((user) => (
+                                        <tr key={user._id} className="border-b">
                                             <td className=" p-5 ">
-                                                {user.id}
+                                                {user._id}
                                             </td>
                                             <td className=" p-5 ">
                                                 {user.name}
@@ -117,7 +117,7 @@ function AdminUsersScreen() {
                                                 &nbsp;
                                                 <Button
                                                     onClick={() =>
-                                                        deleteHandler(user.id)
+                                                        deleteHandler(user._id)
                                                     }
                                                     size="sm"
                                                     variant="white"

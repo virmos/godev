@@ -21,7 +21,7 @@ const postHandler = async (req, res) => {
     const newProduct = new Product({
         name: req.body.name,
         slug: req.body.slug,
-        image: '/images/shirt1.jpg',
+        image: '/images/keyboard.jpg',
         price: req.body.price,
         category: 'sample category',
         brand: 'sample brand',

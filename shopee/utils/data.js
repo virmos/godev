@@ -1,20 +1,20 @@
-import bcrypt from 'bcryptjs';
+// import bcrypt from 'bcryptjs';
 
 const data = {
-    users: [
-        {
-            name: 'John',
-            email: 'admin@example.com',
-            password: bcrypt.hashSync('qwerqwer'),
-            isAdmin: true,
-        },
-        {
-            name: 'Bob',
-            email: 'user@example.com',
-            password: bcrypt.hashSync('qwerqwer'),
-            isAdmin: false,
-        },
-    ],
+    // users: [
+    //     {
+    //         name: 'John Brzenk',
+    //         email: 'admin@example.com',
+    //         password: bcrypt.hashSync('qwerqwer'),
+    //         isAdmin: true,
+    //     },
+    //     {
+    //         name: 'Bob',
+    //         email: 'user@example.com',
+    //         password: bcrypt.hashSync('qwerqwer'),
+    //         isAdmin: false,
+    //     },
+    // ],
     products: [
         {
             name: 'Tai nghe chụp tai không dây bluetooth STN28 màu sắc cute,âm thanh ấm bass mạnh- Phụ Kiện 123',

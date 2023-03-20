@@ -1,4 +1,6 @@
+import User from '@models/User';
 import mongoose from 'mongoose';
+import bcryptjs from 'bcryptjs';
 
 const connection = {};
 
@@ -37,5 +39,52 @@ function convertDocToObj(doc) {
     return doc;
 }
 
-const db = { connect, disconnect, convertDocToObj };
+const createUserMongo = async (name, email, password) => {
+    await db.connect();
+
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
+        await db.disconnect();
+        return;
+    }
+
+    const newUser = new User({
+        name,
+        email,
+        password: bcryptjs.hashSync(password),
+        isAdmin: false,
+    });
+
+    const user = await newUser.save();
+    await db.disconnect();
+    return user._id
+}
+
+const deleteUserMongo = async (id) => {
+    await db.connect();
+    const user = await User.findById(id);
+    if (user) {
+        if (user.email === 'admin@example.com') {
+            return;
+        }
+        await user.remove();
+    }
+    await db.disconnect();
+}
+
+const updateUserMongo = async (user, name, email, password) => {
+    await db.connect();
+    const toUpdateUser = await User.findById(user._id);
+    toUpdateUser.name = name;
+    toUpdateUser.email = email;
+
+    if (password) {
+        toUpdateUser.password = bcryptjs.hashSync(password);
+    }
+
+    await toUpdateUser.save();
+    await db.disconnect();
+}
+
+const db = { connect, disconnect, convertDocToObj, createUserMongo, deleteUserMongo, updateUserMongo };
 export default db;

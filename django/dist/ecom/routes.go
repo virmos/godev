@@ -10,7 +10,7 @@ import (
 
 func (a *application) routes() *chi.Mux {
 	// middleware must come before any routes
-	// a.use(a.Middleware.Auth)
+	a.use(a.App.CheckForMaintenanceMode)
 
 	// add routes here
 	a.get("/", a.Handlers.Home)
@@ -19,9 +19,7 @@ func (a *application) routes() *chi.Mux {
 	a.get("/sessions", a.Handlers.SessionTest)
 
 	// user api
-	a.get("/users/register", a.Handlers.UserRegister)
-	a.post("/users/register", a.Handlers.PostUserRegister)
-
+	a.post("/api/register", a.Handlers.RegisterUser)
 	a.post("/api/login", a.Handlers.LoginUser)
 	a.post("/api/update-user", a.Handlers.UpdateUser)
 	a.post("/api/delete-user-by-id", a.Handlers.DeleteUser)
@@ -30,7 +28,7 @@ func (a *application) routes() *chi.Mux {
 	a.post("/api/get-user-by-email", a.Handlers.GetUserByEmail)
 
 	a.get("/form", a.Handlers.Form)
-	a.post("/form", a.Handlers.PostForm)
+	a.post("/api/form", a.Handlers.PostForm)
 
 	// filesystem api
 	a.get("/upload", a.Handlers.DjangoUpload)
@@ -80,7 +78,7 @@ func (a *application) routes() *chi.Mux {
 	fileServer := http.FileServer(http.Dir("./public"))
 	a.App.Routes.Handle("/public/*", http.StripPrefix("/public", fileServer))
 
-	// routes from celeritas
+	// routes from django
 	a.App.Routes.Mount("/django", django.Routes())
 	// a.App.Routes.Mount("/api", a.ApiRoutes())
 

@@ -1,8 +1,5 @@
-// import bcryptjs from 'bcryptjs';
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-// import User from '@models/User';
-// import db from '@utils/db';
 
 export default NextAuth({
     session: {
@@ -40,7 +37,7 @@ export default NextAuth({
                 .then(response => response.json())
                 .then(user => {
                     return {
-                        _id: user.id,
+                        _id: user._id,
                         name: user.name,
                         email: user.email,
                         image: 'f',

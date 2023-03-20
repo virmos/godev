@@ -1,4 +1,5 @@
 import { getSession } from 'next-auth/react';
+import db from '@utils/db';
 
 async function handler(req, res) {
     if (req.method !== 'PUT') {
@@ -24,9 +25,10 @@ async function handler(req, res) {
         });
         return;
     }
+    db.updateUserMongo(user, name, email, password)
 
     let payload = {
-        id: user._id,
+        _id: user._id,
         email: email,
         name: name,
         password: password
@@ -46,7 +48,7 @@ async function handler(req, res) {
     .then(user => {
         res.status(201).send({
             message: 'Updated user!',
-            _id: user.id,
+            _id: user._id,
             name: user.name,
             email: user.email,
             isAdmin: user.is_admin,

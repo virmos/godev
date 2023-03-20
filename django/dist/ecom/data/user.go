@@ -11,7 +11,7 @@ import (
 
 // User is the type for a user
 type User struct {
-	ID        int       `db:"id,omitempty" json:"id"`
+	ID        string    `db:"_id,omitempty" json:"_id"`
 	Name      string    `db:"name" json:"name"`
 	Email     string    `db:"email" json:"email"`
 	Password  string    `db:"password" json:"password"`
@@ -60,10 +60,10 @@ func (u *User) GetByEmail(email string) (*User, error) {
 }
 
 // Get gets one user by id
-func (u *User) Get(id int) (*User, error) {
+func (u *User) Get(id string) (*User, error) {
 	var theUser User
 	collection := upper.Collection(u.Table())
-	res := collection.Find(up.Cond{"id =": id})
+	res := collection.Find(up.Cond{"_id =": id})
 
 	err := res.One(&theUser)
 	if err != nil {
@@ -77,7 +77,7 @@ func (u *User) Get(id int) (*User, error) {
 func (u *User) Update(theUser User) error {
 	theUser.UpdatedAt = time.Now()
 	collection := upper.Collection(u.Table())
-	res := collection.Find(theUser.ID)
+	res := collection.Find(up.Cond{"_id =": theUser.ID})
 	err := res.Update(&theUser)
 	if err != nil {
 		return err
@@ -86,9 +86,9 @@ func (u *User) Update(theUser User) error {
 }
 
 // Delete deletes a user by id
-func (u *User) Delete(id int) error {
+func (u *User) Delete(id string) error {
 	collection := upper.Collection(u.Table())
-	res := collection.Find(id)
+	res := collection.Find(up.Cond{"_id =": id})
 	err := res.Delete()
 	if err != nil {
 		return err
@@ -98,10 +98,10 @@ func (u *User) Delete(id int) error {
 }
 
 // Insert inserts a new user, and returns the newly inserted id
-func (u *User) Insert(theUser User) (int, error) {
+func (u *User) Insert(theUser User) (string, error) {
 	newHash, err := bcrypt.GenerateFromPassword([]byte(theUser.Password), 12)
 	if err != nil {
-		return 0, err
+		return "0", err
 	}
 
 	theUser.CreatedAt = time.Now()
@@ -109,14 +109,12 @@ func (u *User) Insert(theUser User) (int, error) {
 	theUser.Password = string(newHash)
 
 	collection := upper.Collection(u.Table())
-	res, err := collection.Insert(theUser)
+	_, err = collection.Insert(theUser)
 	if err != nil {
-		return 0, err
+		return "0", err
 	}
 
-	id := getInsertID(res.ID())
-
-	return id, nil
+	return theUser.ID, nil
 }
 
 // PasswordMatches verifies a supplied password against the hash stored in the database.

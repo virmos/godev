@@ -3,9 +3,9 @@ development:
   dialect: postgres
   database: ecom
   user: postgres
-  password: password
+  password: qwerqwer
   host: localhost
-  port: 5432
+  port: 8888
   pool: 5
 
 test:

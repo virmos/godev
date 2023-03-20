@@ -19,7 +19,11 @@ const handler = async (req, res) => {
 
     return fetch("http://localhost:4000/api/get-users", requestOptions)
     .then(response => response.json())
-    .then(users => {
+    .then(jsonUsers => {
+        const users = jsonUsers.users.map(user => {
+            user.isAdmin = user.is_admin;
+            return user;
+        })
         res.status(201).send(users);
     }).catch(() => {
         throw new Error('Cannot fetch users!');

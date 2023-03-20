@@ -7,44 +7,43 @@ import (
 	// "github.com/justinas/nosurf"
 )
 
-// UserRegister displays the register page
-func (h *Handlers) UserRegister(w http.ResponseWriter, r *http.Request) {
-	err := h.App.Render.Page(w, r, "register", nil, nil)
-	if err != nil {
-		h.App.ErrorLog.Println(err)
+// RegisterUser creates a new user
+func (h *Handlers) RegisterUser(w http.ResponseWriter, r *http.Request) {
+	var userFormInput struct {
+		ID       string `json:"_id"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		CSRF     string `json:"csrf_token"`
 	}
-}
 
-// PostUserRegister creates a new user
-func (h *Handlers) PostUserRegister(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	err := h.App.ReadJSON(w, r, &userFormInput)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		h.App.Error500(w, r)
 		return
 	}
 
 	var isAdmin bool
-	if r.Form.Get("email") == "admin@example.com" {
+	if userFormInput.Email == "admin@example.com" {
 		isAdmin = true
 	}
 
 	u := data.User{
-		Name:     r.Form.Get("name"),
-		Email:    r.Form.Get("email"),
+		ID:       userFormInput.ID,
+		Name:     userFormInput.Name,
+		Email:    userFormInput.Email,
 		IsAdmin:  isAdmin,
-		Password: r.Form.Get("password"),
+		Password: userFormInput.Password,
 	}
 
-	id, err := h.Models.Users.Insert(u)
+	_, err = h.Models.Users.Insert(u)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		return
 	}
 	var userResp struct {
-		ID      int    `json:"id"`
 		Message string `json:"message"`
 	}
-	userResp.ID = id
 	userResp.Message = "User created successfully"
 	_ = h.App.WriteJSON(w, http.StatusCreated, userResp)
 }
@@ -85,7 +84,7 @@ func (h *Handlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var userResp struct {
-		ID      int    `json:"id"`
+		ID      string `json:"_id"`
 		Name    string `json:"name"`
 		Email   string `json:"email"`
 		IsAdmin bool   `json:"is_admin"`
@@ -156,7 +155,7 @@ func (h *Handlers) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var userResp struct {
-		ID      int    `json:"id"`
+		ID      string `json:"_id"`
 		Name    string `json:"name"`
 		Email   string `json:"email"`
 		IsAdmin bool   `json:"is_admin"`
@@ -171,7 +170,7 @@ func (h *Handlers) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
 // GetUserById gets a user by id
 func (h *Handlers) GetUserById(w http.ResponseWriter, r *http.Request) {
 	var userFormInput struct {
-		ID       int    `json:"id"`
+		ID       string `json:"_id"`
 		Name     string `json:"name"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -195,7 +194,7 @@ func (h *Handlers) GetUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var userResp struct {
-		ID      int    `json:"id"`
+		ID      string `json:"_id"`
 		Name    string `json:"name"`
 		Email   string `json:"email"`
 		IsAdmin bool   `json:"is_admin"`
@@ -210,7 +209,7 @@ func (h *Handlers) GetUserById(w http.ResponseWriter, r *http.Request) {
 // UpdateUser updates a user
 func (h *Handlers) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var userFormInput struct {
-		ID       int    `json:"id"`
+		ID       string `json:"_id"`
 		Name     string `json:"name"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -239,7 +238,7 @@ func (h *Handlers) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	u.Name = userFormInput.Name
 	u.Email = userFormInput.Email
 	u.Password = string(newHash)
@@ -266,7 +265,7 @@ func (h *Handlers) UpdateUser(w http.ResponseWriter, r *http.Request) {
 // DeleteUser deletes a user by id
 func (h *Handlers) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	var userFormInput struct {
-		ID       int    `json:"id"`
+		ID string `json:"_id"`
 	}
 
 	err := h.App.ReadJSON(w, r, &userFormInput)

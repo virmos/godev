@@ -1,4 +1,5 @@
 import { getSession } from 'next-auth/react';
+import db from '@utils/db';
 
 const handler = async (req, res) => {
     const session = await getSession({ req });
@@ -14,8 +15,10 @@ const handler = async (req, res) => {
 };
 
 const deleteHandler = async (req, res) => {
+    db.deleteUserMongo(req.query.id);
+
     let payload = {
-        id: parseInt(req.query.id),
+        _id: req.query.id,
     }
     const requestOptions = {
         method: 'post',
@@ -29,13 +32,13 @@ const deleteHandler = async (req, res) => {
     return fetch("http://localhost:4000/api/get-user-by-id", requestOptions)
     .then(response => response.json())
     .then(user => {
-        if (user?.id) {
+        if (user?._id) {
             if (user.email === 'admin@example.com') {
                 return res.status(400).send({ message: 'Can not delete admin' });
             }
 
             let payload = {
-                id: parseInt(req.query.id),
+                _id: req.query.id,
             }
 
             const requestOptions = {

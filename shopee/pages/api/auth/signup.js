@@ -1,3 +1,4 @@
+import db from "@utils/db";
 
 async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -16,8 +17,17 @@ async function handler(req, res) {
         });
         return;
     }
+    let _id = await db.createUserMongo(name, email, password);
+    if (!_id) {
+        res.status(422).json({
+            message: 'User already exists',
+        });
+        return;
+    }
+    _id = _id.toString()
 
     let payload = {
+        _id: _id,
         email: email,
         name: name,
         password: password
@@ -32,12 +42,12 @@ async function handler(req, res) {
         body: JSON.stringify(payload)
     }
 
-    return fetch("http://localhost:4000/users/register", requestOptions)
+    return fetch("http://localhost:4000/api/register", requestOptions)
     .then(response => response.json())
     .then(user => {
         res.status(201).send({
             message: 'Created user!',
-            _id: user.id,
+            _id: user._id,
             name: user.name,
             email: user.email,
             isAdmin: user.is_admin,
