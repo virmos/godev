@@ -17,7 +17,10 @@ async function handler(req, res) {
         });
         return;
     }
+    await db.connect();
     let _id = await db.createUserMongo(name, email, password);
+    await db.disconnect();
+    
     if (!_id) {
         res.status(422).json({
             message: 'User already exists',

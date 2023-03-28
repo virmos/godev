@@ -1,7 +1,6 @@
 
 
-import Link from "next/link"
-import { ActiveLink, Button } from "@components/ui/common"
+import { ActiveLink } from "@components/ui/common"
 
 export default function Navbar() {
     return (

@@ -1,0 +1,88 @@
+Folder PATH listing for volume Workplace
+Volume serial number is 58E7-69A2
+E:.
+|   .env
+|   convenience.go
+|   coverage.out
+|   docker-compose.yml
+|   go.mod
+|   go.sum
+|   init-django.go
+|   main.go
+|   Makefile
+|   Makefile.windows
+|   routes.go
+|   
++---config
+|       database.yml
+|       
++---data
+|       coverage.out
+|       integration_test.go
+|       models.go
+|       models_test.go
+|       remember_token.go
+|       setup_test.go
+|       test.go
+|       token.go
+|       user.go
+|       
++---handlers
+|       auth-handlers.go
+|       cache-handlers.go
+|       convenience.go
+|       form-val-handlers.go
+|       handlers.go
+|       testhandler.go
+|       
++---mail
+|       password-reset.html.tmpl
+|       password-reset.plain.tmpl
+|       test.html.tmpl
+|       test.plain.tmpl
+|       yellow.html.tmpl
+|       yellow.plain.tmpl
+|       
++---middleware
+|       auth-token.go
+|       auth.go
+|       middleware.go
+|       remember.go
+|       
++---migrations
+|       1631888445899233_create_auth_tables.down.sql
+|       1631888445899233_create_auth_tables.up.sql
+|       1631901936536722_create_sessions_table.postgres.down.sql
+|       1631901936536722_create_sessions_table.postgres.up.sql
+|       
++---public
+|   +---ico
+|   |       android-chrome-192x192.png
+|   |       android-chrome-512x512.png
+|   |       apple-touch-icon.png
+|   |       favicon-16x16.png
+|   |       favicon-32x32.png
+|   |       favicon.ico
+|   |       site.webmanifest
+|   |       
+|   \---images
+|           celeritas.jpg
+|           
++---tmp
+|       .DS_Store
+|       
+\---views
+    |   .DS_Store
+    |   cache.jet
+    |   forgot.jet
+    |   form.jet
+    |   home.jet
+    |   home.page.tmpl
+    |   jet-template.jet
+    |   login.jet
+    |   reset-password.jet
+    |   sessions.jet
+    |   
+    \---layouts
+            base.jet
+            

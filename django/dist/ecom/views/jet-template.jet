@@ -11,7 +11,7 @@
 <div class="col text-center">
     <div class="d-flex align-items-center justify-content-center mt-5">
         <div>
-            <img src="/public/images/celeritas.jpg" class="mb-5" style="width: 100px;height:auto;">
+            <img src="/public/images/django.jpg" class="mb-5" style="width: 100px;height:auto;">
             <h1>Django</h1>
             <hr>
             <small class="text-muted">This page is rendered using the Jet Template engine</small>

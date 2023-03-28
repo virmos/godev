@@ -11,7 +11,7 @@
 <div class="col">
     <div class="mt-5">
         <div>
-            <h1>Celeritas: Push to filesystem</h1>
+            <h1>Django: Push to filesystem</h1>
             <hr>
 
             <form method="post" action="/files/upload" enctype="multipart/form-data" class="needs-validation" novalidate>

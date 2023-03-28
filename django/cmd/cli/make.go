@@ -38,6 +38,11 @@ func doMake(arg2, arg3, arg4 string) error {
 			down = string(downBytes)
 		} else {
 			migrationType = "sql"
+			upBytes, _ := templateFS.ReadFile("templates/migrations/migration.postgres.up.sql")
+			downBytes, _ := templateFS.ReadFile("templates/migrations/migration.postgres.down.sql")
+
+			up = string(upBytes)
+			down = string(downBytes)
 		}
 
 		// create the migrations for either fizz or sql

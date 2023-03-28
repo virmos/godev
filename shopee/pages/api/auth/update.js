@@ -25,7 +25,9 @@ async function handler(req, res) {
         });
         return;
     }
+    await db.connect();
     db.updateUserMongo(user, name, email, password)
+    await db.disconnect();
 
     let payload = {
         _id: user._id,
