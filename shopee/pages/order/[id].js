@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { getError } from "@utils/error";
 import { BaseLayout } from "@components/ui/layout";
 import { useOrder } from "@components/hooks";
+import { Loader } from "@components/ui/common";
 
 function reducer(state, action) {
     switch (action.type) {
@@ -72,7 +73,6 @@ function OrderScreen() {
     }, [successDeliver, successPay]);
 
     useEffect(() => {
-        console.log("goddamn it")
         if (order.data) {
             const loadPaypalScript = async () => {
                 const { data: clientId } = await axios.get("/api/keys/paypal");
@@ -112,11 +112,10 @@ function OrderScreen() {
                     details
                 );
                 order.mutate({...order.data, 
-                    loadingPay: false, 
-                    successPay: true
+                    isPaid: true
                 })
                 dispatch({ type: "PAY_SUCCESS", payload: data });
-                toast.success("Order is paid successgully");
+                toast.success("Order is paid successfully");
             } catch (err) {
                 dispatch({ type: "PAY_FAIL", payload: getError(err) });
                 toast.error(getError(err));
@@ -136,8 +135,7 @@ function OrderScreen() {
                 {}
             );
             order.mutate({...order.data, 
-                loadingDeliver: false, 
-                successDeliver: true
+                isDelivered: true
             })
             dispatch({ type: "DELIVER_SUCCESS", payload: data });
             toast.success("Order is delivered");
@@ -269,7 +267,7 @@ function OrderScreen() {
                                 {!order.data.isPaid && (
                                     <li>
                                         {isPending ? (
-                                            <div>Loading...</div>
+                                            <Loader/>
                                         ) : (
                                             <div className="w-full">
                                                 <PayPalButtons
@@ -279,7 +277,7 @@ function OrderScreen() {
                                                 ></PayPalButtons>
                                             </div>
                                         )}
-                                        {loadingPay && <div>Loading...</div>}
+                                        {loadingPay && <Loader/>}
                                     </li>
                                 )}
                                 {session.user.isAdmin &&
@@ -287,7 +285,7 @@ function OrderScreen() {
                                     !order.data.isDelivered && (
                                         <li>
                                             {loadingDeliver && (
-                                                <div>Loading...</div>
+                                                <Loader/>
                                             )}
                                             <button
                                                 className="primary-button w-full"

@@ -1,6 +1,6 @@
 import { Button, Loader } from "@components/ui/common";
 
-export default function OrderReport({itemsPrice, taxPrice, shippingPrice, totalPrice, loading, placeOrderHandler}) {
+export default function wOrderReport({itemsPrice, taxPrice, shippingPrice, totalPrice, loading, placeOrderHandler}) {
     return (
         <div className="card p-5">
             <h2 className="mb-2 text-lg">Order Summary</h2>
